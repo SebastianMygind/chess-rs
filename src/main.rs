@@ -1,10 +1,14 @@
 mod chess_logic;
 
-use chess_logic::chessboard::{
-  ChessBoard,
+use crate::chess_logic::chessboard::{
+    ChessBoard,
+    ChessBoard::is_fen_valid,
+
 };
 
 fn main() {
-    let mut chessboard = ChessBoard::new();
-    chessboard.set_start_position();
+    let mut chess = ChessBoard::new();
+    let validity = ChessBoard::is_valid_fen("no");
+
+
 }

@@ -1,14 +1,15 @@
 mod chess_logic;
 
 use crate::chess_logic::chessboard::{
-    ChessBoard,
-    ChessBoard::is_fen_valid,
-
+    is_valid_fen,
 };
 
 fn main() {
-    let mut chess = ChessBoard::new();
-    let validity = ChessBoard::is_valid_fen("no");
+    let test_true = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR ";
+    let test_false = "8//8";
+
+    println!("this should be false: {}", is_valid_fen(test_false));
+    println!("this should be true: {}", is_valid_fen(test_true));
 
 
 }

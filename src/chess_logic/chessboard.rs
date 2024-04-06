@@ -80,7 +80,6 @@ pub fn is_valid_fen(fen: &str) -> bool {
     }
 
     /* Castling syntax check */
-    let mut castle_len: usize = 0;
     if fen_string[fen_index] == '-' {
         fen_index += 1;
     } else {

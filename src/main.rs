@@ -10,6 +10,4 @@ fn main() {
 
     println!("this should be false: {}", is_valid_fen(test_false));
     println!("this should be true: {}", is_valid_fen(test_true));
-
-
 }

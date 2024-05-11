@@ -234,7 +234,7 @@ fn fen_check_halfmove(halfmove: &str) -> bool {
         Ok(number) => {
             if number > 50 {return false}
         }
-        Err(E) => {return false}
+        Err(_e) => {return false}
     }
     true
 }
@@ -244,14 +244,14 @@ fn fen_check_fullmove(fullmove: &str, halfmove: &str) -> bool {
     let halfmove_parsed: u32;
     match halfmove_result {
         Ok(number) => { halfmove_parsed = number}
-        Err(E) => {return false}
+        Err(_e) => {return false}
     }
 
     let fullmove_result = fullmove.parse::<u32>();
     let fullmove_parsed: u32;
     match fullmove_result {
         Ok(number) => { fullmove_parsed = number}
-        Err(E) => {return false}
+        Err(_e) => {return false}
     }
 
     return { if fullmove > halfmove {true} else {false} }

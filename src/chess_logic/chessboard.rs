@@ -52,20 +52,19 @@ impl ChessBoard {
 }
 
 pub fn is_fen_valid(fen: &str) -> bool {
-
     let split_fen = split_at_space(fen);
 
     if (split_fen.len() != 6) {
         return false;
     }
 
-    if !(fen_check_board_validity_optimized(split_fen[0].as_str())  &&
-        fen_check_side_to_move(split_fen[1].as_str())               &&
-        fen_check_castling_ability(split_fen[2].as_str())           &&
-        fen_check_en_passant(split_fen[3].as_str())                 &&
-        fen_check_halfmove(split_fen[4].as_str())                   &&
-        fen_check_fullmove(split_fen[5].as_str(), split_fen[4].as_str())
-    ) {
+    if !(fen_check_board_validity_optimized(split_fen[0].as_str())
+        && fen_check_side_to_move(split_fen[1].as_str())
+        && fen_check_castling_ability(split_fen[2].as_str())
+        && fen_check_en_passant(split_fen[3].as_str())
+        && fen_check_halfmove(split_fen[4].as_str())
+        && fen_check_fullmove(split_fen[5].as_str(), split_fen[4].as_str()))
+    {
         return false;
     }
 
@@ -132,24 +131,27 @@ fn fen_check_board_validity_optimized(fen: &str) -> bool {
 }
 
 fn fen_check_side_to_move(side_to_move: &str) -> bool {
-
     if (side_to_move.len() != 1) {
-        return false
+        return false;
     }
 
     let side_char = side_to_move.chars().next();
 
     return match side_char {
         Some(c) => {
-            if (c == 'w' || c == 'b') { true } else { false }
+            if (c == 'w' || c == 'b') {
+                true
+            } else {
+                false
+            }
         }
-        None => { false }
-    }
+        None => false,
+    };
 }
 
 fn fen_check_castling_ability(castling_string: &str) -> bool {
     let mut castling_ability: [bool; 4] = [false; 4];
-    let mut current:usize;
+    let mut current: usize;
 
     if fen_check_hyphen(castling_string) {
         return true;
@@ -198,43 +200,58 @@ fn fen_check_en_passant(en_passant: &str) -> bool {
         return true;
     }
 
-    if !en_passant.len() == 2 {return false}
-    else {
+    if !en_passant.len() == 2 {
+        return false;
+    } else {
         let mut square_iter = en_passant.chars();
         let file_letter = square_iter.next();
 
         match file_letter {
             Some(c) => {
-                if (c == 'a' || c == 'b' || c == 'c' || c == 'd' || c == 'e' || c == 'f' ||
-                    c == 'g' || c == 'h'
-                ) {
+                if (c == 'a'
+                    || c == 'b'
+                    || c == 'c'
+                    || c == 'd'
+                    || c == 'e'
+                    || c == 'f'
+                    || c == 'g'
+                    || c == 'h')
+                {
                     let eprank = square_iter.next();
 
                     match eprank {
                         Some(n) => {
                             let number = n.to_digit(10).unwrap_or(1);
-                            if number != 3 || number != 6 {return false}
+                            if number != 3 || number != 6 {
+                                return false;
+                            }
                         }
-                        None => {return false}
+                        None => return false,
                     }
-                } else {return false}
+                } else {
+                    return false;
+                }
             }
-            None => {return false}
+            None => return false,
         }
     }
     true
 }
 
 fn fen_check_halfmove(halfmove: &str) -> bool {
-    if halfmove.len() > 2 {return false}
+    if halfmove.len() > 2 {
+        return false;
+    }
 
     let parsed_halfmove = halfmove.parse::<u32>();
 
     match parsed_halfmove {
         Ok(number) => {
-            if number > 50 {return false}
+            if number > 50 {
+                return false;
+            }
         }
-        Err(_e) => {return false}
+        Err(_e) => return false,
     }
     true
 }
@@ -243,18 +260,24 @@ fn fen_check_fullmove(fullmove: &str, halfmove: &str) -> bool {
     let halfmove_result = halfmove.parse::<u32>();
     let halfmove_parsed: u32;
     match halfmove_result {
-        Ok(number) => { halfmove_parsed = number}
-        Err(_e) => {return false}
+        Ok(number) => halfmove_parsed = number,
+        Err(_e) => return false,
     }
 
     let fullmove_result = fullmove.parse::<u32>();
     let fullmove_parsed: u32;
     match fullmove_result {
-        Ok(number) => { fullmove_parsed = number}
-        Err(_e) => {return false}
+        Ok(number) => fullmove_parsed = number,
+        Err(_e) => return false,
     }
 
-    return { if fullmove > halfmove {true} else {false} }
+    return {
+        if fullmove > halfmove {
+            true
+        } else {
+            false
+        }
+    };
 }
 
 fn fen_check_hyphen(fen_slice: &str) -> bool {

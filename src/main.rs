@@ -7,5 +7,4 @@ fn main() {
 
     println!("this should be true: {}", is_fen_valid(test_true));
     println!("this should be false: {}", is_fen_valid(test_false));
-
 }

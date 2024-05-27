@@ -36,17 +36,20 @@ impl ChessBoard {
     fn make_black(piece: u8) -> u8 {
         return (piece | BLACK);
     }
-    pub fn set_fen_position(fen: &str) -> Result<(), &'static str> {
+    pub fn set_fen_position_arr(&self, fen: &str) -> Result<(), &'static str> {
         if !is_fen_valid(fen) {
             return Err("NOT VALID FEN");
         }
+        let split_fen = split_at_space(fen);
+        let mut board_index: usize = 63;
+        let fen_pos = split_fen[0].clone();
 
-        let mut fen_index: i32 = (ARR_SIZE as i32) - (ROW_SIZE as i32);
-        let mut col_index: i32 = 0;
+        for c in fen.chars() {
+            match c {
+                _ => {}
+            }
+        }
 
-        // Additional logic for valid FEN goes here...
-
-        // Return Ok(()) to signify success
         Ok(())
     }
 }
@@ -54,7 +57,7 @@ impl ChessBoard {
 pub fn is_fen_valid(fen: &str) -> bool {
     let split_fen = split_at_space(fen);
 
-    if (split_fen.len() != 6) {
+    if split_fen.len() != 6 {
         return false;
     }
 

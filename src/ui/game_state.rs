@@ -1,6 +1,5 @@
-
-use iced::{Application, Element, Settings, executor, Theme, Command};
-use iced::widget::{text};
+use iced::widget::text;
+use iced::{executor, Application, Command, Element, Theme};
 
 pub struct GameState;
 
@@ -14,7 +13,7 @@ impl Application for GameState {
     type Flags = ();
 
     fn new(_flags: Self::Flags) -> (Self, Command<Message>) {
-        (Self, Command::none(),)
+        (Self, Command::none())
     }
     fn title(&self) -> String {
         String::from("Chess-rs")

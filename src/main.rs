@@ -1,9 +1,11 @@
 mod chess_logic;
+mod ui;
 
-use iced::{Application, Element, Sandbox, Settings};
-use iced::widget::{text};
+
+use iced::{Application, Settings};
+
 use crate::chess_logic::chessboard::{ChessBoard, is_fen_valid};
-use crate::chess_logic::chessboard;
+use crate::ui::game_state::GameState;
 
 fn main() -> iced::Result {
     let test_true = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
@@ -17,29 +19,4 @@ fn main() -> iced::Result {
 
     GameState::run(Settings::default())
 
-}
-
-struct GameState;
-
-#[derive(Debug)]
-enum Message {}
-
-impl Application for GameState {
-    type Executor = ();
-    type Message = Message;
-    type Theme = ();
-    type Flags = ();
-
-    fn new() -> Self {
-        Self
-    }
-    fn title(&self) -> String {
-        String::from("Chess-rs")
-    }
-    fn update(&mut self, message: Message) {
-        match message {}
-    }
-    fn view(&self) -> Element<'_, Message> {
-        text("Hello World").into()
-    }
 }

@@ -1,6 +1,6 @@
 mod chess_logic;
 
-use iced::{Element, Sandbox, Settings};
+use iced::{Application, Element, Sandbox, Settings};
 use iced::widget::{text};
 use crate::chess_logic::chessboard::{ChessBoard, is_fen_valid};
 use crate::chess_logic::chessboard;
@@ -24,8 +24,12 @@ struct GameState;
 #[derive(Debug)]
 enum Message {}
 
-impl Sandbox for GameState {
+impl Application for GameState {
+    type Executor = ();
     type Message = Message;
+    type Theme = ();
+    type Flags = ();
+
     fn new() -> Self {
         Self
     }

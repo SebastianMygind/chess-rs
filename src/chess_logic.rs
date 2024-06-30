@@ -1,1 +1,2 @@
-pub mod chessboard;
+mod chessboard;
+mod fen;

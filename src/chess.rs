@@ -27,6 +27,7 @@ pub struct ChessBoard {
     board: [u8; ARR_SIZE],
 }
 
+// Implements chess functionality
 impl ChessBoard {
     pub fn new() -> ChessBoard {
         return Self { board: [EMPTY; 64] };
@@ -37,6 +38,10 @@ impl ChessBoard {
     fn make_black(piece: u8) -> u8 {
         return (piece | BLACK);
     }
+}
+
+// Implements FEN functionality
+impl ChessBoard {
     pub fn set_fen_position_arr(&self, fen: &str) -> Result<(), &'static str> {
         if !is_fen_valid(fen) {
             return Err("NOT VALID FEN");
@@ -53,4 +58,5 @@ impl ChessBoard {
 
         Ok(())
     }
+
 }

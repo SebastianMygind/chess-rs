@@ -1,15 +1,3 @@
-/* Defines different piece types and color */
-
-const PAWN: u8 = 0b0001;
-const ROOK: u8 = 0b0010;
-const BISHOP: u8 = 0b0011;
-const KNIGHT: u8 = 0b0100;
-const QUEEN: u8 = 0b0101;
-const KING: u8 = 0b0111;
-const BLACK: u8 = 0b10000;
-const WHITE: u8 = 0b1000;
-const EMPTY: u8 = 0b0;
-
 const ARR_SIZE: usize = 64;
 const ROW_SIZE: usize = 8;
 const COL_SIZE: usize = 8;
@@ -21,38 +9,6 @@ const VALID_FEN_BOARD: [char; 21] = [
 ];
 
 const FEN_START_POS: &str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-
-pub struct ChessBoard {
-    board: [u8; ARR_SIZE],
-}
-
-impl ChessBoard {
-    pub fn new() -> ChessBoard {
-        return Self { board: [EMPTY; 64] };
-    }
-    fn make_white(piece: u8) -> u8 {
-        return (piece | WHITE);
-    }
-    fn make_black(piece: u8) -> u8 {
-        return (piece | BLACK);
-    }
-    pub fn set_fen_position_arr(&self, fen: &str) -> Result<(), &'static str> {
-        if !is_fen_valid(fen) {
-            return Err("NOT VALID FEN");
-        }
-        let split_fen = split_at_space(fen);
-        let mut board_index: usize = 63;
-        let fen_pos = split_fen[0].clone();
-
-        for c in fen.chars() {
-            match c {
-                _ => {}
-            }
-        }
-
-        Ok(())
-    }
-}
 
 pub fn is_fen_valid(fen: &str) -> bool {
     let split_fen = split_at_space(fen);
@@ -74,7 +30,7 @@ pub fn is_fen_valid(fen: &str) -> bool {
     true
 }
 
-fn split_at_space(fen: &str) -> Vec<String> {
+pub fn split_at_space(fen: &str) -> Vec<String> {
     let mut split_fen: Vec<String> = Vec::with_capacity(4 * 90);
     let mut string_buffer: String = String::with_capacity(90);
 
@@ -290,4 +246,26 @@ fn fen_check_hyphen(fen_slice: &str) -> bool {
         }
     }
     false
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_valid_fen1() {
+        assert_eq!(is_fen_valid(FEN_START_POS), true);
+    }
+
+    #[test]
+    fn test_bad_fen1() {
+        assert_eq!(is_fen_valid("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR z KQkq - 0 1"),
+                   false);
+    }
+
+    #[test]
+    fn test_bad_fen2() {
+        assert_eq!(is_fen_valid("rnbqkbnr/pppppppp/8/8/8/8/PPP3PPPP/RNBQKBNR w KQkq - 0 1"),
+                   false);
+    }
 }

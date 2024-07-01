@@ -1,10 +1,11 @@
-mod chess_logic;
+mod chess;
 mod ui;
 
 
 use iced::{Application, Settings};
 
-use crate::chess_logic::chessboard::{ChessBoard, is_fen_valid};
+use crate::chess::ChessBoard;
+use crate::chess::fen::is_fen_valid;
 use crate::ui::game_state::GameState;
 
 fn main() -> iced::Result {

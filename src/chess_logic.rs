@@ -1,2 +1,0 @@
-mod chessboard;
-mod fen;

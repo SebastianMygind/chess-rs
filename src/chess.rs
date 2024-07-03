@@ -1,7 +1,15 @@
+//
 pub mod fen;
 
+//
+mod chess_display;
 /* Defines different piece types and color */
+
 use crate::chess::fen::{is_fen_valid, split_at_space};
+
+#[derive(Debug, PartialEq, Copy, Clone)]
+pub enum Pieces {Empty, WPawn, WRook, WBishop, WKnight, WQueen, WKing,
+                 BPawn, BRook, BBishop, BKnight, BQueen, BKing}
 
 const PAWN: u8 = 0b0001;
 const ROOK: u8 = 0b0010;
@@ -23,14 +31,22 @@ const VALID_FEN_BOARD: [char; 21] = [
     '8', '/',
 ];
 
+#[derive(Debug, Copy, Clone)]
 pub struct ChessBoard {
-    board: [u8; ARR_SIZE],
+    board: [BoardPiece; ARR_SIZE],
+}
+
+#[derive(Debug, PartialEq, Copy, Clone)]
+pub struct BoardPiece {
+    piece_type: Pieces,
+    pawn_double_move: bool,
+    can_castle: bool
 }
 
 // Implements chess functionality
 impl ChessBoard {
     pub fn new() -> ChessBoard {
-        return Self { board: [EMPTY; 64] };
+        return Self { board: [BoardPiece {piece_type: Pieces::Empty, pawn_double_move: false, can_castle: false}; ARR_SIZE] };
     }
     fn make_white(piece: u8) -> u8 {
         return (piece | WHITE);
@@ -57,6 +73,10 @@ impl ChessBoard {
         }
 
         Ok(())
+    }
+
+    pub fn set_arr_pos(&mut self, new_piece: Pieces, arr_pos: usize) {
+        self.board[arr_pos] = BoardPiece {piece_type: new_piece, pawn_double_move: false, can_castle: false };
     }
 
 }

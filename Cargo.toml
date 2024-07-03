@@ -1,5 +1,6 @@
 [package]
 name = "chess"
+description = "A chess game implemented using iced for the GUI."
 version = "0.1.0"
 edition = "2021"
 

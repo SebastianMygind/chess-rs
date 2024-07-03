@@ -11,6 +11,7 @@ use crate::ui::game_state::GameState;
 fn main() -> iced::Result {
     let board = ChessBoard::new();
 
+    print!("{}", board);
     GameState::run(Settings::default())
 
 

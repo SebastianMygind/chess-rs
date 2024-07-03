@@ -1,15 +1,28 @@
-//
+/* Sub-module for FEN helper functions */
 pub mod fen;
 
-//
+/* Module that allows printing a chessboard to the CLI */
 mod chess_display;
+
+use crate::chess::fen::{is_fen_valid, parse_fen_piece_placement, split_at_space};
+
 /* Defines different piece types and color */
-
-use crate::chess::fen::{is_fen_valid, split_at_space};
-
-#[derive(Debug, PartialEq, Copy, Clone)]
-pub enum Pieces {Empty, WPawn, WRook, WBishop, WKnight, WQueen, WKing,
-                 BPawn, BRook, BBishop, BKnight, BQueen, BKing}
+#[derive(Debug, Clone, Copy)]
+pub enum Pieces {
+    Empty,
+    WPawn,
+    WRook,
+    WBishop,
+    WKnight,
+    WQueen,
+    WKing,
+    BPawn,
+    BRook,
+    BBishop,
+    BKnight,
+    BQueen,
+    BKing,
+}
 
 const PAWN: u8 = 0b0001;
 const ROOK: u8 = 0b0010;
@@ -31,22 +44,30 @@ const VALID_FEN_BOARD: [char; 21] = [
     '8', '/',
 ];
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Clone)]
 pub struct ChessBoard {
     board: [BoardPiece; ARR_SIZE],
+    castling_ability: [bool; 4],
+    en_passant_target_square: String,
+    halfmove_clock: u32,
+    fullmove_counter: u32,
 }
 
-#[derive(Debug, PartialEq, Copy, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct BoardPiece {
     piece_type: Pieces,
-    pawn_double_move: bool,
-    can_castle: bool
 }
 
 // Implements chess functionality
 impl ChessBoard {
     pub fn new() -> ChessBoard {
-        return Self { board: [BoardPiece {piece_type: Pieces::Empty, pawn_double_move: false, can_castle: false}; ARR_SIZE] };
+        return Self {
+            board: [BoardPiece { piece_type: Pieces::Empty }; ARR_SIZE],
+            castling_ability: [false; 4],
+            en_passant_target_square: String::new(),
+            halfmove_clock: 0,
+            fullmove_counter: 0,
+        };
     }
     fn make_white(piece: u8) -> u8 {
         return (piece | WHITE);
@@ -58,25 +79,16 @@ impl ChessBoard {
 
 // Implements FEN functionality
 impl ChessBoard {
-    pub fn set_fen_position_arr(&self, fen: &str) -> Result<(), &'static str> {
+    pub fn set_fen_position_arr(&mut self, fen: &str) -> Result<(), &'static str> {
         if !is_fen_valid(fen) {
             return Err("NOT VALID FEN");
         }
         let split_fen = split_at_space(fen);
-        let mut board_index: usize = 63;
-        let fen_pos = split_fen[0].clone();
 
-        for c in fen.chars() {
-            match c {
-                _ => {}
-            }
-        }
+        let parsed_board = parse_fen_piece_placement(split_fen[0].clone().as_str());
+
+        self.board = parsed_board;
 
         Ok(())
     }
-
-    pub fn set_arr_pos(&mut self, new_piece: Pieces, arr_pos: usize) {
-        self.board[arr_pos] = BoardPiece {piece_type: new_piece, pawn_double_move: false, can_castle: false };
-    }
-
 }

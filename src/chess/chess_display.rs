@@ -10,9 +10,9 @@ const B_LINE: &str = "└—————┴—————┴—————┴�
  * goes from top to bottom, respectively rank 8 to 1 */
 impl fmt::Display for ChessBoard {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let ltp: Vec<String> = parse_chessboard_to_string(&self.board);
+        let string_chessboard: Vec<String> = parse_chessboard_to_string(&self.board);
 
-        if ltp.len() != 8 {
+        if string_chessboard.len() != 8 {
             return write!(f, "Error parsing chessboard!");
         }
         // Prints the 8 ranks of a chessboard, zero indexed.
@@ -20,27 +20,27 @@ impl fmt::Display for ChessBoard {
             f,
             "{}{}\n{}{}\n{}{}\n{}{}\n{}{}\n{}{}\n{}{}\n{}{}\n{}",
             T_LINE,
-            ltp[7],
+            string_chessboard[7],
             H_LINE,
-            ltp[6],
+            string_chessboard[6],
             H_LINE,
-            ltp[5],
+            string_chessboard[5],
             H_LINE,
-            ltp[4],
+            string_chessboard[4],
             H_LINE,
-            ltp[3],
+            string_chessboard[3],
             H_LINE,
-            ltp[2],
+            string_chessboard[2],
             H_LINE,
-            ltp[1],
+            string_chessboard[1],
             H_LINE,
-            ltp[0],
+            string_chessboard[0],
             B_LINE
         )
     }
 }
 
-fn parse_chessboard_to_string(board_struct: &[BoardPiece; 64]) -> Vec<String> {
+fn parse_chessboard_to_string(board_struct: &[BoardPiece; ARR_SIZE]) -> Vec<String> {
     let mut printable_board = Vec::new();
 
     let board = board_struct.clone();

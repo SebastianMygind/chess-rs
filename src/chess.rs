@@ -4,7 +4,9 @@ pub mod fen;
 /* Module that allows printing a chessboard to the CLI */
 mod chess_display;
 
-use crate::chess::fen::{is_fen_valid, parse_fen_piece_placement, split_at_space};
+use crate::chess::fen::{
+    is_fen_valid, parse_fen_piece_placement, parse_fen_side_to_move, split_at_space,
+};
 
 /* Defines different piece types and color */
 #[derive(Debug, Clone, Copy)]
@@ -47,6 +49,7 @@ const VALID_FEN_BOARD: [char; 21] = [
 #[derive(Debug, Clone)]
 pub struct ChessBoard {
     board: [BoardPiece; ARR_SIZE],
+    white_is_side_to_move: bool,
     castling_ability: [bool; 4],
     en_passant_target_square: String,
     halfmove_clock: u32,
@@ -62,7 +65,10 @@ pub struct BoardPiece {
 impl ChessBoard {
     pub fn new() -> ChessBoard {
         return Self {
-            board: [BoardPiece { piece_type: Pieces::Empty }; ARR_SIZE],
+            board: [BoardPiece {
+                piece_type: Pieces::Empty,
+            }; ARR_SIZE],
+            white_is_side_to_move: true,
             castling_ability: [false; 4],
             en_passant_target_square: String::new(),
             halfmove_clock: 0,
@@ -85,9 +91,23 @@ impl ChessBoard {
         }
         let split_fen = split_at_space(fen);
 
+        /* Piece placement */
         let parsed_board = parse_fen_piece_placement(split_fen[0].clone().as_str());
 
         self.board = parsed_board;
+
+        /* Side to move */
+        let is_white_move = parse_fen_side_to_move(split_fen[1].clone().as_str());
+
+        self.white_is_side_to_move = is_white_move;
+
+        /* Castling ability*/
+
+        /* En Passant */
+
+        /* Half move clock */
+
+        /* Full move counter */
 
         Ok(())
     }

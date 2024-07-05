@@ -262,21 +262,25 @@ mod tests {
 
     #[test]
     fn test_bad_fen1() {
-        assert_eq!(is_fen_valid("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR z KQkq - 0 1"),
-                   false);
+        assert_eq!(
+            is_fen_valid("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR z KQkq - 0 1"),
+            false
+        );
     }
 
     #[test]
     fn test_bad_fen2() {
-        assert_eq!(is_fen_valid("rnbqkbnr/pppppppp/8/8/8/8/PPP3PPPP/RNBQKBNR w KQkq - 0 1"),
-                   false);
+        assert_eq!(
+            is_fen_valid("rnbqkbnr/pppppppp/8/8/8/8/PPP3PPPP/RNBQKBNR w KQkq - 0 1"),
+            false
+        );
     }
 }
 
 /* FEN parsing functions */
 
 pub fn parse_fen_piece_placement(fen_string: &str) -> [BoardPiece; ARR_SIZE] {
-    let mut fen_ranks: Vec<&str> = fen_string.split_whitespace().collect();
+    let mut fen_ranks: Vec<&str> = fen_string.split('/').collect();
 
     let mut parsed_ranks: Vec<Vec<Pieces>> = Vec::new();
 
@@ -286,7 +290,9 @@ pub fn parse_fen_piece_placement(fen_string: &str) -> [BoardPiece; ARR_SIZE] {
     /* Make rank 1 the 0th element instead of the 7th */
     parsed_ranks.reverse();
 
-    let mut board = [BoardPiece {piece_type: Pieces::Empty}; ARR_SIZE];
+    let mut board = [BoardPiece {
+        piece_type: Pieces::Empty,
+    }; ARR_SIZE];
 
     let mut index = 0;
 
@@ -297,16 +303,17 @@ pub fn parse_fen_piece_placement(fen_string: &str) -> [BoardPiece; ARR_SIZE] {
         }
     }
 
-    if index != 64 {panic!("ERROR: not 64 elements in parse_fen_piece_placement!")}
+    if index != 64 {
+        panic!("ERROR: not 64 elements in parse_fen_piece_placement!")
+    }
 
     return board;
 }
 
 fn parse_fen_piece_rank(rank_string: &str) -> Vec<Pieces> {
-    let mut parsed_rank:Vec<Pieces> = Vec::new();
+    let mut parsed_rank: Vec<Pieces> = Vec::new();
 
     for c in rank_string.chars() {
-
         let char_to_num = c.to_digit(10);
         match char_to_num {
             Some(mut num) => {
@@ -316,36 +323,61 @@ fn parse_fen_piece_rank(rank_string: &str) -> Vec<Pieces> {
                 }
             }
 
-            None => {parsed_rank.push(parse_fen_piece(c))}
+            None => parsed_rank.push(parse_fen_piece(c)),
         }
-
-
     }
-    if parsed_rank.len() > 8 {panic!("ERROR: parse_fen_piece_rank returns more than 8 pieces")}
+    if parsed_rank.len() > 8 {
+        panic!("ERROR: parse_fen_piece_rank returns more than 8 pieces")
+    }
 
     return parsed_rank;
 }
 
 fn parse_fen_piece(c: char) -> Pieces {
     return match c {
-        'K' => {Pieces::WKing}
-        'k' => {Pieces::BKing}
+        'K' => Pieces::WKing,
+        'k' => Pieces::BKing,
 
-        'Q' => {Pieces::WQueen}
-        'q' => {Pieces::BQueen}
+        'Q' => Pieces::WQueen,
+        'q' => Pieces::BQueen,
 
-        'R' => {Pieces::WRook}
-        'r' => {Pieces::BRook}
+        'R' => Pieces::WRook,
+        'r' => Pieces::BRook,
 
-        'B' => {Pieces::WBishop}
-        'b' => {Pieces::BBishop}
+        'B' => Pieces::WBishop,
+        'b' => Pieces::BBishop,
 
-        'N' => {Pieces::WKnight}
-        'n' => {Pieces::BKnight}
+        'N' => Pieces::WKnight,
+        'n' => Pieces::BKnight,
 
-        'P' => {Pieces::WPawn}
-        'p' => {Pieces::BPawn}
+        'P' => Pieces::WPawn,
+        'p' => Pieces::BPawn,
 
-        _=>{panic!("Not valid FEN: err in parse_fen_piece")}
+        _ => {
+            panic!("Not valid FEN: err in parse_fen_piece")
+        }
+    };
+}
+
+pub fn parse_fen_side_to_move(fen: &str) -> bool {
+    if fen.len() != 1 {
+        panic!("ERROR: parse_fen_side_to_move");
+    }
+
+    let char = fen.chars().next();
+
+    match char {
+        Some(c) => {
+            return match c {
+                'w' => true,
+                'b' => false,
+                _ => {
+                    panic!("ERROR: side to move char not allowed!")
+                }
+            }
+        }
+        None => {
+            panic!("ERROR: Could not parse fen: side_to_move char")
+        }
     }
 }

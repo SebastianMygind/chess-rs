@@ -1,10 +1,10 @@
+use iced::executor;
+use iced::mouse;
+use iced::widget::{column, container, row, text};
 use iced::Application;
 use iced::Command;
-use iced::executor;
 use iced::Element;
 use iced::Theme;
-use iced::mouse;
-use iced::widget::{text, row, column, container};
 
 pub struct GameState;
 
@@ -28,16 +28,19 @@ impl Application for GameState {
         Command::none()
     }
     fn view(&self) -> Element<'_, Message> {
-        container(row![text("This should be left"),
-            text("This should be right")])
-            .padding(20)
-            .into()
+        container(row![
+            text("This should be left"),
+            text("This should be right")
+        ])
+        .padding(20)
+        .into()
     }
     fn theme(&self) -> Theme {
         Theme::Dark
     }
 }
 
-const PIECES: [&str; 12] = ["bB.svg", "bK.svg", "bN.svg", "bP.svg",
-                            "bQ.svg", "bR.svg", "wB.svg", "wK.svg",
-                            "wN.svg", "wP.svg", "wQ.svg", "wR.svg"];
+const PIECES: [&str; 12] = [
+    "bB.svg", "bK.svg", "bN.svg", "bP.svg", "bQ.svg", "bR.svg", "wB.svg", "wK.svg", "wN.svg",
+    "wP.svg", "wQ.svg", "wR.svg",
+];

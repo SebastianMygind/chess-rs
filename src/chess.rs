@@ -4,9 +4,7 @@ pub mod fen;
 /* Module that allows printing a chessboard to the CLI */
 mod chess_display;
 
-use crate::chess::fen::{
-    is_fen_valid, parse_fen_piece_placement, parse_fen_side_to_move, split_at_space,
-};
+use crate::chess::fen::{is_fen_valid, parse_fen_castling_ability, parse_fen_piece_placement, parse_fen_side_to_move, split_at_space};
 
 /* Defines different piece types and color */
 #[derive(Debug, Clone, Copy)]
@@ -92,18 +90,22 @@ impl ChessBoard {
         let split_fen = split_at_space(fen);
 
         /* Piece placement */
-        let parsed_board = parse_fen_piece_placement(split_fen[0].clone().as_str());
+        let parsed_board = parse_fen_piece_placement(&split_fen[0].as_str());
 
         self.board = parsed_board;
 
         /* Side to move */
-        let is_white_move = parse_fen_side_to_move(split_fen[1].clone().as_str());
+        let is_white_move = parse_fen_side_to_move(&split_fen[1].as_str());
 
         self.white_is_side_to_move = is_white_move;
 
         /* Castling ability*/
+        let castling_ability = parse_fen_castling_ability(&split_fen[2].as_str());
+
+        self.castling_ability = castling_ability;
 
         /* En Passant */
+
 
         /* Half move clock */
 

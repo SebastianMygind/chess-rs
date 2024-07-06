@@ -381,3 +381,36 @@ pub fn parse_fen_side_to_move(fen: &str) -> bool {
         }
     }
 }
+
+/* Parses FEN castling ability. Returns an array of booleans where KQkq is K:1 Q:1 k:1 q:1*/
+pub fn parse_fen_castling_ability(fen: &str) -> [bool; 4] {
+    let mut c_ability: [bool; 4] = [false; 4];
+
+    for c in fen.chars() {
+        match c {
+            'K' => {
+                c_ability[0] = true;
+            }
+            'Q' => {
+                c_ability[1] = true;
+            }
+            'k' => {
+                c_ability[2] = true;
+            }
+            'q' => {
+                c_ability[3] = true;
+            }
+            '-' => {
+                if fen.len() == 1 {
+                    return [false; 4];
+                } else {
+                    panic!("ERROR: '-' where more than one character is given")
+                }
+            }
+            _ => {
+                panic!("ERROR: unknown castle")
+            }
+        }
+    }
+    return c_ability;
+}

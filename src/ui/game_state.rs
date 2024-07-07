@@ -1,3 +1,4 @@
+use crate::chess::{BoardPiece, ARR_SIZE};
 use iced::executor;
 use iced::mouse;
 use iced::widget::{column, container, row, text};
@@ -44,3 +45,5 @@ const PIECES: [&str; 12] = [
     "bB.svg", "bK.svg", "bN.svg", "bP.svg", "bQ.svg", "bR.svg", "wB.svg", "wK.svg", "wN.svg",
     "wP.svg", "wQ.svg", "wR.svg",
 ];
+
+// fn iced_chessboard(board_data: [BoardPiece; ARR_SIZE]) -> iced::widget::container {}

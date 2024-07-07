@@ -1,4 +1,4 @@
-use crate::chess::{BoardPiece, ChessBoard, Pieces};
+use crate::chess::{BoardPiece, ChessBoard, EnPassant, Pieces};
 
 const ARR_SIZE: usize = 64;
 const ROW_SIZE: usize = 8;
@@ -413,4 +413,61 @@ pub fn parse_fen_castling_ability(fen: &str) -> [bool; 4] {
         }
     }
     return c_ability;
+}
+
+pub fn parse_fen_epawn(fen: &str) -> EnPassant {
+    let mut parsed_epawn = EnPassant {
+        is_valid: true,
+        rank: 0,
+        file: 0,
+    };
+
+    let mut fen_iter = fen.chars();
+
+    if fen == "-" {
+        return EnPassant {
+            is_valid: false,
+            rank: 0,
+            file: 0,
+        };
+    }
+
+    let file = fen_iter.next().unwrap();
+
+    match file {
+        'a' => parsed_epawn.file = 1,
+        'b' => parsed_epawn.file = 2,
+        'c' => parsed_epawn.file = 3,
+        'd' => parsed_epawn.file = 4,
+        'e' => parsed_epawn.file = 5,
+        'f' => parsed_epawn.file = 6,
+        'g' => parsed_epawn.file = 7,
+        'h' => parsed_epawn.file = 8,
+        _ => {
+            panic!("unkown file character: parse_fen_epawn")
+        }
+    }
+
+    let rank_char = fen_iter.next().unwrap();
+
+    let rank = match rank_char.to_digit(10) {
+        Some(num) => num,
+        None => {
+            panic!("could not parse rank number: parse_fen_epawn")
+        }
+    };
+
+    if 0 < rank && rank <= 8 {
+        parsed_epawn.rank = rank;
+    }
+
+    return parsed_epawn;
+}
+
+pub fn parse_fen_half_move_clock(fen: &str) -> u32 {
+    fen.parse::<u32>().unwrap()
+}
+
+pub fn parse_fen_full_move_counter(fen: &str) -> u64 {
+    fen.parse::<u64>().unwrap()
 }

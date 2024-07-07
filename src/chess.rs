@@ -1,10 +1,13 @@
 /* Sub-module for FEN helper functions */
+use crate::chess::fen::{
+    is_fen_valid, parse_fen_castling_ability, parse_fen_epawn, parse_fen_full_move_counter,
+    parse_fen_half_move_clock, parse_fen_piece_placement, parse_fen_side_to_move, split_at_space,
+};
+
 pub mod fen;
 
 /* Module that allows printing a chessboard to the CLI */
 mod chess_display;
-
-use crate::chess::fen::{is_fen_valid, parse_fen_castling_ability, parse_fen_piece_placement, parse_fen_side_to_move, split_at_space};
 
 /* Defines different piece types and color */
 #[derive(Debug, Clone, Copy)]
@@ -24,17 +27,7 @@ pub enum Pieces {
     BKing,
 }
 
-const PAWN: u8 = 0b0001;
-const ROOK: u8 = 0b0010;
-const BISHOP: u8 = 0b0011;
-const KNIGHT: u8 = 0b0100;
-const QUEEN: u8 = 0b0101;
-const KING: u8 = 0b0111;
-const BLACK: u8 = 0b10000;
-const WHITE: u8 = 0b1000;
-const EMPTY: u8 = 0b0;
-
-const ARR_SIZE: usize = 64;
+pub(crate) const ARR_SIZE: usize = 64;
 const ROW_SIZE: usize = 8;
 const COL_SIZE: usize = 8;
 const COL_LETTERS: [char; 8] = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
@@ -49,14 +42,21 @@ pub struct ChessBoard {
     board: [BoardPiece; ARR_SIZE],
     white_is_side_to_move: bool,
     castling_ability: [bool; 4],
-    en_passant_target_square: String,
+    en_passant_target_square: EnPassant,
     halfmove_clock: u32,
-    fullmove_counter: u32,
+    fullmove_counter: u64,
 }
 
 #[derive(Debug, Clone, Copy)]
 pub struct BoardPiece {
     piece_type: Pieces,
+}
+
+#[derive(Debug, Clone)]
+pub struct EnPassant {
+    is_valid: bool,
+    rank: u32, // x-axis
+    file: u32, // y-axis
 }
 
 // Implements chess functionality
@@ -67,17 +67,15 @@ impl ChessBoard {
                 piece_type: Pieces::Empty,
             }; ARR_SIZE],
             white_is_side_to_move: true,
-            castling_ability: [false; 4],
-            en_passant_target_square: String::new(),
+            castling_ability: [true; 4],
+            en_passant_target_square: EnPassant {
+                is_valid: false,
+                rank: 0,
+                file: 0,
+            },
             halfmove_clock: 0,
             fullmove_counter: 0,
         };
-    }
-    fn make_white(piece: u8) -> u8 {
-        return (piece | WHITE);
-    }
-    fn make_black(piece: u8) -> u8 {
-        return (piece | BLACK);
     }
 }
 
@@ -105,11 +103,19 @@ impl ChessBoard {
         self.castling_ability = castling_ability;
 
         /* En Passant */
+        let en_passant = parse_fen_epawn(&split_fen[3].as_str());
 
+        self.en_passant_target_square = en_passant;
 
         /* Half move clock */
+        let half_moves = parse_fen_half_move_clock(&split_fen[4].as_str());
+
+        self.halfmove_clock = half_moves;
 
         /* Full move counter */
+        let full_moves = parse_fen_full_move_counter(&split_fen[5].as_str());
+
+        self.fullmove_counter = full_moves;
 
         Ok(())
     }

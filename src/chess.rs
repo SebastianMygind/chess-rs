@@ -1,4 +1,5 @@
 /* Sub-module for FEN helper functions */
+use std::{error, fmt};
 use crate::chess::fen::{
     is_fen_valid, parse_fen_castling_ability, parse_fen_epawn, parse_fen_full_move_counter,
     parse_fen_half_move_clock, parse_fen_piece_placement, parse_fen_side_to_move, split_at_space,
@@ -10,7 +11,7 @@ pub mod fen;
 mod chess_display;
 
 /* Defines different piece types and color */
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Pieces {
     Empty,
     WPawn,
@@ -59,6 +60,67 @@ pub struct EnPassant {
     file: u32, // y-axis
 }
 
+#[derive(Clone, Debug, PartialEq)]
+enum MoveTypes {
+    Capture,
+    PawnPromotion,
+    EnPassant,
+    Castle
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct Square {
+    rank: u32, // y-position
+    file: u32 // x-position
+}
+#[derive(Clone, Debug, PartialEq)]
+pub struct Move {
+    move_type: MoveTypes,
+    move_specific: MoveInfo
+}
+
+#[derive(Debug, Clone)]
+struct IllegalMove;
+
+impl error::Error for IllegalMove {}
+impl fmt::Display for IllegalMove {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "illegal move")
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct CaptureMove {
+    starting_square: Square,
+    target_square: Square
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct PawnPromotionMove {
+    target_square: Square,
+    promotion_piece: Pieces
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct CastlingMove {
+    is_king_side: bool, // If false, the move is castling queen side.
+    rank: u32,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct EnPassantMove {
+    pawn_to_move: Square,
+    pawn_to_capture: Square
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub union MoveInfo {
+    capture: CaptureMove,
+    promotion: PawnPromotionMove,
+    castle: CastlingMove,
+    en_passant: EnPassantMove,
+}
+
 // Implements chess functionality
 impl ChessBoard {
     pub fn new() -> ChessBoard {
@@ -76,6 +138,48 @@ impl ChessBoard {
             halfmove_clock: 0,
             fullmove_counter: 0,
         };
+    }
+
+    pub fn legal_moves() -> Vec<Move> {
+
+    }
+
+    pub fn make_move(&mut self ,move_to_make: Move) -> Result<(), IllegalMove> {
+
+        let legal_moves = Self::legal_moves();
+
+        let mut is_legal_move = false;
+
+        for possible_move in legal_moves {
+            if possible_move == move_to_make {
+                is_legal_move = true;
+                break;
+            }
+        }
+
+        if !is_legal_move {
+            return Err(IllegalMove);
+        }
+
+        match move_to_make.move_type {
+            MoveTypes::Capture => {
+
+
+            }
+
+            MoveTypes::PawnPromotion => {
+
+            }
+
+            MoveTypes::Castle => {
+
+            }
+
+            MoveTypes::EnPassant => {
+
+            }
+        }
+        Ok(())
     }
 }
 

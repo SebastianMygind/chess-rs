@@ -1,5 +1,4 @@
 /* Sub-module for FEN helper functions */
-use std::{error, fmt};
 use crate::chess::fen::{
     is_fen_valid, parse_fen_castling_ability, parse_fen_epawn, parse_fen_full_move_counter,
     parse_fen_half_move_clock, parse_fen_piece_placement, parse_fen_side_to_move, split_at_space,
@@ -9,6 +8,10 @@ pub mod fen;
 
 /* Module that allows printing a chessboard to the CLI */
 mod chess_display;
+pub mod chess_errors;
+pub mod chess_moves;
+
+use chess_errors::{IllegalMove, InvalidFen};
 
 /* Defines different piece types and color */
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -28,7 +31,7 @@ pub enum Pieces {
     BKing,
 }
 
-pub(crate) const ARR_SIZE: usize = 64;
+pub const ARR_SIZE: usize = 64;
 const ROW_SIZE: usize = 8;
 const COL_SIZE: usize = 8;
 const COL_LETTERS: [char; 8] = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
@@ -38,6 +41,7 @@ const VALID_FEN_BOARD: [char; 21] = [
     '8', '/',
 ];
 
+/* Chessboard specific implementations */
 #[derive(Debug, Clone)]
 pub struct ChessBoard {
     board: [BoardPiece; ARR_SIZE],
@@ -60,65 +64,95 @@ pub struct EnPassant {
     file: u32, // y-axis
 }
 
-#[derive(Clone, Debug, PartialEq)]
-enum MoveTypes {
-    Capture,
-    PawnPromotion,
-    EnPassant,
-    Castle
-}
-
-#[derive(Clone, Debug, PartialEq)]
-pub struct Square {
-    rank: u32, // y-position
-    file: u32 // x-position
-}
-#[derive(Clone, Debug, PartialEq)]
+/* Move specific implementations */
+#[derive(Clone)]
 pub struct Move {
-    move_type: MoveTypes,
-    move_specific: MoveInfo
+    pub(crate) move_type: MoveTypes,
+    pub(crate) move_specific: MoveInfo,
 }
 
-#[derive(Debug, Clone)]
-struct IllegalMove;
+impl PartialEq for Move {
+    fn eq(&self, other: &Self) -> bool {
+        if self.move_type == other.move_type {
+            match self.move_type {
+                MoveTypes::Capture => {
+                    let self_move = unsafe { self.move_specific.capture.clone() };
+                    let other_move = unsafe { other.move_specific.capture.clone() };
 
-impl error::Error for IllegalMove {}
-impl fmt::Display for IllegalMove {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "illegal move")
+                    return self_move == other_move;
+                }
+
+                MoveTypes::PawnPromotion => {
+                    let self_move = unsafe { self.move_specific.promotion.clone() };
+                    let other_move = unsafe { other.move_specific.promotion.clone() };
+
+                    return self_move == other_move;
+                }
+
+                MoveTypes::Castle => {
+                    let self_move = unsafe { self.move_specific.castle.clone() };
+                    let other_move = unsafe { other.move_specific.castle.clone() };
+
+                    return self_move == other_move;
+                }
+
+                MoveTypes::EnPassant => {
+                    let self_move = unsafe { self.move_specific.en_passant.clone() };
+                    let other_move = unsafe { other.move_specific.en_passant.clone() };
+
+                    return self_move == other_move;
+                }
+            }
+        } else {
+            false
+        }
     }
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct CaptureMove {
-    starting_square: Square,
-    target_square: Square
+pub enum MoveTypes {
+    Capture,
+    PawnPromotion,
+    EnPassant,
+    Castle,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Copy)]
+pub union MoveInfo {
+    pub(crate) capture: CaptureMove, // A Capture move also incapsulates simply moving a piece / capturing an empty space!
+    promotion: PawnPromotionMove,
+    castle: CastlingMove,
+    en_passant: EnPassantMove,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Square {
+    pub(crate) rank: u32, // y-position
+    pub(crate) file: u32, // x-position
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct CaptureMove {
+    pub(crate) starting_square: Square,
+    pub(crate) target_square: Square,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct PawnPromotionMove {
     target_square: Square,
-    promotion_piece: Pieces
+    promotion_piece: Pieces,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct CastlingMove {
     is_king_side: bool, // If false, the move is castling queen side.
     rank: u32,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct EnPassantMove {
     pawn_to_move: Square,
-    pawn_to_capture: Square
-}
-
-#[derive(Clone, Debug, PartialEq)]
-pub union MoveInfo {
-    capture: CaptureMove,
-    promotion: PawnPromotionMove,
-    castle: CastlingMove,
-    en_passant: EnPassantMove,
+    pawn_to_capture: Square,
 }
 
 // Implements chess functionality
@@ -139,55 +173,13 @@ impl ChessBoard {
             fullmove_counter: 0,
         };
     }
-
-    pub fn legal_moves() -> Vec<Move> {
-
-    }
-
-    pub fn make_move(&mut self ,move_to_make: Move) -> Result<(), IllegalMove> {
-
-        let legal_moves = Self::legal_moves();
-
-        let mut is_legal_move = false;
-
-        for possible_move in legal_moves {
-            if possible_move == move_to_make {
-                is_legal_move = true;
-                break;
-            }
-        }
-
-        if !is_legal_move {
-            return Err(IllegalMove);
-        }
-
-        match move_to_make.move_type {
-            MoveTypes::Capture => {
-
-
-            }
-
-            MoveTypes::PawnPromotion => {
-
-            }
-
-            MoveTypes::Castle => {
-
-            }
-
-            MoveTypes::EnPassant => {
-
-            }
-        }
-        Ok(())
-    }
 }
 
 // Implements FEN functionality
 impl ChessBoard {
-    pub fn set_fen_position_arr(&mut self, fen: &str) -> Result<(), &'static str> {
+    pub fn set_fen_position_arr(&mut self, fen: &str) -> Result<(), InvalidFen> {
         if !is_fen_valid(fen) {
-            return Err("NOT VALID FEN");
+            return Err(InvalidFen);
         }
         let split_fen = split_at_space(fen);
 

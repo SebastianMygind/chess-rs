@@ -157,9 +157,7 @@ fn fen_check_castling_ability(castling_string: &str) -> bool {
     return true;
 }
 
-fn set_castling_validity(ability: [bool ; 4], current_piece: usize) {
-
-}
+fn set_castling_validity(ability: [bool; 4], current_piece: usize) {}
 
 fn fen_check_en_passant(en_passant: &str) -> bool {
     if fen_check_hyphen(en_passant) {

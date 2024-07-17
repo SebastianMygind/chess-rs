@@ -41,6 +41,10 @@ const VALID_FEN_BOARD: [char; 21] = [
     '8', '/',
 ];
 
+const EMPTY_PIECE: BoardPiece = BoardPiece {
+    piece_type: Pieces::Empty,
+};
+
 /* Chessboard specific implementations */
 #[derive(Debug, Clone)]
 pub struct ChessBoard {
@@ -50,11 +54,21 @@ pub struct ChessBoard {
     en_passant_target_square: EnPassant,
     halfmove_clock: u32,
     fullmove_counter: u64,
+    is_checked: bool,
+    is_checkmate: bool,
 }
 
 #[derive(Debug, Clone, Copy)]
 pub struct BoardPiece {
     piece_type: Pieces,
+}
+
+impl BoardPiece {
+    pub fn new(chess_piece: Pieces) -> BoardPiece {
+        return Self {
+            piece_type: chess_piece,
+        };
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -153,15 +167,14 @@ pub struct CastlingMove {
 pub struct EnPassantMove {
     pawn_to_move: Square,
     pawn_to_capture: Square,
+    is_white_move: bool,
 }
 
 // Implements chess functionality
 impl ChessBoard {
     pub fn new() -> ChessBoard {
         return Self {
-            board: [BoardPiece {
-                piece_type: Pieces::Empty,
-            }; ARR_SIZE],
+            board: [EMPTY_PIECE; ARR_SIZE],
             white_is_side_to_move: true,
             castling_ability: [true; 4],
             en_passant_target_square: EnPassant {
@@ -171,6 +184,8 @@ impl ChessBoard {
             },
             halfmove_clock: 0,
             fullmove_counter: 0,
+            is_checked: false,
+            is_checkmate: false,
         };
     }
 }

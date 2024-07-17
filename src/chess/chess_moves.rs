@@ -2,7 +2,10 @@
  * For legal moves
  */
 use crate::chess::chess_errors::IllegalMove;
-use crate::chess::{CaptureMove, ChessBoard, Move, MoveInfo, MoveTypes, Pieces, Square};
+use crate::chess::{
+    BoardPiece, CaptureMove, CastlingMove, ChessBoard, Move, MoveInfo, MoveTypes,
+    PawnPromotionMove, Pieces, Square, EMPTY_PIECE,
+};
 
 impl ChessBoard {
     pub fn legal_moves() -> Vec<Move> {
@@ -49,11 +52,100 @@ impl ChessBoard {
                 self.board[starting_square].piece_type = Pieces::Empty;
             }
 
-            MoveTypes::PawnPromotion => {}
+            MoveTypes::PawnPromotion => {
+                let promotion: PawnPromotionMove = unsafe { move_to_make.move_specific.promotion };
 
-            MoveTypes::Castle => {}
+                let target_pos = promotion.target_square.pos_to_arr_index();
 
-            MoveTypes::EnPassant => {}
+                let promoted_piece = BoardPiece {
+                    piece_type: promotion.promotion_piece,
+                };
+
+                self.board[target_pos] = promoted_piece;
+                self.board[target_pos - 8] = EMPTY_PIECE;
+            }
+
+            MoveTypes::Castle => {
+                let castle: CastlingMove = unsafe { move_to_make.move_specific.castle };
+
+                let mut king_file: u32;
+                let mut rook_file: u32;
+
+                let mut rook_to_set_empty_file: u32;
+
+                let mut king_piece: BoardPiece;
+                let mut rook_piece: BoardPiece;
+
+                if castle.is_king_side {
+                    king_file = 7;
+                    rook_file = 6;
+
+                    rook_to_set_empty_file = 8;
+                } else {
+                    king_file = 3;
+                    rook_file = 4;
+
+                    rook_to_set_empty_file = 0;
+                }
+
+                if castle.rank == 1 {
+                    king_piece = BoardPiece::new(Pieces::WKing);
+                    rook_piece = BoardPiece::new(Pieces::WRook);
+                } else {
+                    king_piece = BoardPiece::new(Pieces::BKing);
+                    rook_piece = BoardPiece::new(Pieces::BRook);
+                }
+
+                let king_pos_arr = ((castle.rank - 1) * 8 + (king_file - 1)) as usize;
+                let rook_pos_arr = ((castle.rank - 1) * 8 + (rook_file - 1)) as usize;
+
+                let set_empty_1_arr = ((castle.rank - 1) * 8 + (5 - 1)) as usize;
+                let set_empty_2_arr =
+                    ((castle.rank - 1) * 8 + (rook_to_set_empty_file - 1)) as usize;
+
+                self.board[set_empty_1_arr] = EMPTY_PIECE;
+                self.board[set_empty_2_arr] = EMPTY_PIECE;
+
+                self.board[king_pos_arr] = king_piece;
+                self.board[rook_pos_arr] = rook_piece;
+            }
+
+            MoveTypes::EnPassant => {
+                let en_passant = unsafe { move_to_make.move_specific.en_passant };
+
+                let set_empty_1_arr = en_passant.pawn_to_move.pos_to_arr_index();
+                let set_empty_2_arr = en_passant.pawn_to_capture.pos_to_arr_index();
+
+                let mut target_square = set_empty_1_arr.clone();
+                let mut pawn: BoardPiece;
+
+                // Offset array position
+                match en_passant.is_white_move {
+                    true => {
+                        pawn = BoardPiece::new(Pieces::WPawn);
+
+                        if en_passant.pawn_to_move.file < en_passant.pawn_to_capture.file {
+                            target_square += 9;
+                        } else {
+                            target_square += 7;
+                        }
+                    }
+                    false => {
+                        pawn = BoardPiece::new(Pieces::BPawn);
+
+                        if en_passant.pawn_to_move.file > en_passant.pawn_to_capture.file {
+                            target_square -= 9
+                        } else {
+                            target_square -= 7
+                        }
+                    }
+                };
+
+                self.board[set_empty_1_arr] = EMPTY_PIECE;
+                self.board[set_empty_2_arr] = EMPTY_PIECE;
+
+                self.board[target_square] = pawn;
+            }
         }
         Ok(())
     }

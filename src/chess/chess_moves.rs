@@ -1,11 +1,10 @@
 /* This submodule implements moving in chess, this includes the actual move and also checking
  * For legal moves
  */
+mod meta_data;
+
 use crate::chess::chess_errors::IllegalMove;
-use crate::chess::{
-    BoardPiece, CaptureMove, CastlingMove, ChessBoard, Move, MoveInfo, MoveTypes,
-    PawnPromotionMove, Pieces, Square, EMPTY_PIECE,
-};
+use crate::chess::{BoardPiece, CaptureMove, CastlingMove, ChessBoard, Move, MoveInfo, MoveTypes, PawnPromotionMove, Pieces, Square, EMPTY_PIECE, PieceMove};
 
 impl ChessBoard {
     pub fn legal_moves() -> Vec<Move> {
@@ -41,6 +40,24 @@ impl ChessBoard {
         }
 
         match move_to_make.move_type {
+            MoveTypes::Move => {
+                let piece_move: PieceMove = unsafe { move_to_make.move_specific.piece_move };
+                let starting_square = piece_move.starting_square.pos_to_arr_index();
+                let target_square = piece_move.ending_square.pos_to_arr_index();
+
+                let piece = self.board[starting_square];
+
+                if piece.piece_type == Pieces::WPawn || piece.piece_type == Pieces::BPawn {
+
+                    // Update metadata for 50 move rule.
+                    self.halfmove_clock = 0;
+
+                }
+
+                self.board[target_square] = piece;
+                self.board[starting_square] = EMPTY_PIECE;
+            }
+
             MoveTypes::Capture => {
                 let capture: CaptureMove = unsafe { move_to_make.move_specific.capture };
                 let starting_square = capture.starting_square.pos_to_arr_index();
@@ -50,6 +67,9 @@ impl ChessBoard {
 
                 self.board[target_square] = piece;
                 self.board[starting_square].piece_type = Pieces::Empty;
+
+                // Update metadata for 50 move rule.
+                self.halfmove_clock = 0;
             }
 
             MoveTypes::PawnPromotion => {
@@ -155,4 +175,14 @@ impl Square {
     pub fn pos_to_arr_index(&self) -> usize {
         ((self.rank - 1) * 8 + self.file - 1) as usize
     }
+}
+
+/** This function returns all possible moves, but does not check for pinned pieces,
+  * checks and other special moves **/
+fn pseudo_legal_moves(chessboard: ChessBoard) -> Vec<Move> {
+    for piece in chessboard.board {
+
+    }
+
+    return;
 }

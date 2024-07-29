@@ -56,6 +56,7 @@ pub struct ChessBoard {
     fullmove_counter: u64,
     is_checked: bool,
     is_checkmate: bool,
+    is_stalemate: bool,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -88,33 +89,40 @@ pub struct Move {
 impl PartialEq for Move {
     fn eq(&self, other: &Self) -> bool {
         if self.move_type == other.move_type {
-            match self.move_type {
+            return match self.move_type {
+                MoveTypes::Move => {
+                    let self_move = unsafe { self.move_specific.piece_move.clone() };
+                    let other_move = unsafe { other.move_specific.piece_move.clone() };
+
+                    self_move == other_move
+                }
+
                 MoveTypes::Capture => {
                     let self_move = unsafe { self.move_specific.capture.clone() };
                     let other_move = unsafe { other.move_specific.capture.clone() };
 
-                    return self_move == other_move;
+                    self_move == other_move
                 }
 
                 MoveTypes::PawnPromotion => {
                     let self_move = unsafe { self.move_specific.promotion.clone() };
                     let other_move = unsafe { other.move_specific.promotion.clone() };
 
-                    return self_move == other_move;
+                    self_move == other_move
                 }
 
                 MoveTypes::Castle => {
                     let self_move = unsafe { self.move_specific.castle.clone() };
                     let other_move = unsafe { other.move_specific.castle.clone() };
 
-                    return self_move == other_move;
+                    self_move == other_move
                 }
 
                 MoveTypes::EnPassant => {
                     let self_move = unsafe { self.move_specific.en_passant.clone() };
                     let other_move = unsafe { other.move_specific.en_passant.clone() };
 
-                    return self_move == other_move;
+                    self_move == other_move
                 }
             }
         } else {
@@ -125,6 +133,7 @@ impl PartialEq for Move {
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum MoveTypes {
+    Move,
     Capture,
     PawnPromotion,
     EnPassant,
@@ -133,16 +142,24 @@ pub enum MoveTypes {
 
 #[derive(Clone, Copy)]
 pub union MoveInfo {
-    pub(crate) capture: CaptureMove, // A Capture move also incapsulates simply moving a piece / capturing an empty space!
-    promotion: PawnPromotionMove,
-    castle: CastlingMove,
-    en_passant: EnPassantMove,
+    pub(crate) piece_move: PieceMove,
+    pub(crate) capture: CaptureMove,
+    pub(crate) promotion: PawnPromotionMove,
+    pub(crate) castle: CastlingMove,
+    pub(crate) en_passant: EnPassantMove,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Square {
     pub(crate) rank: u32, // y-position
     pub(crate) file: u32, // x-position
+}
+
+/** No captures are allowed when moving, use CaptureMove instead **/
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct PieceMove {
+    pub(crate) starting_square: Square,
+    pub(crate) ending_square: Square,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -153,21 +170,21 @@ pub struct CaptureMove {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct PawnPromotionMove {
-    target_square: Square,
-    promotion_piece: Pieces,
+    pub(crate) target_square: Square,
+    pub(crate) promotion_piece: Pieces,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct CastlingMove {
-    is_king_side: bool, // If false, the move is castling queen side.
-    rank: u32,
+    pub(crate) is_king_side: bool, // If false, the move is castling queen side.
+    pub(crate) rank: u32,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct EnPassantMove {
-    pawn_to_move: Square,
-    pawn_to_capture: Square,
-    is_white_move: bool,
+    pub(crate) pawn_to_move: Square,
+    pub(crate) pawn_to_capture: Square,
+    pub(crate) is_white_move: bool,
 }
 
 // Implements chess functionality
@@ -186,6 +203,7 @@ impl ChessBoard {
             fullmove_counter: 0,
             is_checked: false,
             is_checkmate: false,
+            is_stalemate: false,
         };
     }
 }

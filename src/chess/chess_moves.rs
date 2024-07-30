@@ -1,15 +1,20 @@
 /* This submodule implements moving in chess, this includes the actual move and also checking
  * For legal moves
  */
+mod king_check;
 mod meta_data;
 
 use crate::chess::chess_errors::IllegalMove;
-use crate::chess::{BoardPiece, CaptureMove, CastlingMove, ChessBoard, Move, MoveInfo, MoveTypes, PawnPromotionMove, Pieces, Square, EMPTY_PIECE, PieceMove};
+use crate::chess::chess_moves::meta_data::{update_capture, update_move};
+use crate::chess::{
+    BoardPiece, CaptureMove, CastlingMove, ChessBoard, Move, MoveInfo, MoveTypes,
+    PawnPromotionMove, PieceMove, Pieces, Square, ARR_SIZE, EMPTY_PIECE,
+};
 
 impl ChessBoard {
-    pub fn legal_moves() -> Vec<Move> {
+    pub fn legal_moves(&self) -> Vec<Move> {
         let chess_move: Move = Move {
-            move_type: MoveTypes::Capture,
+            move_type: MoveTypes::Move,
             move_specific: MoveInfo {
                 capture: {
                     CaptureMove {
@@ -24,7 +29,7 @@ impl ChessBoard {
     }
 
     pub fn make_move(&mut self, move_to_make: Move) -> Result<(), IllegalMove> {
-        let legal_moves = Self::legal_moves();
+        let legal_moves = Self::legal_moves(self);
 
         let mut is_legal_move = false;
 
@@ -47,12 +52,7 @@ impl ChessBoard {
 
                 let piece = self.board[starting_square];
 
-                if piece.piece_type == Pieces::WPawn || piece.piece_type == Pieces::BPawn {
-
-                    // Update metadata for 50 move rule.
-                    self.halfmove_clock = 0;
-
-                }
+                update_move(self, &piece, &move_to_make);
 
                 self.board[target_square] = piece;
                 self.board[starting_square] = EMPTY_PIECE;
@@ -68,8 +68,7 @@ impl ChessBoard {
                 self.board[target_square] = piece;
                 self.board[starting_square].piece_type = Pieces::Empty;
 
-                // Update metadata for 50 move rule.
-                self.halfmove_clock = 0;
+                update_capture(self);
             }
 
             MoveTypes::PawnPromotion => {
@@ -178,11 +177,34 @@ impl Square {
 }
 
 /** This function returns all possible moves, but does not check for pinned pieces,
-  * checks and other special moves **/
+checks and other special moves **/
 fn pseudo_legal_moves(chessboard: ChessBoard) -> Vec<Move> {
-    for piece in chessboard.board {
+    for piece in chessboard.board {}
 
+    return vec![];
+}
+
+pub fn find_first_matching_chess_piece(
+    board: &[BoardPiece; ARR_SIZE],
+    piece_to_find: Pieces,
+) -> Option<usize> {
+    for (pos, square) in board.iter().enumerate() {
+        if square.piece_type == piece_to_find {
+            return Some(pos);
+        }
     }
+    return None;
+}
 
-    return;
+/**
+    This function takes a vector of pieces and checks if they reside on any of the diagonal lines
+    from a given array position.
+    The function only checks for direct line of sight,
+    so no discoveries
+
+**/
+pub fn check_diagonal_for_pieces(
+    board: &[BoardPiece; ARR_SIZE],
+    pieces: Vec<Pieces>,
+) -> Option<Vec<Square>> {
 }

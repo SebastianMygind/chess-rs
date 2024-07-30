@@ -418,33 +418,34 @@ pub fn parse_fen_castling_ability(fen: &str) -> [bool; 4] {
 }
 
 pub fn parse_fen_epawn(fen: &str) -> EnPassant {
-    let mut parsed_epawn = EnPassant {
-        is_valid: true,
-        rank: 0,
-        file: 0,
-    };
-
     let mut fen_iter = fen.chars();
 
     if fen == "-" {
         return EnPassant {
             is_valid: false,
-            rank: 0,
-            file: 0,
+            arr_pos: 0,
         };
     }
+
+    let mut parsed_epawn = EnPassant {
+        is_valid: true,
+        arr_pos: 0,
+    };
+
+    let mut epawn_file: u32;
+    let mut epawn_rank: u32;
 
     let file = fen_iter.next().unwrap();
 
     match file {
-        'a' => parsed_epawn.file = 1,
-        'b' => parsed_epawn.file = 2,
-        'c' => parsed_epawn.file = 3,
-        'd' => parsed_epawn.file = 4,
-        'e' => parsed_epawn.file = 5,
-        'f' => parsed_epawn.file = 6,
-        'g' => parsed_epawn.file = 7,
-        'h' => parsed_epawn.file = 8,
+        'a' => epawn_file = 1,
+        'b' => epawn_file = 2,
+        'c' => epawn_file = 3,
+        'd' => epawn_file = 4,
+        'e' => epawn_file = 5,
+        'f' => epawn_file = 6,
+        'g' => epawn_file = 7,
+        'h' => epawn_file = 8,
         _ => {
             panic!("unkown file character: parse_fen_epawn")
         }
@@ -460,8 +461,12 @@ pub fn parse_fen_epawn(fen: &str) -> EnPassant {
     };
 
     if 0 < rank && rank <= 8 {
-        parsed_epawn.rank = rank;
+        epawn_rank = rank;
+    } else {
+        panic!("rank not valid, must have value between 1 and 8");
     }
+
+    parsed_epawn.arr_pos = (epawn_rank - 1) * 8 + epawn_file - 1;
 
     return parsed_epawn;
 }

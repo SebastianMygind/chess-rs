@@ -59,7 +59,7 @@ pub struct ChessBoard {
     is_stalemate: bool,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct BoardPiece {
     piece_type: Pieces,
 }
@@ -75,9 +75,10 @@ impl BoardPiece {
 #[derive(Debug, Clone)]
 pub struct EnPassant {
     is_valid: bool,
-    rank: u32, // x-axis
-    file: u32, // y-axis
+    arr_pos: u32,
 }
+
+impl EnPassant {}
 
 /* Move specific implementations */
 #[derive(Clone)]
@@ -124,7 +125,7 @@ impl PartialEq for Move {
 
                     self_move == other_move
                 }
-            }
+            };
         } else {
             false
         }
@@ -151,8 +152,8 @@ pub union MoveInfo {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Square {
-    pub(crate) rank: u32, // y-position
     pub(crate) file: u32, // x-position
+    pub(crate) rank: u32, // y-position
 }
 
 /** No captures are allowed when moving, use CaptureMove instead **/
@@ -196,8 +197,7 @@ impl ChessBoard {
             castling_ability: [true; 4],
             en_passant_target_square: EnPassant {
                 is_valid: false,
-                rank: 0,
-                file: 0,
+                arr_pos: 0,
             },
             halfmove_clock: 0,
             fullmove_counter: 0,

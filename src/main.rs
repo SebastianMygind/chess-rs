@@ -11,7 +11,7 @@ fn main() -> iced::Result {
     let mut board = ChessBoard::new();
 
     let chess_move: Move = Move {
-        move_type: MoveTypes::Capture,
+        move_type: MoveTypes::Move,
         move_specific: MoveInfo {
             capture: {
                 CaptureMove {
@@ -35,7 +35,7 @@ fn main() -> iced::Result {
             println!("ERROR: {}", e)
         }
     }
-
     print!("{}", board);
+
     GameState::run(Settings::default())
 }

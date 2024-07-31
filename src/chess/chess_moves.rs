@@ -65,10 +65,10 @@ impl ChessBoard {
 
                 let piece = self.board[starting_square];
 
+                update_capture(self);
+
                 self.board[target_square] = piece;
                 self.board[starting_square].piece_type = Pieces::Empty;
-
-                update_capture(self);
             }
 
             MoveTypes::PawnPromotion => {
@@ -176,6 +176,16 @@ impl Square {
     }
 }
 
+pub fn arr_pos_to_square(arr_pos: usize) -> Square {
+    let rank = (arr_pos / 8) + 1;
+    let file = (arr_pos % 8) + 1;
+
+    return Square {
+        rank: rank as u32,
+        file: file as u32,
+    };
+}
+
 /** This function returns all possible moves, but does not check for pinned pieces,
 checks and other special moves **/
 fn pseudo_legal_moves(chessboard: ChessBoard) -> Vec<Move> {
@@ -197,14 +207,123 @@ pub fn find_first_matching_chess_piece(
 }
 
 /**
-    This function takes a vector of pieces and checks if they reside on any of the diagonal lines
-    from a given array position.
-    The function only checks for direct line of sight,
-    so no discoveries
-
+    This function takes a board and an array position in the board and check all diagonals for
+    pieces. The function will only return the first collision in the diagonal, so it does not check
+    for pinned pieces or piece color/type.
 **/
 pub fn check_diagonal_for_pieces(
     board: &[BoardPiece; ARR_SIZE],
-    pieces: Vec<Pieces>,
-) -> Option<Vec<Square>> {
+    arr_pos: usize,
+) -> Option<Vec<usize>> {
+    let square = arr_pos_to_square(arr_pos);
+
+    let mut vector: Vec<usize> = Vec::new();
+
+    let check_up: &u32 = &(8 - square.rank);
+    let check_down: &u32 = &(square.rank - 1);
+
+    let check_right: &u32 = &(8 - square.file);
+    let check_left: &u32 = &(square.file - 1);
+
+    match check_up_right(&arr_pos, check_up, check_right, board) {
+        Some(pos) => vector.push(pos),
+        None => {}
+    }
+
+    match check_up_left(&arr_pos, check_up, check_left, board) {
+        Some(pos) => vector.push(pos),
+        None => {}
+    }
+
+    match check_down_right(&arr_pos, check_down, check_right, board) {
+        Some(pos) => vector.push(pos),
+        None => {}
+    }
+
+    match check_down_left(&arr_pos, check_down, check_left, board) {
+        Some(pos) => vector.push(pos),
+        None => {}
+    }
+
+    if vector.len() == 0 {
+        return None;
+    }
+
+    return Some(vector);
+}
+
+fn check_up_right(
+    start_pos: &usize,
+    up: &u32,
+    right: &u32,
+    board: &[BoardPiece; ARR_SIZE],
+) -> Option<usize> {
+    let mut position: usize = *start_pos;
+
+    while *up > 0 && *right > 0 {
+        position += 9;
+
+        if board[position].piece_type != Pieces::Empty {
+            return Some(position);
+        }
+    }
+
+    return None;
+}
+
+fn check_up_left(
+    start_pos: &usize,
+    up: &u32,
+    left: &u32,
+    board: &[BoardPiece; ARR_SIZE],
+) -> Option<usize> {
+    let mut position: usize = *start_pos;
+
+    while *up > 0 && *left > 0 {
+        position += 7;
+
+        if board[position].piece_type != Pieces::Empty {
+            return Some(position);
+        }
+    }
+
+    return None;
+}
+
+fn check_down_right(
+    start_pos: &usize,
+    down: &u32,
+    right: &u32,
+    board: &[BoardPiece; ARR_SIZE],
+) -> Option<usize> {
+    let mut position: usize = *start_pos;
+
+    while *down > 0 && *right > 0 {
+        position -= 7;
+
+        if board[position].piece_type != Pieces::Empty {
+            return Some(position);
+        }
+    }
+
+    return None;
+}
+
+fn check_down_left(
+    start_pos: &usize,
+    down: &u32,
+    left: &u32,
+    board: &[BoardPiece; ARR_SIZE],
+) -> Option<usize> {
+    let mut position: usize = *start_pos;
+
+    while *down > 0 && *left > 0 {
+        position -= 9;
+
+        if board[position].piece_type != Pieces::Empty {
+            return Some(position);
+        }
+    }
+
+    return None;
 }

@@ -1,7 +1,7 @@
 /* This module implements a function that checks if the king of "side to move" is in check  */
 
 use crate::chess::chess_moves::{
-    arr_pos_to_square, check_diagonal_for_pieces, find_first_matching_chess_piece,
+    arr_pos_to_square, check_board_directions, find_first_matching_chess_piece, BoardDirection,
 };
 use crate::chess::{ChessBoard, Pieces, Square};
 
@@ -26,11 +26,6 @@ impl ChessBoard {
         let king_square = arr_pos_to_square(king_pos);
 
         let mut diagonal_pieces_pos: Vec<usize> = Vec::new();
-
-        match check_diagonal_for_pieces(&self.board, king_pos) {
-            Some(pieces) => diagonal_pieces_pos = pieces,
-            None => {}
-        }
 
         let mut attackers: Vec<usize> = Vec::new();
 

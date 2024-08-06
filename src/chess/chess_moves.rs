@@ -206,162 +206,81 @@ pub fn find_first_matching_chess_piece(
     return None;
 }
 
-/**
-    This function takes a board and an array position in the board and check all diagonals for
-    pieces. The function will only return the first collision in the diagonal, so it does not check
-    for pinned pieces or piece color/type.
+pub struct BoardDirection {
+    dx: i32,
+    dy: i32,
+}
+
+/** A generic function that takes a chess board, a board position, a vector of directions
+ * and a depth, it will then check all directions for any non-empty piece
+ *
 **/
-pub fn check_diagonal_for_pieces(
+pub fn check_board_directions(
     board: &[BoardPiece; ARR_SIZE],
-    arr_pos: usize,
+    position: usize,
+    directions: Vec<BoardDirection>,
+    move_depth: Option<u8>, // None means no depth limit, i.e. searches till collision or end of board
 ) -> Option<Vec<usize>> {
-    let square = arr_pos_to_square(arr_pos);
+    let target_square = arr_pos_to_square(position);
+
+    let x_pos: i32 = target_square.file as i32;
+    let y_pos: i32 = target_square.rank as i32;
 
     let mut vector: Vec<usize> = Vec::new();
 
-    let check_up: u32 = 8 - square.rank;
-    let check_down: u32 = square.rank - 1;
+    match move_depth {
+        Some(depth) => {
+            for direction in directions {
+                let mut x = direction.dx;
+                let mut y = direction.dy;
+                let mut current_depth = 0;
+                while (x_pos + x > 0 && x_pos + x <= 8)
+                    && (y_pos + y > 0 && y_pos + y <= 8)
+                    && (current_depth < depth)
+                {
+                    x += direction.dx;
+                    y += direction.dy;
 
-    let check_right: u32 = 8 - square.file;
-    let check_left: u32 = square.file - 1;
+                    let loop_square = Square {
+                        file: (x_pos + x) as u32,
+                        rank: (y_pos + y) as u32,
+                    };
+                    let loop_pos = loop_square.pos_to_arr_index();
 
-    match check_up_right(&arr_pos, check_up.clone(), check_right.clone(), board) {
-        Some(pos) => vector.push(pos),
-        None => {}
-    }
+                    if board[loop_pos].piece_type != Pieces::Empty {
+                        vector.push(loop_pos);
+                        current_depth += 1;
+                        break;
+                    }
+                }
+            }
+        }
 
-    match check_up_left(&arr_pos, check_up.clone(), check_left.clone(), board) {
-        Some(pos) => vector.push(pos),
-        None => {}
-    }
+        None => {
+            for direction in directions {
+                let mut x = direction.dx;
+                let mut y = direction.dy;
 
-    match check_down_right(&arr_pos, check_down.clone(), check_right.clone(), board) {
-        Some(pos) => vector.push(pos),
-        None => {}
-    }
+                while (x_pos + x > 0 && x_pos + x <= 8) && (y_pos + y > 0 && y_pos + y <= 8) {
+                    x += direction.dx;
+                    y += direction.dy;
 
-    match check_down_left(&arr_pos, check_down.clone(), check_left.clone(), board) {
-        Some(pos) => vector.push(pos),
-        None => {}
-    }
+                    let loop_square = Square {
+                        file: (x_pos + x) as u32,
+                        rank: (y_pos + y) as u32,
+                    };
+                    let loop_pos = loop_square.pos_to_arr_index();
 
-    if vector.len() == 0 {
-        return None;
-    }
-
-    return Some(vector);
-}
-
-fn check_up_right(
-    start_pos: &usize,
-    mut up: u32,
-    mut right: u32,
-    board: &[BoardPiece; ARR_SIZE],
-) -> Option<usize> {
-    let mut position: usize = *start_pos;
-
-    while up > 0 && right > 0 {
-        position += 9;
-
-        up -= 1;
-        right -= 1;
-
-        if board[position].piece_type != Pieces::Empty {
-            return Some(position);
+                    if board[loop_pos].piece_type != Pieces::Empty {
+                        vector.push(loop_pos);
+                        break;
+                    }
+                }
+            }
         }
     }
-
-    return None;
-}
-
-fn check_up_left(
-    start_pos: &usize,
-    mut up: u32,
-    mut left: u32,
-    board: &[BoardPiece; ARR_SIZE],
-) -> Option<usize> {
-    let mut position: usize = *start_pos;
-
-    while up > 0 && left > 0 {
-        position += 7;
-
-        up -= 1;
-        left -= 1;
-
-        if board[position].piece_type != Pieces::Empty {
-            return Some(position);
-        }
-    }
-
-    return None;
-}
-
-fn check_down_right(
-    start_pos: &usize,
-    mut down: u32,
-    mut right: u32,
-    board: &[BoardPiece; ARR_SIZE],
-) -> Option<usize> {
-    let mut position: usize = *start_pos;
-
-    while down > 0 && right > 0 {
-        position -= 7;
-
-        down -= 1;
-        right -= 1;
-
-        if board[position].piece_type != Pieces::Empty {
-            return Some(position);
-        }
-    }
-
-    return None;
-}
-
-fn check_down_left(
-    start_pos: &usize,
-    mut down: u32,
-    mut left: u32,
-    board: &[BoardPiece; ARR_SIZE],
-) -> Option<usize> {
-    let mut position: usize = *start_pos;
-
-    while down > 0 && left > 0 {
-        position -= 9;
-
-        down -= 1;
-        left -= 1;
-
-        if board[position].piece_type != Pieces::Empty {
-            return Some(position);
-        }
-    }
-
-    return None;
-}
-
-pub fn check_horizontal_and_vertical_for_pieces(
-    board: &[BoardPiece; ARR_SIZE],
-    arr_pos: usize,
-) -> Option<Vec<usize>> {
-    let square = arr_pos_to_square(arr_pos);
-
-    let mut vector: Vec<usize> = Vec::new();
-
-    let check_up: u32 = 8 - square.rank;
-    let check_down: u32 = square.rank - 1;
-
-    let check_right: u32 = 8 - square.file;
-    let check_left: u32 = square.file - 1;
-
-    return;
-}
-
-fn check_up(mut start_pos: usize, mut up: u32, board: &[BoardPiece; ARR_SIZE]) -> Option<usize> {
-    while up > 0 {
-        if board[position].piece_type != Pieces::Empty {
-            return Some(position);
-        }
+    if vector.len() > 0 {
+        return Some(vector);
     }
 
     return None;

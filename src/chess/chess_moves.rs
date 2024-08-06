@@ -339,3 +339,30 @@ fn check_down_left(
 
     return None;
 }
+
+pub fn check_horizontal_and_vertical_for_pieces(
+    board: &[BoardPiece; ARR_SIZE],
+    arr_pos: usize,
+) -> Option<Vec<usize>> {
+    let square = arr_pos_to_square(arr_pos);
+
+    let mut vector: Vec<usize> = Vec::new();
+
+    let check_up: u32 = 8 - square.rank;
+    let check_down: u32 = square.rank - 1;
+
+    let check_right: u32 = 8 - square.file;
+    let check_left: u32 = square.file - 1;
+
+    return;
+}
+
+fn check_up(mut start_pos: usize, mut up: u32, board: &[BoardPiece; ARR_SIZE]) -> Option<usize> {
+    while up > 0 {
+        if board[position].piece_type != Pieces::Empty {
+            return Some(position);
+        }
+    }
+
+    return None;
+}

@@ -219,28 +219,28 @@ pub fn check_diagonal_for_pieces(
 
     let mut vector: Vec<usize> = Vec::new();
 
-    let check_up: &u32 = &(8 - square.rank);
-    let check_down: &u32 = &(square.rank - 1);
+    let check_up: u32 = 8 - square.rank;
+    let check_down: u32 = square.rank - 1;
 
-    let check_right: &u32 = &(8 - square.file);
-    let check_left: &u32 = &(square.file - 1);
+    let check_right: u32 = 8 - square.file;
+    let check_left: u32 = square.file - 1;
 
-    match check_up_right(&arr_pos, check_up, check_right, board) {
+    match check_up_right(&arr_pos, check_up.clone(), check_right.clone(), board) {
         Some(pos) => vector.push(pos),
         None => {}
     }
 
-    match check_up_left(&arr_pos, check_up, check_left, board) {
+    match check_up_left(&arr_pos, check_up.clone(), check_left.clone(), board) {
         Some(pos) => vector.push(pos),
         None => {}
     }
 
-    match check_down_right(&arr_pos, check_down, check_right, board) {
+    match check_down_right(&arr_pos, check_down.clone(), check_right.clone(), board) {
         Some(pos) => vector.push(pos),
         None => {}
     }
 
-    match check_down_left(&arr_pos, check_down, check_left, board) {
+    match check_down_left(&arr_pos, check_down.clone(), check_left.clone(), board) {
         Some(pos) => vector.push(pos),
         None => {}
     }
@@ -254,14 +254,17 @@ pub fn check_diagonal_for_pieces(
 
 fn check_up_right(
     start_pos: &usize,
-    up: &u32,
-    right: &u32,
+    mut up: u32,
+    mut right: u32,
     board: &[BoardPiece; ARR_SIZE],
 ) -> Option<usize> {
     let mut position: usize = *start_pos;
 
-    while *up > 0 && *right > 0 {
+    while up > 0 && right > 0 {
         position += 9;
+
+        up -= 1;
+        right -= 1;
 
         if board[position].piece_type != Pieces::Empty {
             return Some(position);
@@ -273,14 +276,17 @@ fn check_up_right(
 
 fn check_up_left(
     start_pos: &usize,
-    up: &u32,
-    left: &u32,
+    mut up: u32,
+    mut left: u32,
     board: &[BoardPiece; ARR_SIZE],
 ) -> Option<usize> {
     let mut position: usize = *start_pos;
 
-    while *up > 0 && *left > 0 {
+    while up > 0 && left > 0 {
         position += 7;
+
+        up -= 1;
+        left -= 1;
 
         if board[position].piece_type != Pieces::Empty {
             return Some(position);
@@ -292,14 +298,17 @@ fn check_up_left(
 
 fn check_down_right(
     start_pos: &usize,
-    down: &u32,
-    right: &u32,
+    mut down: u32,
+    mut right: u32,
     board: &[BoardPiece; ARR_SIZE],
 ) -> Option<usize> {
     let mut position: usize = *start_pos;
 
-    while *down > 0 && *right > 0 {
+    while down > 0 && right > 0 {
         position -= 7;
+
+        down -= 1;
+        right -= 1;
 
         if board[position].piece_type != Pieces::Empty {
             return Some(position);
@@ -311,14 +320,17 @@ fn check_down_right(
 
 fn check_down_left(
     start_pos: &usize,
-    down: &u32,
-    left: &u32,
+    mut down: u32,
+    mut left: u32,
     board: &[BoardPiece; ARR_SIZE],
 ) -> Option<usize> {
     let mut position: usize = *start_pos;
 
-    while *down > 0 && *left > 0 {
+    while down > 0 && left > 0 {
         position -= 9;
+
+        down -= 1;
+        left -= 1;
 
         if board[position].piece_type != Pieces::Empty {
             return Some(position);

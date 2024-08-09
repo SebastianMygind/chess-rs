@@ -3,7 +3,7 @@
 use crate::chess::chess_moves::{
     arr_pos_to_square, check_board_directions, find_first_matching_chess_piece, BoardDirection,
 };
-use crate::chess::{ChessBoard, Pieces, Square};
+use crate::chess::{BoardPiece, ChessBoard, Pieces, Square, ARR_SIZE};
 
 pub struct KingInCheck {
     // Vector of all squares that check the king
@@ -25,43 +25,59 @@ impl ChessBoard {
 
         let king_square = arr_pos_to_square(king_pos);
 
-        let mut diagonal_pieces_pos: Vec<usize> = Vec::new();
-
         let mut attackers: Vec<usize> = Vec::new();
 
-        for piece in diagonal_pieces_pos {
-            match self.board[piece].piece_type {
-                Pieces::WQueen | Pieces::WBishop => {
-                    if !self.white_is_side_to_move {
-                        attackers.push(piece);
+        let diagonal_direction = vec![
+            BoardDirection { dx: 1, dy: 1 },
+            BoardDirection { dx: -1, dy: 1 },
+            BoardDirection { dx: 1, dy: -1 },
+            BoardDirection { dx: -1, dy: -1 },
+        ];
+        let white_pawn_direction = vec![
+            BoardDirection { dx: 1, dy: 1 },
+            BoardDirection { dx: 1, dy: -1 },
+        ];
+        let black_pawn_direction = vec![
+            BoardDirection { dx: -1, dy: 1 },
+            BoardDirection { dx: -1, dy: -1 },
+        ];
+        let horizontal_and_vertical_direction = vec![
+            BoardDirection { dx: 1, dy: 0 },
+            BoardDirection { dx: -1, dy: 0 },
+            BoardDirection { dx: 0, dy: 1 },
+            BoardDirection { dx: 0, dy: -1 },
+        ];
+
+        let knight_direction = vec![
+            BoardDirection { dx: 2, dy: 1 },
+            BoardDirection { dx: 2, dy: -1 },
+            BoardDirection { dx: -2, dy: 1 },
+            BoardDirection { dx: -2, dy: -1 },
+            BoardDirection { dx: 1, dy: 2 },
+            BoardDirection { dx: 1, dy: -2 },
+            BoardDirection { dx: -1, dy: 2 },
+            BoardDirection { dx: -1, dy: -2 },
+        ];
+
+        let diagonal_collision =
+            check_board_directions(&self.board, king_pos.clone(), diagonal_direction, None);
+
+        match diagonal_collision {
+            Some(collisions) => {
+                let attacking_pieces: Vec<Pieces> = if self.white_is_side_to_move {
+                    vec![Pieces::BQueen, Pieces::BBishop]
+                } else {
+                    vec![Pieces::WQueen, Pieces::WBishop]
+                };
+
+                for collision in collisions {
+                    if check_board_type_eq(&self.board, &collision, &attacking_pieces) {
+                        attackers.push(collision);
                     }
                 }
-
-                Pieces::BQueen | Pieces::BBishop => {
-                    if self.white_is_side_to_move {
-                        attackers.push(piece);
-                    }
-                }
-
-                Pieces::WPawn => {
-                    if !self.white_is_side_to_move
-                        && (piece + 7 == king_pos || piece + 9 == king_pos)
-                    {
-                        attackers.push(piece);
-                    }
-                }
-
-                Pieces::BPawn => {
-                    if self.white_is_side_to_move
-                        && (piece as i64 - 7 == king_pos as i64
-                            || piece as i64 - 9 == king_pos as i64)
-                    {
-                        attackers.push(piece);
-                    }
-                }
-
-                _ => {}
             }
+
+            None => {}
         }
 
         let king_in_check = KingInCheck {
@@ -103,4 +119,11 @@ mod tests {
     fn test_pos_5() {
         assert_eq!(arr_pos_to_square(60), Square { file: 5, rank: 8 })
     }
+}
+
+fn check_board_type_eq(
+    board: &[BoardPiece; ARR_SIZE],
+    position_to_check: &usize,
+    matches: &Vec<Pieces>,
+) -> bool {
 }

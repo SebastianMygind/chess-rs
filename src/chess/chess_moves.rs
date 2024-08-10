@@ -1,6 +1,7 @@
 /* This submodule implements moving in chess, this includes the actual move and also checking
  * For legal moves
  */
+mod attack_logic;
 mod king_check;
 mod meta_data;
 

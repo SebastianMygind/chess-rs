@@ -1,5 +1,11 @@
 /* This module implements a function that checks if the king of "side to move" is in check  */
 
+use crate::chess::chess_moves::attack_logic::Directions::BlackPawn;
+use crate::chess::chess_moves::attack_logic::{
+    check_for_attackers, get_potential_attacking_pieces, Directions, BLACK_PAWN_ATTACK_DIRECTION,
+    DIAGONAL_ATTACK_DIRECTION, HORIZONTAL_AND_VERTICAL_ATTACK_DIRECTION, KNIGHT_ATTACK_DIRECTION,
+    WHITE_PAWN_ATTACK_DIRECTION,
+};
 use crate::chess::chess_moves::{
     arr_pos_to_square, check_board_directions, find_first_matching_chess_piece, BoardDirection,
 };
@@ -27,66 +33,86 @@ impl ChessBoard {
 
         let mut attackers: Vec<usize> = Vec::new();
 
-        let diagonal_direction = vec![
-            BoardDirection { dx: 1, dy: 1 },
-            BoardDirection { dx: -1, dy: 1 },
-            BoardDirection { dx: 1, dy: -1 },
-            BoardDirection { dx: -1, dy: -1 },
-        ];
-        let white_pawn_direction = vec![
-            BoardDirection { dx: 1, dy: 1 },
-            BoardDirection { dx: 1, dy: -1 },
-        ];
-        let black_pawn_direction = vec![
-            BoardDirection { dx: -1, dy: 1 },
-            BoardDirection { dx: -1, dy: -1 },
-        ];
-        let horizontal_and_vertical_direction = vec![
-            BoardDirection { dx: 1, dy: 0 },
-            BoardDirection { dx: -1, dy: 0 },
-            BoardDirection { dx: 0, dy: 1 },
-            BoardDirection { dx: 0, dy: -1 },
-        ];
+        // Check the diagonal
+        let diagonal_collision = check_board_directions(
+            &self.board,
+            king_pos.clone(),
+            DIAGONAL_ATTACK_DIRECTION,
+            None,
+        );
 
-        let knight_direction = vec![
-            BoardDirection { dx: 2, dy: 1 },
-            BoardDirection { dx: 2, dy: -1 },
-            BoardDirection { dx: -2, dy: 1 },
-            BoardDirection { dx: -2, dy: -1 },
-            BoardDirection { dx: 1, dy: 2 },
-            BoardDirection { dx: 1, dy: -2 },
-            BoardDirection { dx: -1, dy: 2 },
-            BoardDirection { dx: -1, dy: -2 },
-        ];
+        attackers.extend(check_for_attackers(
+            &self.board,
+            diagonal_collision,
+            get_potential_attacking_pieces(Directions::Diagonal, &self.white_is_side_to_move),
+        ));
 
-        let diagonal_collision =
-            check_board_directions(&self.board, king_pos.clone(), diagonal_direction, None);
+        // Check vertical and horizontal
+        let ver_hor_collisions = check_board_directions(
+            &self.board,
+            king_pos.clone(),
+            HORIZONTAL_AND_VERTICAL_ATTACK_DIRECTION,
+            None,
+        );
 
-        match diagonal_collision {
-            Some(collisions) => {
-                let attacking_pieces: Vec<Pieces> = if self.white_is_side_to_move {
-                    vec![Pieces::BQueen, Pieces::BBishop]
-                } else {
-                    vec![Pieces::WQueen, Pieces::WBishop]
-                };
+        attackers.extend(check_for_attackers(
+            &self.board,
+            ver_hor_collisions,
+            get_potential_attacking_pieces(
+                Directions::HorizontalAndVertical,
+                &self.white_is_side_to_move,
+            ),
+        ));
 
-                for collision in collisions {
-                    if check_board_type_eq(&self.board, &collision, &attacking_pieces) {
-                        attackers.push(collision);
-                    }
-                }
-            }
+        // Check for knights
+        let knight_collisions = check_board_directions(
+            &self.board,
+            king_pos.clone(),
+            KNIGHT_ATTACK_DIRECTION,
+            Some(1),
+        );
 
-            None => {}
-        }
+        attackers.extend(check_for_attackers(
+            &self.board,
+            knight_collisions,
+            get_potential_attacking_pieces(Directions::Knight, &self.white_is_side_to_move),
+        ));
 
-        let king_in_check = KingInCheck {
-            attackers,
-            king_pos,
+        // Check Pawn collisions
+
+        let mut attacking_pawn: Vec<Pieces> = Vec::new();
+
+        let pawn_collisions = if self.white_is_side_to_move {
+            attacking_pawn.push(Pieces::BPawn);
+
+            check_board_directions(
+                &self.board,
+                king_pos.clone(),
+                BLACK_PAWN_ATTACK_DIRECTION,
+                Some(1),
+            )
+        } else {
+            attacking_pawn.push(Pieces::WPawn);
+            check_board_directions(
+                &self.board,
+                king_pos.clone(),
+                WHITE_PAWN_ATTACK_DIRECTION,
+                Some(1),
+            )
         };
 
+        attackers.extend(check_for_attackers(
+            &self.board,
+            pawn_collisions,
+            attacking_pawn,
+        ));
+
+        if attackers.len() == 0 {
+            return None;
+        }
+
         return Some(KingInCheck {
-            attackers: vec![],
+            attackers,
             king_pos,
         });
     }
@@ -126,4 +152,10 @@ fn check_board_type_eq(
     position_to_check: &usize,
     matches: &Vec<Pieces>,
 ) -> bool {
+    for type_match in matches {
+        if board[*position_to_check].piece_type == *type_match {
+            return true;
+        }
+    }
+    false
 }

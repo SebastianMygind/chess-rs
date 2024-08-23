@@ -4,31 +4,31 @@ use crate::chess::Pieces::{
 };
 use crate::chess::{BoardPiece, Pieces, ARR_SIZE};
 
-pub const WHITE_PAWN_ATTACK_DIRECTION: Vec<BoardDirection> = vec![
+pub static WHITE_PAWN_ATTACK_DIRECTION: &[BoardDirection] = &[
     BoardDirection { dx: 1, dy: 1 },
     BoardDirection { dx: 1, dy: -1 },
 ];
 
-pub const BLACK_PAWN_ATTACK_DIRECTION: Vec<BoardDirection> = vec![
+pub static BLACK_PAWN_ATTACK_DIRECTION: &[BoardDirection] = &[
     BoardDirection { dx: -1, dy: 1 },
     BoardDirection { dx: -1, dy: -1 },
 ];
 
-pub const HORIZONTAL_AND_VERTICAL_ATTACK_DIRECTION: Vec<BoardDirection> = vec![
+pub static HORIZONTAL_AND_VERTICAL_ATTACK_DIRECTION: &[BoardDirection] = &[
     BoardDirection { dx: 1, dy: 0 },
     BoardDirection { dx: -1, dy: 0 },
     BoardDirection { dx: 0, dy: 1 },
     BoardDirection { dx: 0, dy: -1 },
 ];
 
-pub const DIAGONAL_ATTACK_DIRECTION: Vec<BoardDirection> = vec![
+pub static DIAGONAL_ATTACK_DIRECTION: &[BoardDirection] = &[
     BoardDirection { dx: 1, dy: 1 },
     BoardDirection { dx: -1, dy: 1 },
     BoardDirection { dx: 1, dy: -1 },
     BoardDirection { dx: -1, dy: -1 },
 ];
 
-pub const KNIGHT_ATTACK_DIRECTION: Vec<BoardDirection> = vec![
+pub static KNIGHT_ATTACK_DIRECTION: &[BoardDirection] = &[
     BoardDirection { dx: 2, dy: 1 },
     BoardDirection { dx: 2, dy: -1 },
     BoardDirection { dx: -2, dy: 1 },
@@ -49,8 +49,8 @@ pub fn check_for_attackers(
     match collisions {
         Some(collisions) => {
             for collision in collisions {
-                for piece in attacking_pieces {
-                    if board[collision].piece_type == piece {
+                for piece in &attacking_pieces {
+                    if board[collision].piece_type == *piece {
                         attackers.push(collision);
                     }
                 }
@@ -71,25 +71,27 @@ pub enum Directions {
 
 pub fn get_potential_attacking_pieces(
     direction: Directions,
-    is_white_to_move: &bool,
+    white_is_side_to_move: &bool,
 ) -> Vec<Pieces> {
-    return match direction {
+    let is_white_bool = *white_is_side_to_move;
+
+    match direction {
         Directions::Diagonal => {
-            if is_white_to_move {
+            if is_white_bool {
                 vec![BQueen, BBishop]
             } else {
                 vec![WQueen, WBishop]
             }
         }
         Directions::HorizontalAndVertical => {
-            if is_white_to_move {
+            if is_white_bool {
                 vec![BQueen, BRook]
             } else {
                 vec![WQueen, WRook]
             }
         }
         Directions::Knight => {
-            if is_white_to_move {
+            if is_white_bool {
                 vec![BKnight]
             } else {
                 vec![WKnight]
@@ -101,5 +103,5 @@ pub fn get_potential_attacking_pieces(
         Directions::BlackPawn => {
             vec![BPawn]
         }
-    };
+    }
 }

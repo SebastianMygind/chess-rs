@@ -219,7 +219,7 @@ pub struct BoardDirection {
 pub fn check_board_directions(
     board: &[BoardPiece; ARR_SIZE],
     position: usize,
-    directions: Vec<BoardDirection>,
+    directions: &[BoardDirection],
     move_depth: Option<u8>, // None means no depth limit, i.e. searches till collision or end of board
 ) -> Option<Vec<usize>> {
     let target_square = arr_pos_to_square(position);

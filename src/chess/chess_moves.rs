@@ -3,6 +3,7 @@
  */
 mod attack_logic;
 mod king_check;
+mod legal_moves;
 mod meta_data;
 
 use crate::chess::chess_errors::IllegalMove;
@@ -13,22 +14,6 @@ use crate::chess::{
 };
 
 impl ChessBoard {
-    pub fn legal_moves(&self) -> Vec<Move> {
-        let chess_move: Move = Move {
-            move_type: MoveTypes::Move,
-            move_specific: MoveInfo {
-                capture: {
-                    CaptureMove {
-                        starting_square: Square { rank: 2, file: 5 },
-                        target_square: Square { rank: 4, file: 5 },
-                    }
-                },
-            },
-        };
-
-        return vec![chess_move];
-    }
-
     pub fn make_move(&mut self, move_to_make: Move) -> Result<(), IllegalMove> {
         let legal_moves = Self::legal_moves(self);
 
@@ -88,13 +73,13 @@ impl ChessBoard {
             MoveTypes::Castle => {
                 let castle: CastlingMove = unsafe { move_to_make.move_specific.castle };
 
-                let mut king_file: u32;
-                let mut rook_file: u32;
+                let king_file: u32;
+                let rook_file: u32;
 
-                let mut rook_to_set_empty_file: u32;
+                let rook_to_set_empty_file: u32;
 
-                let mut king_piece: BoardPiece;
-                let mut rook_piece: BoardPiece;
+                let king_piece: BoardPiece;
+                let rook_piece: BoardPiece;
 
                 if castle.is_king_side {
                     king_file = 7;
@@ -137,7 +122,7 @@ impl ChessBoard {
                 let set_empty_2_arr = en_passant.pawn_to_capture.pos_to_arr_index();
 
                 let mut target_square = set_empty_1_arr.clone();
-                let mut pawn: BoardPiece;
+                let pawn: BoardPiece;
 
                 // Offset array position
                 match en_passant.is_white_move {
@@ -187,14 +172,6 @@ pub fn arr_pos_to_square(arr_pos: usize) -> Square {
     }
 }
 
-/** This function returns all possible moves, but does not check for pinned pieces,
-checks and other special moves **/
-fn pseudo_legal_moves(chessboard: ChessBoard) -> Vec<Move> {
-    for piece in chessboard.board {}
-
-    return vec![];
-}
-
 pub fn find_first_matching_chess_piece(
     board: &[BoardPiece; ARR_SIZE],
     piece_to_find: Pieces,
@@ -234,7 +211,7 @@ pub fn check_board_directions(
             for direction in directions {
                 let mut x = direction.dx;
                 let mut y = direction.dy;
-                let mut current_depth = 0;
+                let mut current_depth: u8 = 1;
                 while (x_pos + x > 0 && x_pos + x <= 8)
                     && (y_pos + y > 0 && y_pos + y <= 8)
                     && (current_depth < depth)
@@ -250,9 +227,9 @@ pub fn check_board_directions(
 
                     if board[loop_pos].piece_type != Pieces::Empty {
                         vector.push(loop_pos);
-                        current_depth += 1;
                         break;
                     }
+                    current_depth += 1;
                 }
             }
         }

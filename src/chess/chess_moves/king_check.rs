@@ -1,6 +1,5 @@
 /* This module implements a function that checks if the king of "side to move" is in check  */
 
-use crate::chess::chess_moves::attack_logic::Directions::BlackPawn;
 use crate::chess::chess_moves::attack_logic::{
     check_for_attackers, get_potential_attacking_pieces, Directions, BLACK_PAWN_ATTACK_DIRECTION,
     DIAGONAL_ATTACK_DIRECTION, HORIZONTAL_AND_VERTICAL_ATTACK_DIRECTION, KNIGHT_ATTACK_DIRECTION,

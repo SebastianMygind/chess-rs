@@ -3,8 +3,7 @@ mod ui;
 
 use iced::{Application, Settings};
 
-use crate::chess::fen::FEN_START_POS;
-use crate::chess::{CaptureMove, ChessBoard, Move, MoveInfo, MoveTypes, Pieces, Square};
+use crate::chess::{CaptureMove, ChessBoard, Move, MoveInfo, MoveTypes, Square};
 use crate::ui::game_state::GameState;
 
 fn main() -> iced::Result {
@@ -21,13 +20,6 @@ fn main() -> iced::Result {
             },
         },
     };
-
-    match board.set_fen_position_arr(FEN_START_POS) {
-        Ok(()) => {}
-        Err(e) => {
-            println!("ERROR: {}", e)
-        }
-    }
 
     match board.make_move(chess_move) {
         Ok(()) => {}

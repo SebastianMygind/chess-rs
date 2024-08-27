@@ -40,10 +40,10 @@ impl fmt::Display for ChessBoard {
     }
 }
 
-fn parse_chessboard_to_string(board_struct: &[BoardPiece; ARR_SIZE]) -> Vec<String> {
+fn parse_chessboard_to_string(board_arr: &[BoardPiece; ARR_SIZE]) -> Vec<String> {
     let mut printable_board = Vec::new();
 
-    let board = board_struct.clone();
+    let board = board_arr.clone();
 
     let ranks: [usize; 8] = [1, 2, 3, 4, 5, 6, 7, 8];
 

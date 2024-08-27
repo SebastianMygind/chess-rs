@@ -12,6 +12,7 @@ pub mod chess_errors;
 pub mod chess_moves;
 
 use chess_errors::{IllegalMove, InvalidFen};
+use fen::FEN_START_POS;
 
 /* Defines different piece types and color */
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -191,7 +192,7 @@ pub struct EnPassantMove {
 // Implements chess functionality
 impl ChessBoard {
     pub fn new() -> ChessBoard {
-        return Self {
+        let mut new_board: ChessBoard = ChessBoard {
             board: [EMPTY_PIECE; ARR_SIZE],
             white_is_side_to_move: true,
             castling_ability: [true; 4],
@@ -205,6 +206,10 @@ impl ChessBoard {
             is_checkmate: false,
             is_stalemate: false,
         };
+
+        new_board.set_fen_position_arr(FEN_START_POS).unwrap();
+
+        return new_board;
     }
 }
 

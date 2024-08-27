@@ -58,7 +58,7 @@ pub fn check_for_attackers(
         }
         None => {}
     }
-    return attackers;
+    attackers
 }
 
 pub enum Directions {

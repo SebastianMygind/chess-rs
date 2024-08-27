@@ -13,8 +13,6 @@ pub fn update_move(chessboard: &mut ChessBoard, piece: &BoardPiece, move_to_make
 
             update_fullmove_counter(chessboard);
 
-            update_side_to_move(chessboard);
-
             set_no_en_passant(chessboard);
         }
 
@@ -30,8 +28,6 @@ pub fn update_move(chessboard: &mut ChessBoard, piece: &BoardPiece, move_to_make
                 chessboard.castling_ability[1] = false;
             }
 
-            update_side_to_move(chessboard);
-
             set_no_en_passant(chessboard);
         }
 
@@ -46,8 +42,6 @@ pub fn update_move(chessboard: &mut ChessBoard, piece: &BoardPiece, move_to_make
             increment_half_move_clock(chessboard);
 
             update_fullmove_counter(chessboard);
-
-            update_side_to_move(chessboard);
 
             set_no_en_passant(chessboard);
         }
@@ -68,8 +62,6 @@ pub fn update_move(chessboard: &mut ChessBoard, piece: &BoardPiece, move_to_make
 
             update_fullmove_counter(chessboard);
 
-            update_side_to_move(chessboard);
-
             set_no_en_passant(chessboard);
         }
 
@@ -88,8 +80,6 @@ pub fn update_move(chessboard: &mut ChessBoard, piece: &BoardPiece, move_to_make
             increment_half_move_clock(chessboard);
 
             update_fullmove_counter(chessboard);
-
-            update_side_to_move(chessboard);
 
             set_no_en_passant(chessboard);
         }
@@ -112,8 +102,6 @@ pub fn update_move(chessboard: &mut ChessBoard, piece: &BoardPiece, move_to_make
             reset_half_move_clock(chessboard);
 
             update_fullmove_counter(chessboard);
-
-            update_side_to_move(chessboard);
         }
 
         Pieces::BPawn => {
@@ -134,8 +122,6 @@ pub fn update_move(chessboard: &mut ChessBoard, piece: &BoardPiece, move_to_make
             reset_half_move_clock(chessboard);
 
             update_fullmove_counter(chessboard);
-
-            update_side_to_move(chessboard);
         }
 
         Pieces::Empty => {
@@ -150,8 +136,6 @@ pub fn update_capture(chessboard: &mut ChessBoard) {
     set_no_en_passant(chessboard);
 
     update_fullmove_counter(chessboard);
-
-    update_side_to_move(chessboard);
 }
 
 pub fn update_castle(chessboard: &mut ChessBoard) {}
@@ -164,6 +148,16 @@ pub fn update_game_state(chessboard: &mut ChessBoard) {
     let legal_moves: Vec<Move> = chessboard.legal_moves();
 
     if legal_moves.len() == 0 {}
+
+    match chessboard.king_in_check() {
+        Some(checks) => {
+            chessboard.is_checkmate = true;
+        }
+
+        None => {}
+    }
+
+    update_side_to_move(chessboard);
 }
 
 /* Helper functions */

@@ -90,7 +90,7 @@ pub struct Move {
 impl PartialEq for Move {
     fn eq(&self, other: &Self) -> bool {
         if self.move_type == other.move_type {
-            return match self.move_type {
+            match self.move_type {
                 MoveTypes::Move => {
                     let self_move = unsafe { self.move_specific.piece_move.clone() };
                     let other_move = unsafe { other.move_specific.piece_move.clone() };
@@ -125,7 +125,7 @@ impl PartialEq for Move {
 
                     self_move == other_move
                 }
-            };
+            }
         } else {
             false
         }

@@ -111,10 +111,10 @@ impl ChessBoard {
             return None;
         }
 
-        return Some(KingInCheck {
+        Some(KingInCheck {
             attackers,
             king_pos,
-        });
+        })
     }
 }
 

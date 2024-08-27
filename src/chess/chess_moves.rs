@@ -181,10 +181,10 @@ pub fn arr_pos_to_square(arr_pos: usize) -> Square {
     let rank = (arr_pos / 8) + 1;
     let file = (arr_pos % 8) + 1;
 
-    return Square {
+    Square {
         rank: rank as u32,
         file: file as u32,
-    };
+    }
 }
 
 /** This function returns all possible moves, but does not check for pinned pieces,

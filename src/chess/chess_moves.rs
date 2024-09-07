@@ -15,7 +15,7 @@ use crate::chess::{
 
 impl ChessBoard {
     pub fn make_move(&mut self, move_to_make: Move) -> Result<(), IllegalMove> {
-        let legal_moves = Self::legal_moves(self);
+        let legal_moves = self.legal_moves();
 
         let mut is_legal_move = false;
 
@@ -54,7 +54,7 @@ impl ChessBoard {
                 update_capture(self);
 
                 self.board[target_square] = piece;
-                self.board[starting_square].piece_type = Pieces::Empty;
+                self.board[starting_square] = EMPTY_PIECE;
             }
 
             MoveTypes::PawnPromotion => {

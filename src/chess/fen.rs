@@ -1,4 +1,4 @@
-use crate::chess::{BoardPiece, ChessBoard, EnPassant, Pieces};
+use crate::chess::{BoardPiece, EnPassant, Pieces};
 
 const ARR_SIZE: usize = 64;
 const ROW_SIZE: usize = 8;
@@ -89,7 +89,7 @@ fn fen_check_board_validity_optimized(fen: &str) -> bool {
             }
         }
     }
-    return true;
+    true
 }
 
 fn fen_check_side_to_move(side_to_move: &str) -> bool {
@@ -99,7 +99,7 @@ fn fen_check_side_to_move(side_to_move: &str) -> bool {
 
     let side_char = side_to_move.chars().next();
 
-    return match side_char {
+    match side_char {
         Some(c) => {
             if (c == 'w' || c == 'b') {
                 true
@@ -108,7 +108,7 @@ fn fen_check_side_to_move(side_to_move: &str) -> bool {
             }
         }
         None => false,
-    };
+    }
 }
 
 fn fen_check_castling_ability(castling_string: &str) -> bool {
@@ -154,10 +154,8 @@ fn fen_check_castling_ability(castling_string: &str) -> bool {
             }
         }
     }
-    return true;
+    true
 }
-
-fn set_castling_validity(ability: [bool; 4], current_piece: usize) {}
 
 fn fen_check_en_passant(en_passant: &str) -> bool {
     if fen_check_hyphen(en_passant) {
@@ -309,7 +307,7 @@ pub fn parse_fen_piece_placement(fen_string: &str) -> [BoardPiece; ARR_SIZE] {
         panic!("ERROR: not 64 elements in parse_fen_piece_placement!")
     }
 
-    return board;
+    board
 }
 
 fn parse_fen_piece_rank(rank_string: &str) -> Vec<Pieces> {
@@ -336,7 +334,7 @@ fn parse_fen_piece_rank(rank_string: &str) -> Vec<Pieces> {
 }
 
 fn parse_fen_piece(c: char) -> Pieces {
-    return match c {
+    match c {
         'K' => Pieces::WKing,
         'k' => Pieces::BKing,
 
@@ -358,7 +356,7 @@ fn parse_fen_piece(c: char) -> Pieces {
         _ => {
             panic!("Not valid FEN: err in parse_fen_piece")
         }
-    };
+    }
 }
 
 pub fn parse_fen_side_to_move(fen: &str) -> bool {
@@ -369,15 +367,13 @@ pub fn parse_fen_side_to_move(fen: &str) -> bool {
     let char = fen.chars().next();
 
     match char {
-        Some(c) => {
-            return match c {
-                'w' => true,
-                'b' => false,
-                _ => {
-                    panic!("ERROR: side to move char not allowed!")
-                }
+        Some(c) => match c {
+            'w' => true,
+            'b' => false,
+            _ => {
+                panic!("ERROR: side to move char not allowed!")
             }
-        }
+        },
         None => {
             panic!("ERROR: Could not parse fen: side_to_move char")
         }
@@ -421,19 +417,13 @@ pub fn parse_fen_epawn(fen: &str) -> EnPassant {
     let mut fen_iter = fen.chars();
 
     if fen == "-" {
-        return EnPassant {
-            is_valid: false,
-            arr_pos: 0,
-        };
+        return EnPassant { arr_pos: None };
     }
 
-    let mut parsed_epawn = EnPassant {
-        is_valid: true,
-        arr_pos: 0,
-    };
+    let mut parsed_epawn: EnPassant = EnPassant { arr_pos: None };
 
-    let mut epawn_file: u32;
-    let mut epawn_rank: u32;
+    let mut epawn_file: u8;
+    let mut epawn_rank: u8;
 
     let file = fen_iter.next().unwrap();
 
@@ -461,18 +451,18 @@ pub fn parse_fen_epawn(fen: &str) -> EnPassant {
     };
 
     if 0 < rank && rank <= 8 {
-        epawn_rank = rank;
+        epawn_rank = rank as u8;
     } else {
         panic!("rank not valid, must have value between 1 and 8");
     }
 
-    parsed_epawn.arr_pos = (epawn_rank - 1) * 8 + epawn_file - 1;
+    parsed_epawn.arr_pos = Some((epawn_rank - 1) * 8 + epawn_file - 1);
 
-    return parsed_epawn;
+    parsed_epawn
 }
 
-pub fn parse_fen_half_move_clock(fen: &str) -> u32 {
-    fen.parse::<u32>().unwrap()
+pub fn parse_fen_half_move_clock(fen: &str) -> u64 {
+    fen.parse::<u64>().unwrap()
 }
 
 pub fn parse_fen_full_move_counter(fen: &str) -> u64 {

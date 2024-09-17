@@ -2,13 +2,13 @@
 
 use crate::chess::chess_moves::attack_logic::{
     check_for_attackers, get_potential_attacking_pieces, Directions, BLACK_PAWN_ATTACK_DIRECTION,
-    DIAGONAL_ATTACK_DIRECTION, HORIZONTAL_AND_VERTICAL_ATTACK_DIRECTION, KNIGHT_ATTACK_DIRECTION,
+    DIAGONAL_ATTACK_DIRECTION, KNIGHT_ATTACK_DIRECTION, ROOK_DIRECTION,
     WHITE_PAWN_ATTACK_DIRECTION,
 };
 use crate::chess::chess_moves::{
     arr_pos_to_square, check_board_directions, find_first_matching_chess_piece, BoardDirection,
 };
-use crate::chess::{BoardPiece, ChessBoard, Pieces, Square, ARR_SIZE};
+use crate::chess::{BoardPiece, ChessBoard, Pieces, SquarePosition, ARR_SIZE};
 
 pub struct KingInCheck {
     // Vector of all squares that check the king
@@ -47,12 +47,8 @@ impl ChessBoard {
         ));
 
         // Check vertical and horizontal
-        let ver_hor_collisions = check_board_directions(
-            &self.board,
-            king_pos.clone(),
-            HORIZONTAL_AND_VERTICAL_ATTACK_DIRECTION,
-            None,
-        );
+        let ver_hor_collisions =
+            check_board_directions(&self.board, king_pos.clone(), ROOK_DIRECTION, None);
 
         attackers.extend(check_for_attackers(
             &self.board,
@@ -122,27 +118,27 @@ mod tests {
 
     #[test]
     fn test_pos_1() {
-        assert_eq!(arr_pos_to_square(0), Square { file: 1, rank: 1 })
+        assert_eq!(arr_pos_to_square(0), SquarePosition { file: 1, rank: 1 })
     }
 
     #[test]
     fn test_pos_2() {
-        assert_eq!(arr_pos_to_square(8), Square { file: 1, rank: 2 })
+        assert_eq!(arr_pos_to_square(8), SquarePosition { file: 1, rank: 2 })
     }
 
     #[test]
     fn test_pos_3() {
-        assert_eq!(arr_pos_to_square(7), Square { file: 8, rank: 1 })
+        assert_eq!(arr_pos_to_square(7), SquarePosition { file: 8, rank: 1 })
     }
 
     #[test]
     fn test_pos_4() {
-        assert_eq!(arr_pos_to_square(63), Square { file: 8, rank: 8 })
+        assert_eq!(arr_pos_to_square(63), SquarePosition { file: 8, rank: 8 })
     }
 
     #[test]
     fn test_pos_5() {
-        assert_eq!(arr_pos_to_square(60), Square { file: 5, rank: 8 })
+        assert_eq!(arr_pos_to_square(60), SquarePosition { file: 5, rank: 8 })
     }
 }
 

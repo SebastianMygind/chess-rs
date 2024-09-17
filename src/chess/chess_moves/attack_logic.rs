@@ -1,3 +1,11 @@
+mod bishop_piece;
+mod black_pawn_piece;
+mod king_piece;
+mod knight_piece;
+mod queen_piece;
+mod rook_piece;
+mod white_pawn_piece;
+
 use crate::chess::chess_moves::BoardDirection;
 use crate::chess::Pieces::{
     BBishop, BKnight, BPawn, BQueen, BRook, WBishop, WKnight, WPawn, WQueen, WRook,
@@ -14,11 +22,22 @@ pub static BLACK_PAWN_ATTACK_DIRECTION: &[BoardDirection] = &[
     BoardDirection { dx: -1, dy: -1 },
 ];
 
-pub static HORIZONTAL_AND_VERTICAL_ATTACK_DIRECTION: &[BoardDirection] = &[
+pub static ROOK_DIRECTION: &[BoardDirection] = &[
     BoardDirection { dx: 1, dy: 0 },
     BoardDirection { dx: -1, dy: 0 },
     BoardDirection { dx: 0, dy: 1 },
     BoardDirection { dx: 0, dy: -1 },
+];
+
+pub static KING_AND_QUEEN_DIRECTION: &[BoardDirection] = &[
+    BoardDirection { dx: 1, dy: 0 },
+    BoardDirection { dx: 1, dy: 1 },
+    BoardDirection { dx: 0, dy: 1 },
+    BoardDirection { dx: -1, dy: 0 },
+    BoardDirection { dx: -1, dy: -1 },
+    BoardDirection { dx: 0, dy: -1 },
+    BoardDirection { dx: 1, dy: -1 },
+    BoardDirection { dx: -1, dy: 1 },
 ];
 
 pub static DIAGONAL_ATTACK_DIRECTION: &[BoardDirection] = &[

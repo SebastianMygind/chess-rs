@@ -1,9 +1,9 @@
 /* Sub-module for FEN helper functions */
+
 use crate::chess::fen::{
     is_fen_valid, parse_fen_castling_ability, parse_fen_epawn, parse_fen_full_move_counter,
     parse_fen_half_move_clock, parse_fen_piece_placement, parse_fen_side_to_move, split_at_space,
 };
-
 pub mod fen;
 
 /* Module that allows printing a chessboard to the CLI */
@@ -32,7 +32,14 @@ pub enum Pieces {
     BKing,
 }
 
-pub const ARR_SIZE: usize = 64;
+/* Defines enums to use with the move struct */
+pub enum MetaData {
+    EnPassant,
+    Castling,
+    Promotion(Pieces),
+}
+
+pub const ARR_SIZE: usize = ROW_SIZE * COL_SIZE;
 const ROW_SIZE: usize = 8;
 const COL_SIZE: usize = 8;
 const COL_LETTERS: [char; 8] = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
@@ -53,7 +60,7 @@ pub struct ChessBoard {
     white_is_side_to_move: bool,
     castling_ability: [bool; 4],
     en_passant_target_square: EnPassant,
-    halfmove_clock: u32,
+    halfmove_clock: u64,
     fullmove_counter: u64,
     is_checked: bool,
     is_checkmate: bool,
@@ -67,126 +74,34 @@ pub struct BoardPiece {
 
 impl BoardPiece {
     pub fn new(chess_piece: Pieces) -> BoardPiece {
-        return Self {
+        Self {
             piece_type: chess_piece,
-        };
+        }
     }
+
+    pub fn get_moves(&self, board_position: u8) -> Vec<Move> {
+        todo!("")
+    }
+    pub fn make_move(piece_move: Move) -> Result<Move, IllegalMove> {
+        todo!("")
+    }
+}
+
+pub(crate) struct Move {
+    pub start_pos: u8,
+    pub end_pos: u8,
+    pub meta_data: Option<MetaData>,
 }
 
 #[derive(Debug, Clone)]
 pub struct EnPassant {
-    is_valid: bool,
-    arr_pos: u32,
-}
-
-impl EnPassant {}
-
-/* Move specific implementations */
-#[derive(Clone)]
-pub struct Move {
-    pub(crate) move_type: MoveTypes,
-    pub(crate) move_specific: MoveInfo,
-}
-
-impl PartialEq for Move {
-    fn eq(&self, other: &Self) -> bool {
-        if self.move_type == other.move_type {
-            match self.move_type {
-                MoveTypes::Move => {
-                    let self_move = unsafe { self.move_specific.piece_move.clone() };
-                    let other_move = unsafe { other.move_specific.piece_move.clone() };
-
-                    self_move == other_move
-                }
-
-                MoveTypes::Capture => {
-                    let self_move = unsafe { self.move_specific.capture.clone() };
-                    let other_move = unsafe { other.move_specific.capture.clone() };
-
-                    self_move == other_move
-                }
-
-                MoveTypes::PawnPromotion => {
-                    let self_move = unsafe { self.move_specific.promotion.clone() };
-                    let other_move = unsafe { other.move_specific.promotion.clone() };
-
-                    self_move == other_move
-                }
-
-                MoveTypes::Castle => {
-                    let self_move = unsafe { self.move_specific.castle.clone() };
-                    let other_move = unsafe { other.move_specific.castle.clone() };
-
-                    self_move == other_move
-                }
-
-                MoveTypes::EnPassant => {
-                    let self_move = unsafe { self.move_specific.en_passant.clone() };
-                    let other_move = unsafe { other.move_specific.en_passant.clone() };
-
-                    self_move == other_move
-                }
-            }
-        } else {
-            false
-        }
-    }
-}
-
-#[derive(Clone, Debug, PartialEq)]
-pub enum MoveTypes {
-    Move,
-    Capture,
-    PawnPromotion,
-    EnPassant,
-    Castle,
-}
-
-#[derive(Clone, Copy)]
-pub union MoveInfo {
-    pub(crate) piece_move: PieceMove,
-    pub(crate) capture: CaptureMove,
-    pub(crate) promotion: PawnPromotionMove,
-    pub(crate) castle: CastlingMove,
-    pub(crate) en_passant: EnPassantMove,
+    arr_pos: Option<u8>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub struct Square {
-    pub(crate) file: u32, // x-position
-    pub(crate) rank: u32, // y-position
-}
-
-/** No captures are allowed when moving, use CaptureMove instead **/
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct PieceMove {
-    pub(crate) starting_square: Square,
-    pub(crate) ending_square: Square,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct CaptureMove {
-    pub(crate) starting_square: Square,
-    pub(crate) target_square: Square,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct PawnPromotionMove {
-    pub(crate) target_square: Square,
-    pub(crate) promotion_piece: Pieces,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct CastlingMove {
-    pub(crate) is_king_side: bool, // If false, the move is castling queen side.
-    pub(crate) rank: u32,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct EnPassantMove {
-    pub(crate) pawn_to_move: Square,
-    pub(crate) pawn_to_capture: Square,
-    pub(crate) is_white_move: bool,
+pub struct SquarePosition {
+    pub(crate) file: u8, // x-position
+    pub(crate) rank: u8, // y-position
 }
 
 // Implements chess functionality
@@ -196,10 +111,7 @@ impl ChessBoard {
             board: [EMPTY_PIECE; ARR_SIZE],
             white_is_side_to_move: true,
             castling_ability: [true; 4],
-            en_passant_target_square: EnPassant {
-                is_valid: false,
-                arr_pos: 0,
-            },
+            en_passant_target_square: EnPassant { arr_pos: None },
             halfmove_clock: 0,
             fullmove_counter: 0,
             is_checked: false,
@@ -209,7 +121,7 @@ impl ChessBoard {
 
         new_board.set_fen_position_arr(FEN_START_POS).unwrap();
 
-        return new_board;
+        new_board
     }
 }
 

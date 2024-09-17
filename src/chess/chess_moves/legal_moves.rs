@@ -1,22 +1,18 @@
-use crate::chess::{
-    BoardPiece, CaptureMove, CastlingMove, ChessBoard, Move, MoveInfo, MoveTypes, PieceMove,
-    Pieces, Square, ARR_SIZE,
-};
+use crate::chess::chess_moves::BoardDirection;
+use crate::chess::{BoardPiece, ChessBoard, Move, Pieces, SquarePosition, ARR_SIZE};
 
-use super::attack_logic::{get_potential_attacking_pieces, DIAGONAL_ATTACK_DIRECTION};
+struct PieceInfo {
+    position: u8,
+}
 
 impl ChessBoard {
     pub fn legal_moves(&self) -> Vec<Move> {
+        let mut legal_moves: Vec<Move> = Vec::new();
+
         let chess_move: Move = Move {
-            move_type: MoveTypes::Move,
-            move_specific: MoveInfo {
-                capture: {
-                    CaptureMove {
-                        starting_square: Square { rank: 2, file: 5 },
-                        target_square: Square { rank: 4, file: 5 },
-                    }
-                },
-            },
+            start_pos: 12,
+            end_pos: 20,
+            meta_data: None,
         };
 
         return vec![chess_move];
@@ -25,21 +21,19 @@ impl ChessBoard {
     /** This function returns all possible moves, but does not check for pinned pieces,
     checks and other special moves **/
     fn pseudo_legal_moves(&self) -> Vec<Move> {
-        let mut moves: Vec<Move> = Vec::new();
+        let mut pseudo_legal_moves: Vec<Move> = Vec::new();
 
         for (index, piece) in self.board.iter().enumerate() {
             match piece.piece_type {
-                Pieces::Empty => {
-                    continue;
-                }
+                Pieces::Empty => continue,
 
-                Pieces::BBishop | Pieces::WBishop => {}
+                Pieces::WKing | Pieces::BKing => {}
 
                 Pieces::WQueen | Pieces::BQueen => {}
 
                 Pieces::WRook | Pieces::BRook => {}
 
-                Pieces::WKing | Pieces::BKing => {}
+                Pieces::WBishop | Pieces::BBishop => {}
 
                 Pieces::WKnight | Pieces::BKnight => {}
 
@@ -48,24 +42,19 @@ impl ChessBoard {
                 Pieces::BPawn => {}
             }
         }
-
-        return vec![];
+        vec![]
     }
-}
-
-fn singe_piece_legal_moves(piece: Pieces, board: &[BoardPiece; ARR_SIZE]) -> Vec<u8> {
-    return Vec::new();
 }
 
 fn can_capture_piece(capturing_piece: &Pieces, piece_to_capture: &Pieces) -> bool {
     let capturing_is_white = piece_is_white(capturing_piece);
     let piece_to_capture_is_white = piece_is_white(piece_to_capture);
 
-    return capturing_is_white != piece_to_capture_is_white;
+    capturing_is_white != piece_to_capture_is_white
 }
 
 fn piece_is_white(piece: &Pieces) -> bool {
-    return match *piece {
+    match *piece {
         Pieces::WKing
         | Pieces::WKnight
         | Pieces::WRook
@@ -81,7 +70,7 @@ fn piece_is_white(piece: &Pieces) -> bool {
         | Pieces::BPawn => false,
 
         Pieces::Empty => false,
-    };
+    }
 }
 
 // TESTS!!

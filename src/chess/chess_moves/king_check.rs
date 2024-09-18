@@ -1,12 +1,11 @@
 /* This module implements a function that checks if the king of "side to move" is in check  */
 
-use crate::chess::chess_moves::attack_logic::{
-    check_for_attackers, get_potential_attacking_pieces, Directions, BLACK_PAWN_ATTACK_DIRECTION,
+use crate::chess::chess_moves::piece_logic::{
+    check_for_attackers, BLACK_PAWN_ATTACK_DIRECTION,
     DIAGONAL_ATTACK_DIRECTION, KNIGHT_ATTACK_DIRECTION, ROOK_DIRECTION,
     WHITE_PAWN_ATTACK_DIRECTION,
 };
-use crate::chess::chess_moves::{
-    arr_pos_to_square, check_board_directions, find_first_matching_chess_piece, BoardDirection,
+use crate::chess::chess_moves::{check_board_directions, find_first_matching_chess_piece,
 };
 use crate::chess::{BoardPiece, ChessBoard, Pieces, SquarePosition, ARR_SIZE};
 
@@ -28,7 +27,7 @@ impl ChessBoard {
                 .expect("ERROR: No black king on board!");
         }
 
-        let king_square = arr_pos_to_square(king_pos);
+        let king_square = SquarePosition::new(king_pos);
 
         let mut attackers: Vec<usize> = Vec::new();
 
@@ -118,27 +117,27 @@ mod tests {
 
     #[test]
     fn test_pos_1() {
-        assert_eq!(arr_pos_to_square(0), SquarePosition { file: 1, rank: 1 })
+        assert_eq!(SquarePosition::new(0), SquarePosition { file: 1, rank: 1 })
     }
 
     #[test]
     fn test_pos_2() {
-        assert_eq!(arr_pos_to_square(8), SquarePosition { file: 1, rank: 2 })
+        assert_eq!(SquarePosition::new(8), SquarePosition { file: 1, rank: 2 })
     }
 
     #[test]
     fn test_pos_3() {
-        assert_eq!(arr_pos_to_square(7), SquarePosition { file: 8, rank: 1 })
+        assert_eq!(SquarePosition::new(7), SquarePosition { file: 8, rank: 1 })
     }
 
     #[test]
     fn test_pos_4() {
-        assert_eq!(arr_pos_to_square(63), SquarePosition { file: 8, rank: 8 })
+        assert_eq!(SquarePosition::new(63), SquarePosition { file: 8, rank: 8 })
     }
 
     #[test]
     fn test_pos_5() {
-        assert_eq!(arr_pos_to_square(60), SquarePosition { file: 5, rank: 8 })
+        assert_eq!(SquarePosition::new(60), SquarePosition { file: 5, rank: 8 })
     }
 }
 

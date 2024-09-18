@@ -1,15 +1,5 @@
-mod bishop_piece;
-mod black_pawn_piece;
-mod king_piece;
-mod knight_piece;
-mod queen_piece;
-mod rook_piece;
-mod white_pawn_piece;
-
 use crate::chess::chess_moves::BoardDirection;
-use crate::chess::Pieces::{
-    BBishop, BKnight, BPawn, BQueen, BRook, WBishop, WKnight, WPawn, WQueen, WRook,
-};
+use crate::chess::Pieces::{BBishop, BKing, BKnight, BPawn, BQueen, BRook, WBishop, WKing, WKnight, WPawn, WQueen, WRook};
 use crate::chess::{BoardPiece, Pieces, ARR_SIZE};
 
 pub static WHITE_PAWN_ATTACK_DIRECTION: &[BoardDirection] = &[
@@ -29,7 +19,7 @@ pub static ROOK_DIRECTION: &[BoardDirection] = &[
     BoardDirection { dx: 0, dy: -1 },
 ];
 
-pub static KING_AND_QUEEN_DIRECTION: &[BoardDirection] = &[
+pub const KING_AND_QUEEN_DIRECTION: [BoardDirection; 8] = [
     BoardDirection { dx: 1, dy: 0 },
     BoardDirection { dx: 1, dy: 1 },
     BoardDirection { dx: 0, dy: 1 },
@@ -80,47 +70,5 @@ pub fn check_for_attackers(
     attackers
 }
 
-pub enum Directions {
-    Diagonal,
-    HorizontalAndVertical,
-    WhitePawn,
-    BlackPawn,
-    Knight,
-}
-
-pub fn get_potential_attacking_pieces(
-    direction: Directions,
-    white_is_side_to_move: &bool,
-) -> Vec<Pieces> {
-    let is_white_bool = *white_is_side_to_move;
-
-    match direction {
-        Directions::Diagonal => {
-            if is_white_bool {
-                vec![BQueen, BBishop]
-            } else {
-                vec![WQueen, WBishop]
-            }
-        }
-        Directions::HorizontalAndVertical => {
-            if is_white_bool {
-                vec![BQueen, BRook]
-            } else {
-                vec![WQueen, WRook]
-            }
-        }
-        Directions::Knight => {
-            if is_white_bool {
-                vec![BKnight]
-            } else {
-                vec![WKnight]
-            }
-        }
-        Directions::WhitePawn => {
-            vec![WPawn]
-        }
-        Directions::BlackPawn => {
-            vec![BPawn]
-        }
-    }
-}
+pub(crate) const WHITE_PIECES: [Pieces; 6] = [WPawn, WRook, WBishop, WKnight, WQueen, WKing];
+pub(crate) const BLACK_PIECES: [Pieces; 6] = [BPawn, BRook, BBishop, BKnight, BQueen, BKing];

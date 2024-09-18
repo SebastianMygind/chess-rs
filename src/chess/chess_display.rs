@@ -63,11 +63,11 @@ fn parse_chessboard_to_string(board_arr: &[BoardPiece; ARR_SIZE]) -> Vec<String>
         printable_board.push(rank_string);
     }
 
-    return printable_board;
+    printable_board
 }
 
 fn piece_type_to_char(square_type: Pieces) -> char {
-    return match square_type {
+    match square_type {
         Pieces::Empty => ' ',
 
         Pieces::WPawn => 'P',
@@ -87,5 +87,5 @@ fn piece_type_to_char(square_type: Pieces) -> char {
 
         Pieces::WKing => 'K',
         Pieces::BKing => 'k',
-    };
+    }
 }

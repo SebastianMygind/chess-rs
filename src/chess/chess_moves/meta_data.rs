@@ -46,9 +46,9 @@ fn update_side_to_move(chessboard: &mut ChessBoard) {
 }
 
 fn set_no_en_passant(chessboard: &mut ChessBoard) {
-    match chessboard.en_passant_target_square.arr_pos {
+    match chessboard.en_passant_target_square {
         Some(_) => {
-            chessboard.en_passant_target_square.arr_pos = None;
+            chessboard.en_passant_target_square = None;
         }
 
         None => return,

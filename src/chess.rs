@@ -58,8 +58,8 @@ const EMPTY_PIECE: BoardPiece = BoardPiece {
 pub struct ChessBoard {
     board: [BoardPiece; ARR_SIZE],
     white_is_side_to_move: bool,
-    castling_ability: [bool; 4],
-    en_passant_target_square: EnPassant,
+    castling_ability: [bool; 4], // WKingside, WQueenside, BKingside, BQueenside
+    en_passant_target_square: Option<usize>,
     halfmove_clock: u64,
     fullmove_counter: u64,
     is_checked: bool,
@@ -79,8 +79,41 @@ impl BoardPiece {
         }
     }
 
-    pub fn get_moves(&self, board_position: u8) -> Vec<Move> {
-        todo!("")
+    pub fn get_moves(&self,board: &ChessBoard, board_position: usize) -> Vec<Move> {
+        let moves: Vec<Move> = Vec::new();
+
+        match self.piece_type {
+            Pieces::WKing | Pieces::BKing => {
+
+            }
+
+            Pieces::WQueen | Pieces::BQueen => {
+
+            }
+
+            Pieces::WRook | Pieces::BRook => {
+
+            }
+
+            Pieces::WBishop | Pieces::BBishop => {
+
+            }
+
+            Pieces::WKnight | Pieces::BKnight => {
+
+            }
+            Pieces::Empty => { return Vec::new() }
+
+            Pieces::WPawn => {
+
+            }
+
+            Pieces::BPawn => {
+
+            }
+
+        }
+        moves
     }
     pub fn make_move(piece_move: Move) -> Result<Move, IllegalMove> {
         todo!("")
@@ -88,20 +121,20 @@ impl BoardPiece {
 }
 
 pub(crate) struct Move {
-    pub start_pos: u8,
-    pub end_pos: u8,
+    pub start_pos: usize,
+    pub end_pos: usize,
     pub meta_data: Option<MetaData>,
 }
 
 #[derive(Debug, Clone)]
 pub struct EnPassant {
-    arr_pos: Option<u8>,
+    arr_pos: u8,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub struct SquarePosition {
-    pub(crate) file: u8, // x-position
-    pub(crate) rank: u8, // y-position
+pub(crate) struct SquarePosition {
+    pub file: usize, // x-position
+    pub rank: usize, // y-position
 }
 
 // Implements chess functionality
@@ -111,7 +144,7 @@ impl ChessBoard {
             board: [EMPTY_PIECE; ARR_SIZE],
             white_is_side_to_move: true,
             castling_ability: [true; 4],
-            en_passant_target_square: EnPassant { arr_pos: None },
+            en_passant_target_square: None,
             halfmove_clock: 0,
             fullmove_counter: 0,
             is_checked: false,

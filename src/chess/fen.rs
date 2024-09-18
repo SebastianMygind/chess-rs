@@ -2,9 +2,6 @@ use crate::chess::{BoardPiece, EnPassant, Pieces};
 
 const ARR_SIZE: usize = 64;
 const ROW_SIZE: usize = 8;
-const COL_SIZE: usize = 8;
-const COL_LETTERS: [char; 8] = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
-const NUM_CHAR: [char; 8] = ['1', '2', '3', '4', '5', '6', '7', '8'];
 const VALID_FEN_BOARD: [char; 21] = [
     'p', 'r', 'b', 'n', 'q', 'k', 'P', 'R', 'B', 'N', 'Q', 'K', '1', '2', '3', '4', '5', '6', '7',
     '8', '/',
@@ -93,7 +90,7 @@ fn fen_check_board_validity_optimized(fen: &str) -> bool {
 }
 
 fn fen_check_side_to_move(side_to_move: &str) -> bool {
-    if (side_to_move.len() != 1) {
+    if side_to_move.len() != 1 {
         return false;
     }
 
@@ -101,7 +98,7 @@ fn fen_check_side_to_move(side_to_move: &str) -> bool {
 
     match side_char {
         Some(c) => {
-            if (c == 'w' || c == 'b') {
+            if c == 'w' || c == 'b' {
                 true
             } else {
                 false
@@ -170,14 +167,14 @@ fn fen_check_en_passant(en_passant: &str) -> bool {
 
         match file_letter {
             Some(c) => {
-                if (c == 'a'
+                if     c == 'a'
                     || c == 'b'
                     || c == 'c'
                     || c == 'd'
                     || c == 'e'
                     || c == 'f'
                     || c == 'g'
-                    || c == 'h')
+                    || c == 'h'
                 {
                     let eprank = square_iter.next();
 
@@ -220,26 +217,24 @@ fn fen_check_halfmove(halfmove: &str) -> bool {
 
 fn fen_check_fullmove(fullmove: &str, halfmove: &str) -> bool {
     let halfmove_result = halfmove.parse::<u32>();
-    let halfmove_parsed: u32;
-    match halfmove_result {
-        Ok(number) => halfmove_parsed = number,
+    let halfmove_parsed: u32 =  match halfmove_result {
+        Ok(number) => number,
         Err(_e) => return false,
-    }
+    };
 
     let fullmove_result = fullmove.parse::<u32>();
-    let fullmove_parsed: u32;
-    match fullmove_result {
-        Ok(number) => fullmove_parsed = number,
+    let fullmove_parsed: u32 = match fullmove_result {
+        Ok(number) => number,
         Err(_e) => return false,
-    }
+    };
 
-    return {
-        if fullmove > halfmove {
+    {
+        if fullmove_parsed > halfmove_parsed {
             true
         } else {
             false
         }
-    };
+    }
 }
 
 fn fen_check_hyphen(fen_slice: &str) -> bool {
@@ -280,7 +275,7 @@ mod tests {
 /* FEN parsing functions */
 
 pub fn parse_fen_piece_placement(fen_string: &str) -> [BoardPiece; ARR_SIZE] {
-    let mut fen_ranks: Vec<&str> = fen_string.split('/').collect();
+    let fen_ranks: Vec<&str> = fen_string.split('/').collect();
 
     let mut parsed_ranks: Vec<Vec<Pieces>> = Vec::new();
 
@@ -413,17 +408,17 @@ pub fn parse_fen_castling_ability(fen: &str) -> [bool; 4] {
     return c_ability;
 }
 
-pub fn parse_fen_epawn(fen: &str) -> EnPassant {
+pub fn parse_fen_epawn(fen: &str) -> Option<usize> {
     let mut fen_iter = fen.chars();
 
     if fen == "-" {
-        return EnPassant { arr_pos: None };
+        return None;
     }
 
-    let mut parsed_epawn: EnPassant = EnPassant { arr_pos: None };
+    let parsed_epawn: usize;
 
-    let mut epawn_file: u8;
-    let mut epawn_rank: u8;
+    let epawn_file: usize;
+    let epawn_rank: usize;
 
     let file = fen_iter.next().unwrap();
 
@@ -443,22 +438,22 @@ pub fn parse_fen_epawn(fen: &str) -> EnPassant {
 
     let rank_char = fen_iter.next().unwrap();
 
-    let rank = match rank_char.to_digit(10) {
-        Some(num) => num,
+    let rank: usize = match rank_char.to_digit(10) {
+        Some(num) => num as usize,
         None => {
             panic!("could not parse rank number: parse_fen_epawn")
         }
     };
 
     if 0 < rank && rank <= 8 {
-        epawn_rank = rank as u8;
+        epawn_rank = rank;
     } else {
         panic!("rank not valid, must have value between 1 and 8");
     }
 
-    parsed_epawn.arr_pos = Some((epawn_rank - 1) * 8 + epawn_file - 1);
+    parsed_epawn = (epawn_rank - 1) * 8 + epawn_file - 1;
 
-    parsed_epawn
+    Some(parsed_epawn)
 }
 
 pub fn parse_fen_half_move_clock(fen: &str) -> u64 {

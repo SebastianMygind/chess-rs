@@ -1,5 +1,5 @@
 /* This module has functions for updating metadata for a Chessboard struct */
-use crate::chess::{BoardPiece, ChessBoard, EnPassant, Move, Pieces};
+use crate::chess::{BoardPiece, ChessBoard, Move, Pieces};
 
 pub fn update_move(chessboard: &mut ChessBoard, piece: &BoardPiece, move_to_make: &Move) {}
 
@@ -16,22 +16,6 @@ pub fn update_castle(chessboard: &mut ChessBoard) {}
 pub fn update_en_passant(chessboard: &mut ChessBoard) {}
 
 pub fn update_pawn_promotion(chessboard: &mut ChessBoard) {}
-
-pub fn update_game_state(chessboard: &mut ChessBoard) {
-    let legal_moves: Vec<Move> = chessboard.legal_moves();
-
-    if legal_moves.len() == 0 {}
-
-    match chessboard.king_in_check() {
-        Some(checks) => {
-            chessboard.is_checkmate = true;
-        }
-
-        None => {}
-    }
-
-    update_side_to_move(chessboard);
-}
 
 /* Helper functions */
 

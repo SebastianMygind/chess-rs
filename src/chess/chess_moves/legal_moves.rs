@@ -1,22 +1,37 @@
+mod bishop_piece;
+mod generic_piece;
 mod king_piece;
+mod knight_piece;
+mod pawn_piece;
 mod queen_piece;
+mod rook_piece;
 
-
-use crate::chess::{BoardPiece, ChessBoard, Move, Pieces, SquarePosition, ARR_SIZE};
+use crate::chess::chess_moves::legal_moves::bishop_piece::get_bishop_moves;
 use crate::chess::chess_moves::legal_moves::king_piece::get_king_moves;
+use crate::chess::chess_moves::legal_moves::knight_piece::get_knight_moves;
+use crate::chess::chess_moves::legal_moves::pawn_piece::get_pawn_moves;
+use crate::chess::chess_moves::legal_moves::queen_piece::get_queen_moves;
+use crate::chess::chess_moves::legal_moves::rook_piece::get_rook_moves;
+use crate::chess::{ChessBoard, MetaData, Move, Pieces};
+
 impl ChessBoard {
     pub fn legal_moves(&self) -> Vec<Move> {
         let mut legal_moves: Vec<Move> = Vec::new();
-        todo!(" Check that all castling moves are allowed, specifically check that the squares
+
+        let pseudo_legal_moves: Vec<Move> = self.pseudo_legal_moves();
+
+        todo!(
+            " Check that all castling moves are allowed, specifically check that the squares
                 between the rook and king are not attacked by any pieces.
 
                 Make sure no move that is made leaves the king in check.
-        ");
+        "
+        );
 
         let chess_move: Move = Move {
             start_pos: 12,
             end_pos: 20,
-            meta_data: None,
+            meta_data: MetaData::Move,
         };
 
         return vec![chess_move];
@@ -32,23 +47,37 @@ impl ChessBoard {
                 Pieces::Empty => continue,
 
                 Pieces::WKing | Pieces::BKing => {
-                    let king_moves = get_king_moves(self, &index);
+                    let mut king_moves = get_king_moves(self, &index);
+                    pseudo_legal_moves.append(&mut king_moves);
                 }
 
-                Pieces::WQueen | Pieces::BQueen => {}
+                Pieces::WQueen | Pieces::BQueen => {
+                    let mut queen_moves = get_queen_moves(self, &index);
+                    pseudo_legal_moves.append(&mut queen_moves);
+                }
 
-                Pieces::WRook | Pieces::BRook => {}
+                Pieces::WRook | Pieces::BRook => {
+                    let mut rook_moves = get_rook_moves(self, &index);
+                    pseudo_legal_moves.append(&mut rook_moves);
+                }
 
-                Pieces::WBishop | Pieces::BBishop => {}
+                Pieces::WBishop | Pieces::BBishop => {
+                    let mut bishop_moves = get_bishop_moves(self, &index);
+                    pseudo_legal_moves.append(&mut bishop_moves);
+                }
 
-                Pieces::WKnight | Pieces::BKnight => {}
+                Pieces::WKnight | Pieces::BKnight => {
+                    let mut knight_moves = get_knight_moves(self, &index);
+                    pseudo_legal_moves.append(&mut knight_moves);
+                }
 
-                Pieces::WPawn => {}
-
-                Pieces::BPawn => {}
+                Pieces::WPawn | Pieces::BPawn => {
+                    let mut pawn_moves = get_pawn_moves(self, &index);
+                    pseudo_legal_moves.append(&mut pawn_moves);
+                }
             }
         }
-        vec![]
+        pseudo_legal_moves
     }
 }
 
@@ -81,7 +110,7 @@ fn piece_is_white(piece: &Pieces) -> bool {
         | Pieces::BBishop
         | Pieces::BPawn => false,
 
-        Pieces::Empty => {false},
+        Pieces::Empty => false,
     }
 }
 
@@ -102,5 +131,7 @@ mod tests {
     }
 
     #[test]
-    fn capture_empty() { assert_eq!(can_capture_piece(&Pieces::WPawn, &Pieces::Empty), true); }
+    fn capture_empty() {
+        assert_eq!(can_capture_piece(&Pieces::WPawn, &Pieces::Empty), true);
+    }
 }

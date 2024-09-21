@@ -1,51 +1,62 @@
-use crate::chess::chess_moves::BoardDirection;
-use crate::chess::Pieces::{BBishop, BKing, BKnight, BPawn, BQueen, BRook, WBishop, WKing, WKnight, WPawn, WQueen, WRook};
+use crate::chess::chess_moves::MoveDirection;
+use crate::chess::Pieces::{
+    BBishop, BKing, BKnight, BPawn, BQueen, BRook, WBishop, WKing, WKnight, WPawn, WQueen, WRook,
+};
 use crate::chess::{BoardPiece, Pieces, ARR_SIZE};
 
-pub static WHITE_PAWN_ATTACK_DIRECTION: &[BoardDirection] = &[
-    BoardDirection { dx: 1, dy: 1 },
-    BoardDirection { dx: 1, dy: -1 },
+pub struct KingInCheck {
+    // Vector of all squares that check the king
+    attackers: Vec<usize>,
+    king_pos: usize,
+}
+
+pub const WHITE_PAWN_DIRECTION: MoveDirection = MoveDirection { dx: 0, dy: 1 };
+
+pub const WHITE_PAWN_ATTACK_DIRECTION: [MoveDirection; 2] = [
+    MoveDirection { dx: 1, dy: 1 },
+    MoveDirection { dx: -1, dy: 1 },
 ];
 
-pub static BLACK_PAWN_ATTACK_DIRECTION: &[BoardDirection] = &[
-    BoardDirection { dx: -1, dy: 1 },
-    BoardDirection { dx: -1, dy: -1 },
+pub const BLACK_PAWN_DIRECTION: MoveDirection = MoveDirection { dx: 0, dy: -1 };
+pub const BLACK_PAWN_ATTACK_DIRECTION: [MoveDirection; 2] = [
+    MoveDirection { dx: -1, dy: -1 },
+    MoveDirection { dx: 1, dy: -1 },
 ];
 
-pub static ROOK_DIRECTION: &[BoardDirection] = &[
-    BoardDirection { dx: 1, dy: 0 },
-    BoardDirection { dx: -1, dy: 0 },
-    BoardDirection { dx: 0, dy: 1 },
-    BoardDirection { dx: 0, dy: -1 },
+pub const ROOK_DIRECTION: [MoveDirection; 4] = [
+    MoveDirection { dx: 1, dy: 0 },
+    MoveDirection { dx: -1, dy: 0 },
+    MoveDirection { dx: 0, dy: 1 },
+    MoveDirection { dx: 0, dy: -1 },
 ];
 
-pub const KING_AND_QUEEN_DIRECTION: [BoardDirection; 8] = [
-    BoardDirection { dx: 1, dy: 0 },
-    BoardDirection { dx: 1, dy: 1 },
-    BoardDirection { dx: 0, dy: 1 },
-    BoardDirection { dx: -1, dy: 0 },
-    BoardDirection { dx: -1, dy: -1 },
-    BoardDirection { dx: 0, dy: -1 },
-    BoardDirection { dx: 1, dy: -1 },
-    BoardDirection { dx: -1, dy: 1 },
+pub const KING_AND_QUEEN_DIRECTION: [MoveDirection; 8] = [
+    MoveDirection { dx: 1, dy: 0 },
+    MoveDirection { dx: 1, dy: 1 },
+    MoveDirection { dx: 0, dy: 1 },
+    MoveDirection { dx: -1, dy: 0 },
+    MoveDirection { dx: -1, dy: -1 },
+    MoveDirection { dx: 0, dy: -1 },
+    MoveDirection { dx: 1, dy: -1 },
+    MoveDirection { dx: -1, dy: 1 },
 ];
 
-pub static DIAGONAL_ATTACK_DIRECTION: &[BoardDirection] = &[
-    BoardDirection { dx: 1, dy: 1 },
-    BoardDirection { dx: -1, dy: 1 },
-    BoardDirection { dx: 1, dy: -1 },
-    BoardDirection { dx: -1, dy: -1 },
+pub const BISHOP_DIRECTION: [MoveDirection; 4] = [
+    MoveDirection { dx: 1, dy: 1 },
+    MoveDirection { dx: -1, dy: 1 },
+    MoveDirection { dx: 1, dy: -1 },
+    MoveDirection { dx: -1, dy: -1 },
 ];
 
-pub static KNIGHT_ATTACK_DIRECTION: &[BoardDirection] = &[
-    BoardDirection { dx: 2, dy: 1 },
-    BoardDirection { dx: 2, dy: -1 },
-    BoardDirection { dx: -2, dy: 1 },
-    BoardDirection { dx: -2, dy: -1 },
-    BoardDirection { dx: 1, dy: 2 },
-    BoardDirection { dx: 1, dy: -2 },
-    BoardDirection { dx: -1, dy: 2 },
-    BoardDirection { dx: -1, dy: -2 },
+pub const KNIGHT_ATTACK_DIRECTION: [MoveDirection; 8] = [
+    MoveDirection { dx: 2, dy: 1 },
+    MoveDirection { dx: 2, dy: -1 },
+    MoveDirection { dx: -2, dy: 1 },
+    MoveDirection { dx: -2, dy: -1 },
+    MoveDirection { dx: 1, dy: 2 },
+    MoveDirection { dx: 1, dy: -2 },
+    MoveDirection { dx: -1, dy: 2 },
+    MoveDirection { dx: -1, dy: -2 },
 ];
 
 pub fn check_for_attackers(

@@ -1,4 +1,4 @@
-use crate::chess::{BoardPiece, EnPassant, Pieces};
+use crate::chess::{BoardPiece, Pieces};
 
 const ARR_SIZE: usize = 64;
 const ROW_SIZE: usize = 8;
@@ -26,7 +26,6 @@ pub fn is_fen_valid(fen: &str) -> bool {
     {
         return false;
     }
-
     true
 }
 
@@ -97,13 +96,7 @@ fn fen_check_side_to_move(side_to_move: &str) -> bool {
     let side_char = side_to_move.chars().next();
 
     match side_char {
-        Some(c) => {
-            if c == 'w' || c == 'b' {
-                true
-            } else {
-                false
-            }
-        }
+        Some(c) => c == 'w' || c == 'b',
         None => false,
     }
 }
@@ -167,7 +160,7 @@ fn fen_check_en_passant(en_passant: &str) -> bool {
 
         match file_letter {
             Some(c) => {
-                if     c == 'a'
+                if c == 'a'
                     || c == 'b'
                     || c == 'c'
                     || c == 'd'
@@ -217,7 +210,7 @@ fn fen_check_halfmove(halfmove: &str) -> bool {
 
 fn fen_check_fullmove(fullmove: &str, halfmove: &str) -> bool {
     let halfmove_result = halfmove.parse::<u32>();
-    let halfmove_parsed: u32 =  match halfmove_result {
+    let halfmove_parsed: u32 = match halfmove_result {
         Ok(number) => number,
         Err(_e) => return false,
     };

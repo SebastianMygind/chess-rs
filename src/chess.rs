@@ -33,7 +33,10 @@ pub enum Pieces {
 }
 
 /* Defines enums to use with the move struct */
+#[derive(PartialEq)]
 pub enum MetaData {
+    Move,
+    Capture,
     EnPassant,
     Castling,
     Promotion(Pieces),
@@ -72,63 +75,11 @@ pub struct BoardPiece {
     piece_type: Pieces,
 }
 
-impl BoardPiece {
-    pub fn new(chess_piece: Pieces) -> BoardPiece {
-        Self {
-            piece_type: chess_piece,
-        }
-    }
-
-    pub fn get_moves(&self,board: &ChessBoard, board_position: usize) -> Vec<Move> {
-        let moves: Vec<Move> = Vec::new();
-
-        match self.piece_type {
-            Pieces::WKing | Pieces::BKing => {
-
-            }
-
-            Pieces::WQueen | Pieces::BQueen => {
-
-            }
-
-            Pieces::WRook | Pieces::BRook => {
-
-            }
-
-            Pieces::WBishop | Pieces::BBishop => {
-
-            }
-
-            Pieces::WKnight | Pieces::BKnight => {
-
-            }
-            Pieces::Empty => { return Vec::new() }
-
-            Pieces::WPawn => {
-
-            }
-
-            Pieces::BPawn => {
-
-            }
-
-        }
-        moves
-    }
-    pub fn make_move(piece_move: Move) -> Result<Move, IllegalMove> {
-        todo!("")
-    }
-}
-
+#[derive(PartialEq)]
 pub(crate) struct Move {
     pub start_pos: usize,
     pub end_pos: usize,
-    pub meta_data: Option<MetaData>,
-}
-
-#[derive(Debug, Clone)]
-pub struct EnPassant {
-    arr_pos: u8,
+    pub meta_data: MetaData,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -136,6 +87,21 @@ pub(crate) struct SquarePosition {
     pub file: usize, // x-position
     pub rank: usize, // y-position
 }
+
+/*
+trait Piece {
+    fn make_move(&self, piece_move: Move,
+                 board: [BoardPiece; ARR_SIZE],
+                 board_position: usize) -> Result<Move, IllegalMove>;
+    fn get_moves(&self, board: [BoardPiece; ARR_SIZE], board_position: usize) -> Vec<Move>;
+}
+struct SquareV2 {
+    piece: Option<PieceV2>
+}
+struct PieceV2 {
+    piece_specific: Box<dyn Piece>
+}
+*/
 
 // Implements chess functionality
 impl ChessBoard {

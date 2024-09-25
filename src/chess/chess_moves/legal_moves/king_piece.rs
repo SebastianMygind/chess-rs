@@ -1,6 +1,7 @@
-use crate::chess::chess_moves::legal_moves::generic_piece::get_single_step_moves;
+use crate::chess::chess_moves::legal_moves::generic_piece::{get_single_step_moves, Color};
+
 use crate::chess::chess_moves::piece_logic::KING_AND_QUEEN_DIRECTION;
-use crate::chess::{BoardPiece, ChessBoard, MetaData, Move, ARR_SIZE, EMPTY_PIECE};
+use crate::chess::{BoardPiece, ChessBoard, MetaData, Move, Pieces, ARR_SIZE, EMPTY_PIECE};
 
 pub fn get_king_moves(chess_board: &ChessBoard, piece_position: &usize) -> Vec<Move> {
     let mut king_moves: Vec<Move> = get_single_step_moves(
@@ -45,6 +46,44 @@ pub fn get_king_moves(chess_board: &ChessBoard, piece_position: &usize) -> Vec<M
     }
 
     king_moves
+}
+
+/** This function assumes that a king is unique, i.e. there only exists one king of each color. */
+pub fn king_is_checked(
+    board: &[BoardPiece; ARR_SIZE],
+    king_position: &usize,
+    king_color: &Color,
+) -> bool {
+    let king_is_checked: bool = false;
+    // Check for king attacks.
+    //   - This can be removed if you check when generating the pseudolegal moves.
+    if queen_attacks_king(king_position, king_color, board) {}
+
+    // Check for queen attacks
+
+    // Check for rook attacks
+
+    // Check for knight attacks
+
+    // Check for bishop attacks
+
+    //
+
+    king_is_checked
+}
+
+fn queen_attacks_king(
+    king_position: &usize,
+    king_color: &Color,
+    board: &[BoardPiece; ARR_SIZE],
+) -> bool {
+    let attacking_queen = if *king_color == Color::White {
+        Pieces::BQueen
+    } else {
+        Pieces::WQueen
+    };
+
+    todo!("");
 }
 
 /** Returns true if all given positions are empty */

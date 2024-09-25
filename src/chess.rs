@@ -116,10 +116,8 @@ impl ChessBoard {
 
         new_board
     }
-}
 
-// Implements FEN functionality
-impl ChessBoard {
+    // Implements FEN functionality
     pub fn set_fen_position_arr(&mut self, fen: &str) -> Result<(), InvalidFen> {
         if !is_fen_valid(fen) {
             return Err(InvalidFen);

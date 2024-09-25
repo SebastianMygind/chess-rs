@@ -48,18 +48,6 @@ impl SquarePosition {
     }
 }
 
-pub fn find_first_matching_chess_piece(
-    board: &[BoardPiece; ARR_SIZE],
-    piece_to_find: Pieces,
-) -> Option<usize> {
-    for (pos, square) in board.iter().enumerate() {
-        if square.piece_type == piece_to_find {
-            return Some(pos);
-        }
-    }
-    None
-}
-
 #[derive(Clone, Copy)]
 pub struct MoveDirection {
     dx: i8,

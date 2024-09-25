@@ -11,7 +11,7 @@ mod chess_display;
 pub mod chess_errors;
 pub mod chess_moves;
 
-use chess_errors::{IllegalMove, InvalidFen};
+use chess_errors::InvalidFen;
 use fen::FEN_START_POS;
 
 /* Defines different piece types and color */
@@ -45,12 +45,6 @@ pub enum MetaData {
 pub const ARR_SIZE: usize = ROW_SIZE * COL_SIZE;
 const ROW_SIZE: usize = 8;
 const COL_SIZE: usize = 8;
-const COL_LETTERS: [char; 8] = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
-const NUM_CHAR: [char; 8] = ['1', '2', '3', '4', '5', '6', '7', '8'];
-const VALID_FEN_BOARD: [char; 21] = [
-    'p', 'r', 'b', 'n', 'q', 'k', 'P', 'R', 'B', 'N', 'Q', 'K', '1', '2', '3', '4', '5', '6', '7',
-    '8', '/',
-];
 
 const EMPTY_PIECE: BoardPiece = BoardPiece {
     piece_type: Pieces::Empty,

@@ -1,7 +1,17 @@
-use crate::chess::chess_moves::legal_moves::generic_piece::{get_single_step_moves, Color};
+use crate::chess::chess_moves::legal_moves::generic_piece::{
+    check_multi_step_for_piece_exists, check_single_step_for_piece_exists, get_single_step_moves,
+    Color,
+};
 
-use crate::chess::chess_moves::piece_logic::KING_AND_QUEEN_DIRECTION;
-use crate::chess::{BoardPiece, ChessBoard, MetaData, Move, Pieces, ARR_SIZE, EMPTY_PIECE};
+use crate::chess::chess_moves::piece_logic::{
+    BISHOP_DIRECTION, BLACK_PAWN_ATTACK_DIRECTION, KING_AND_QUEEN_DIRECTION, KNIGHT_DIRECTION,
+    ROOK_DIRECTION, WHITE_PAWN_ATTACK_DIRECTION,
+};
+use crate::chess::chess_moves::MoveDirection;
+use crate::chess::Pieces::{
+    BBishop, BKing, BKnight, BPawn, BQueen, BRook, WBishop, WKing, WKnight, WPawn, WQueen, WRook,
+};
+use crate::chess::{BoardPiece, ChessBoard, MetaData, Move, ARR_SIZE, EMPTY_PIECE};
 
 pub fn get_king_moves(chess_board: &ChessBoard, piece_position: &usize) -> Vec<Move> {
     let mut king_moves: Vec<Move> = get_single_step_moves(
@@ -54,36 +64,83 @@ pub fn king_is_checked(
     king_position: &usize,
     king_color: &Color,
 ) -> bool {
-    let king_is_checked: bool = false;
+    let pawn_attack: [MoveDirection; 2];
+    let attacking_pieces = if *king_color == Color::White {
+        pawn_attack = WHITE_PAWN_ATTACK_DIRECTION;
+        [BKing, BQueen, BRook, BBishop, BKnight, BPawn]
+    } else {
+        pawn_attack = BLACK_PAWN_ATTACK_DIRECTION;
+        [WKing, WQueen, WRook, WBishop, WKnight, WPawn]
+    };
+
     // Check for king attacks.
     //   - This can be removed if you check when generating the pseudolegal moves.
-    if queen_attacks_king(king_position, king_color, board) {}
+
+    if check_single_step_for_piece_exists(
+        &attacking_pieces[0],
+        board,
+        KING_AND_QUEEN_DIRECTION.as_slice(),
+        king_position,
+    ) {
+        return true;
+    }
 
     // Check for queen attacks
 
+    if check_multi_step_for_piece_exists(
+        &attacking_pieces[1],
+        board,
+        KING_AND_QUEEN_DIRECTION.as_slice(),
+        king_position,
+    ) {
+        return true;
+    }
+
     // Check for rook attacks
 
-    // Check for knight attacks
+    if check_multi_step_for_piece_exists(
+        &attacking_pieces[2],
+        board,
+        ROOK_DIRECTION.as_slice(),
+        king_position,
+    ) {
+        return true;
+    }
 
-    // Check for bishop attacks
+    // Check for Bishop attacks
 
-    //
+    if check_multi_step_for_piece_exists(
+        &attacking_pieces[3],
+        board,
+        BISHOP_DIRECTION.as_slice(),
+        king_position,
+    ) {
+        return true;
+    }
 
-    king_is_checked
-}
+    // Check for Knight attacks
 
-fn queen_attacks_king(
-    king_position: &usize,
-    king_color: &Color,
-    board: &[BoardPiece; ARR_SIZE],
-) -> bool {
-    let attacking_queen = if *king_color == Color::White {
-        Pieces::BQueen
-    } else {
-        Pieces::WQueen
-    };
+    if check_multi_step_for_piece_exists(
+        &attacking_pieces[4],
+        board,
+        KNIGHT_DIRECTION.as_slice(),
+        king_position,
+    ) {
+        return true;
+    }
 
-    todo!("");
+    // Check for pawn attacks
+
+    if check_multi_step_for_piece_exists(
+        &attacking_pieces[5],
+        board,
+        pawn_attack.as_slice(),
+        king_position,
+    ) {
+        return true;
+    }
+
+    false
 }
 
 /** Returns true if all given positions are empty */

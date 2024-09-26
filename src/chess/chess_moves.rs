@@ -95,9 +95,8 @@ impl MoveDirection {
 
         let square_position = SquarePosition::new(position);
 
-        if (square_position.file as i8 + self.dx) < 1 {
-            move_is_valid = false;
-        } else if (square_position.rank as i8 + self.dy) < 1 {
+        if (square_position.file as i8 + self.dx) < 1 || (square_position.rank as i8 + self.dy) < 1
+        {
             move_is_valid = false;
         }
 

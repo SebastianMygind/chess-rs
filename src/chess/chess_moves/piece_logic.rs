@@ -48,7 +48,7 @@ pub const BISHOP_DIRECTION: [MoveDirection; 4] = [
     MoveDirection { dx: -1, dy: -1 },
 ];
 
-pub const KNIGHT_ATTACK_DIRECTION: [MoveDirection; 8] = [
+pub const KNIGHT_DIRECTION: [MoveDirection; 8] = [
     MoveDirection { dx: 2, dy: 1 },
     MoveDirection { dx: 2, dy: -1 },
     MoveDirection { dx: -2, dy: 1 },

@@ -51,7 +51,7 @@ const EMPTY_PIECE: BoardPiece = BoardPiece {
 };
 
 /* Chessboard specific implementations */
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct ChessBoard {
     board: [BoardPiece; ARR_SIZE],
     white_is_side_to_move: bool,

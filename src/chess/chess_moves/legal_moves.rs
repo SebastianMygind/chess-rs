@@ -7,12 +7,15 @@ mod queen_piece;
 mod rook_piece;
 
 use crate::chess::chess_moves::legal_moves::bishop_piece::get_bishop_moves;
-use crate::chess::chess_moves::legal_moves::king_piece::get_king_moves;
+use crate::chess::chess_moves::legal_moves::generic_piece::{
+    find_first_matching_chess_piece, Color,
+};
+use crate::chess::chess_moves::legal_moves::king_piece::{get_king_moves, king_is_checked};
 use crate::chess::chess_moves::legal_moves::knight_piece::get_knight_moves;
 use crate::chess::chess_moves::legal_moves::pawn_piece::get_pawn_moves;
 use crate::chess::chess_moves::legal_moves::queen_piece::get_queen_moves;
 use crate::chess::chess_moves::legal_moves::rook_piece::get_rook_moves;
-use crate::chess::{ChessBoard, MetaData, Move, Pieces};
+use crate::chess::{BoardPiece, ChessBoard, MetaData, Move, Pieces, ARR_SIZE, EMPTY_PIECE};
 
 impl ChessBoard {
     pub fn legal_moves(&self) -> Vec<Move> {
@@ -20,21 +23,35 @@ impl ChessBoard {
 
         let pseudo_legal_moves: Vec<Move> = self.pseudo_legal_moves();
 
-        todo!(
-            " Check that all castling moves are allowed, specifically check that the squares
-                between the rook and king are not attacked by any pieces.
-
-                Make sure no move that is made leaves the king in check.
-        "
-        );
-
-        let chess_move: Move = Move {
-            start_pos: 12,
-            end_pos: 20,
-            meta_data: MetaData::Move,
+        let (current_color, king_piece): (Color, Pieces) = if self.white_is_side_to_move {
+            (Color::White, Pieces::WKing)
+        } else {
+            (Color::Black, Pieces::BKing)
         };
 
-        return vec![chess_move];
+        let king_position = find_first_matching_chess_piece(&self.board, king_piece)
+            .expect("Both kings most exist on all boards!");
+
+        for piece_move in pseudo_legal_moves {
+            let mut board_copy = self.board;
+            Self::make_move_on_board(&mut board_copy, &piece_move);
+
+            if board_copy[piece_move.end_pos].piece_type == Pieces::WKing
+                || board_copy[piece_move.end_pos].piece_type == Pieces::BKing
+            {
+                if !king_is_checked(&board_copy, &piece_move.end_pos, &current_color) {
+                    legal_moves.push(piece_move);
+                }
+                
+                continue;
+            }
+
+            if !king_is_checked(&board_copy, &king_position, &current_color) {
+                legal_moves.push(piece_move);
+            }
+        }
+        return legal_moves;
+        todo!(" FIX CASTLING CHECK IN king_piece, fix en_passant generation in pawn_piece")
     }
 
     /** This function returns all possible moves, but does not check for pinned pieces,
@@ -79,59 +96,35 @@ impl ChessBoard {
         }
         pseudo_legal_moves
     }
-}
 
-pub fn can_capture_piece(capturing_piece: &Pieces, piece_to_capture: &Pieces) -> bool {
-    let capturing_is_white = piece_is_white(capturing_piece);
-    let piece_to_capture_is_white = piece_is_white(piece_to_capture);
+    fn make_move_on_board(board: &mut [BoardPiece; ARR_SIZE], move_to_make: &Move) {
+        match move_to_make.meta_data {
+            MetaData::Move | MetaData::Capture => {
+                board[move_to_make.end_pos] = board[move_to_make.start_pos];
+                board[move_to_make.start_pos] = EMPTY_PIECE;
+            }
 
-    if *capturing_piece == Pieces::Empty {
-        panic!("illegal piece to capture with: Cannot capture with an empty piece");
-    } else if *piece_to_capture == Pieces::Empty {
-        return true;
-    }
+            MetaData::Promotion(piece_type) => {
+                board[move_to_make.end_pos] = BoardPiece { piece_type };
+                board[move_to_make.start_pos] = EMPTY_PIECE;
+            }
 
-    capturing_is_white != piece_to_capture_is_white
-}
+            MetaData::EnPassant => {}
 
-fn piece_is_white(piece: &Pieces) -> bool {
-    match *piece {
-        Pieces::WKing
-        | Pieces::WKnight
-        | Pieces::WRook
-        | Pieces::WQueen
-        | Pieces::WBishop
-        | Pieces::WPawn => true,
+            MetaData::Castling => {
+                let (rook_start_position, rook_end_position): (usize, usize) =
+                    if move_to_make.start_pos < move_to_make.end_pos {
+                        (move_to_make.start_pos + 3, move_to_make.start_pos + 1)
+                    } else {
+                        (move_to_make.start_pos - 4, move_to_make.start_pos - 1)
+                    };
 
-        Pieces::BKing
-        | Pieces::BKnight
-        | Pieces::BRook
-        | Pieces::BQueen
-        | Pieces::BBishop
-        | Pieces::BPawn => false,
+                board[move_to_make.end_pos] = board[move_to_make.start_pos];
+                board[rook_end_position] = board[rook_start_position];
 
-        Pieces::Empty => false,
-    }
-}
-
-// TESTS!!
-
-// Testing function: can_capture_piece
-#[cfg(test)]
-mod tests {
-    use super::*;
-    #[test]
-    fn capture_test1() {
-        assert_eq!(can_capture_piece(&Pieces::WKing, &Pieces::BKing), true);
-    }
-
-    #[test]
-    fn capture_test2() {
-        assert_eq!(can_capture_piece(&Pieces::WPawn, &Pieces::WRook), false);
-    }
-
-    #[test]
-    fn capture_empty() {
-        assert_eq!(can_capture_piece(&Pieces::WPawn, &Pieces::Empty), true);
+                board[move_to_make.start_pos] = EMPTY_PIECE;
+                board[rook_start_position] = EMPTY_PIECE;
+            }
+        }
     }
 }

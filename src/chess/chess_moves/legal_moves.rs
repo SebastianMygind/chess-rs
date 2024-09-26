@@ -1,5 +1,5 @@
 mod bishop_piece;
-pub mod generic_piece;
+mod generic_piece;
 mod king_piece;
 mod knight_piece;
 mod pawn_piece;

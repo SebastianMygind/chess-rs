@@ -3,7 +3,7 @@ use crate::chess::chess_moves::MoveDirection;
 use crate::chess::{BoardPiece, ChessBoard, MetaData, Move, Pieces, ARR_SIZE};
 
 #[derive(PartialEq)]
-pub(in crate::chess::chess_moves::legal_moves) enum Color {
+pub enum Color {
     White,
     Black,
 }

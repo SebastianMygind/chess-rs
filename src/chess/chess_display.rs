@@ -42,10 +42,8 @@ impl fmt::Display for ChessBoard {
 
 fn parse_chessboard_to_string(board: &[BoardPiece; ARR_SIZE]) -> Vec<String> {
     let mut printable_board = Vec::new();
-
-    let ranks: [usize; 8] = [1, 2, 3, 4, 5, 6, 7, 8];
-
-    for rank in ranks {
+    
+    for rank in 1..=8 {
         let start = (rank - 1) * 8;
         let mut pieces: Vec<char> = Vec::new();
 

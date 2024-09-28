@@ -9,53 +9,61 @@ use crate::chess::chess_moves::MoveDirection;
 use crate::chess::{BoardPiece, ChessBoard, MetaData, Move, Pieces, SquarePosition, ARR_SIZE};
 
 pub fn get_pawn_moves(chess_board: &ChessBoard, piece_position: &usize) -> Vec<Move> {
-    let (friendly_pieces, _) = get_friendly_and_enemy_pieces(chess_board.white_is_side_to_move);
+    let (friendly_pieces, enemy_pieces) =
+        get_friendly_and_enemy_pieces(chess_board.white_is_side_to_move);
+    
     let (direction, attack_direction) =
         get_pawn_direction_and_attack(chess_board.white_is_side_to_move);
 
     let square_piece_position: SquarePosition = SquarePosition::new(*piece_position);
 
-    let mut pawn_moves: Vec<Move> = get_single_step_moves(
-        chess_board,
-        piece_position,
-        [direction, attack_direction[0], attack_direction[1]].as_slice(),
-    );
+    let mut pawn_moves: Vec<Move> =
+        get_single_step_moves(chess_board, piece_position, [direction].as_slice());
 
-    if let Some(square) = chess_board.en_passant_target_square {
-        let en_passant_direction: [bool; 2] = [
-            attack_direction[0].piece_can_travel(
-                &chess_board.board,
-                &friendly_pieces,
-                piece_position,
-            ),
-            attack_direction[1].piece_can_travel(
-                &chess_board.board,
-                &friendly_pieces,
-                piece_position,
-            ),
-        ];
+    let travelable_attack_direction: [bool; 2] = [
+        attack_direction[0].piece_can_travel(&chess_board.board, &friendly_pieces, piece_position),
+        attack_direction[1].piece_can_travel(&chess_board.board, &friendly_pieces, piece_position),
+    ];
 
-        if en_passant_direction[0] {
-            let possible_en_passant_move = attack_direction[0].walk_from_position(*piece_position);
-            if square == possible_en_passant_move {
-                let en_passant_move = Move {
+    let square = chess_board.en_passant_target_square;
+
+    if travelable_attack_direction[0] {
+        let possible_attack_position: usize =
+            attack_direction[0].walk_from_position(*piece_position);
+        for enemy in enemy_pieces {
+            if chess_board.board[possible_attack_position].piece_type == enemy {
+                let pawn_attack_move: Move = Move {
                     start_pos: *piece_position,
-                    end_pos: square,
-                    meta_data: MetaData::EnPassant,
+                    end_pos: possible_attack_position,
+                    meta_data: MetaData::Capture,
                 };
-                pawn_moves.push(en_passant_move);
+                pawn_moves.push(pawn_attack_move);
             }
         }
-        if en_passant_direction[1] {
-            let possible_en_passant_move = attack_direction[1].walk_from_position(*piece_position);
-            if square == possible_en_passant_move {
-                let en_passant_move = Move {
+        if let Some(en_passant_move) =
+            check_en_passant_move(*piece_position, square, possible_attack_position)
+        {
+            pawn_moves.push(en_passant_move);
+        }
+    }
+
+    if travelable_attack_direction[1] {
+        let possible_attack_position: usize =
+            attack_direction[1].walk_from_position(*piece_position);
+        for enemy in enemy_pieces {
+            if chess_board.board[possible_attack_position].piece_type == enemy {
+                let pawn_attack_move: Move = Move {
                     start_pos: *piece_position,
-                    end_pos: square,
-                    meta_data: MetaData::EnPassant,
+                    end_pos: possible_attack_position,
+                    meta_data: MetaData::Capture,
                 };
-                pawn_moves.push(en_passant_move);
+                pawn_moves.push(pawn_attack_move);
             }
+        }
+        if let Some(en_passant_move) =
+            check_en_passant_move(*piece_position, square, possible_attack_position)
+        {
+            pawn_moves.push(en_passant_move);
         }
     }
 
@@ -91,6 +99,25 @@ fn get_pawn_direction_and_attack(
     } else {
         (BLACK_PAWN_DIRECTION, BLACK_PAWN_ATTACK_DIRECTION)
     }
+}
+
+fn check_en_passant_move(
+    start_position: usize,
+    en_passant_position: Option<usize>,
+    attack_position: usize,
+) -> Option<Move> {
+    if let Some(en_passant) = en_passant_position {
+        return if en_passant == attack_position {
+            Some(Move {
+                start_pos: start_position,
+                end_pos: attack_position,
+                meta_data: MetaData::EnPassant,
+            })
+        } else {
+            None
+        };
+    }
+    None
 }
 
 fn get_pawn_double_move(

@@ -42,7 +42,7 @@ impl ChessBoard {
                 if !king_is_checked(&board_copy, &piece_move.end_pos, &current_color) {
                     legal_moves.push(piece_move);
                 }
-                
+
                 continue;
             }
 
@@ -50,8 +50,8 @@ impl ChessBoard {
                 legal_moves.push(piece_move);
             }
         }
-        return legal_moves;
         todo!(" FIX CASTLING CHECK IN king_piece, fix en_passant generation in pawn_piece")
+        // legal_moves
     }
 
     /** This function returns all possible moves, but does not check for pinned pieces,

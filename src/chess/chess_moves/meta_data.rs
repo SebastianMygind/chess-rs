@@ -1,7 +1,28 @@
 /* This module has functions for updating metadata for a Chessboard struct */
-use crate::chess::{BoardPiece, ChessBoard, Move, Pieces};
+use crate::chess::{BoardPiece, ChessBoard, MetaData, Move, Pieces};
 
 impl ChessBoard {
+    pub fn update_meta_data(&mut self, move_to_make: Move) {
+        match move_to_make.meta_data {
+            MetaData::Move => {}
+
+            MetaData::Capture => {
+                self.reset_half_move_clock();
+                self.set_no_en_passant();
+            }
+
+            MetaData::Castling => {}
+
+            MetaData::EnPassant => {}
+
+            MetaData::Promotion(_) => {
+                self.reset_half_move_clock();
+                self.set_no_en_passant();
+            }
+        }
+        self.update_fullmove_counter();
+    }
+
     fn update_fullmove_counter(&mut self) {
         if !self.white_is_side_to_move {
             self.fullmove_counter += 1;

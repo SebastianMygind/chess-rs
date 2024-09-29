@@ -11,7 +11,7 @@ use crate::chess::{BoardPiece, ChessBoard, MetaData, Move, Pieces, SquarePositio
 pub fn get_pawn_moves(chess_board: &ChessBoard, piece_position: &usize) -> Vec<Move> {
     let (friendly_pieces, enemy_pieces) =
         get_friendly_and_enemy_pieces(chess_board.white_is_side_to_move);
-    
+
     let (direction, attack_direction) =
         get_pawn_direction_and_attack(chess_board.white_is_side_to_move);
 

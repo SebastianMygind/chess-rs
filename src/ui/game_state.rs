@@ -1,7 +1,5 @@
-use crate::chess::{BoardPiece, ARR_SIZE};
 use iced::executor;
-use iced::mouse;
-use iced::widget::{column, container, row, text};
+use iced::widget::{container, row, text};
 use iced::Application;
 use iced::Command;
 use iced::Element;

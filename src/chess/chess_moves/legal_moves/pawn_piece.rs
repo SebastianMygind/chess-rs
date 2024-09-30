@@ -20,6 +20,8 @@ pub fn get_pawn_moves(chess_board: &ChessBoard, piece_position: &usize) -> Vec<M
     let mut pawn_moves: Vec<Move> =
         get_single_step_moves(chess_board, piece_position, [direction].as_slice());
 
+    pawn_moves[0].meta_data = MetaData::PawnMove;
+
     let travelable_attack_direction: [bool; 2] = [
         attack_direction[0].piece_can_travel(&chess_board.board, &friendly_pieces, piece_position),
         attack_direction[1].piece_can_travel(&chess_board.board, &friendly_pieces, piece_position),
@@ -143,7 +145,7 @@ fn get_pawn_double_move(
         let double_move: Move = Move {
             start_pos: *piece_position,
             end_pos: double_move_direction.walk_from_position(*piece_position),
-            meta_data: MetaData::Move,
+            meta_data: MetaData::PawnMove,
         };
         return Some(double_move);
     }

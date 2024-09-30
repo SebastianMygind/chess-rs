@@ -1,19 +1,43 @@
 /* This module has functions for updating metadata for a Chessboard struct */
-use crate::chess::{BoardPiece, ChessBoard, MetaData, Move, Pieces};
+use crate::chess::{ChessBoard, MetaData, Move};
 
 impl ChessBoard {
-    pub fn update_meta_data(&mut self, move_to_make: Move) {
+    pub fn update_meta_data(&mut self, move_to_make: &Move) {
         match move_to_make.meta_data {
-            MetaData::Move => {}
+            MetaData::Move => {
+                self.increment_half_move_clock();
+            }
 
             MetaData::Capture => {
                 self.reset_half_move_clock();
                 self.set_no_en_passant();
             }
 
-            MetaData::Castling => {}
+            MetaData::Castling => {
+                self.increment_half_move_clock();
+                self.set_no_en_passant();
+            }
 
-            MetaData::EnPassant => {}
+            MetaData::PawnMove => {
+                self.reset_half_move_clock();
+            }
+
+            MetaData::PawnDoubleMove => {
+                if move_to_make.start_pos < move_to_make.end_pos {
+                    self.en_passant_target_square = Some(move_to_make.start_pos + 8);
+                } else if move_to_make.start_pos > move_to_make.end_pos {
+                    self.en_passant_target_square = Some(move_to_make.start_pos - 8);
+                } else {
+                    panic!(
+                        "PawnDoubleMoves not generated correctly, start position = end position!"
+                    );
+                }
+            }
+
+            MetaData::EnPassant => {
+                self.reset_half_move_clock();
+                self.set_no_en_passant();
+            }
 
             MetaData::Promotion(_) => {
                 self.reset_half_move_clock();
@@ -21,6 +45,7 @@ impl ChessBoard {
             }
         }
         self.update_fullmove_counter();
+        self.update_side_to_move();
     }
 
     fn update_fullmove_counter(&mut self) {
@@ -46,13 +71,3 @@ impl ChessBoard {
         self.halfmove_clock = 0;
     }
 }
-
-pub fn update_move(chessboard: &mut ChessBoard, piece: &BoardPiece, move_to_make: &Move) {}
-
-pub fn update_capture(chessboard: &mut ChessBoard) {}
-
-pub fn update_castle(chessboard: &mut ChessBoard) {}
-
-pub fn update_en_passant(chessboard: &mut ChessBoard) {}
-
-pub fn update_pawn_promotion(chessboard: &mut ChessBoard) {}

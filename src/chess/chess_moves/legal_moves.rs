@@ -50,8 +50,7 @@ impl ChessBoard {
                 legal_moves.push(piece_move);
             }
         }
-        todo!(" FIX CASTLING CHECK IN king_piece, fix en_passant generation in pawn_piece")
-        // legal_moves
+        legal_moves
     }
 
     /** This function returns all possible moves, but does not check for pinned pieces,
@@ -97,9 +96,9 @@ impl ChessBoard {
         pseudo_legal_moves
     }
 
-    fn make_move_on_board(board: &mut [BoardPiece; ARR_SIZE], move_to_make: &Move) {
+    pub fn make_move_on_board(board: &mut [BoardPiece; ARR_SIZE], move_to_make: &Move) {
         match move_to_make.meta_data {
-            MetaData::Move | MetaData::Capture => {
+            MetaData::Move | MetaData::PawnMove | MetaData::Capture | MetaData::PawnDoubleMove => {
                 board[move_to_make.end_pos] = board[move_to_make.start_pos];
                 board[move_to_make.start_pos] = EMPTY_PIECE;
             }
@@ -109,7 +108,18 @@ impl ChessBoard {
                 board[move_to_make.start_pos] = EMPTY_PIECE;
             }
 
-            MetaData::EnPassant => {}
+            MetaData::EnPassant => {
+                let delta_position: i8 = if move_to_make.start_pos < move_to_make.end_pos {
+                    8
+                } else {
+                    -8
+                };
+
+                board[move_to_make.end_pos] = board[move_to_make.start_pos];
+
+                board[move_to_make.start_pos] = EMPTY_PIECE;
+                board[(move_to_make.end_pos as i8 + delta_position) as usize] = EMPTY_PIECE;
+            }
 
             MetaData::Castling => {
                 let (rook_start_position, rook_end_position): (usize, usize) =

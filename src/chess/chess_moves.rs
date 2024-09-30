@@ -24,13 +24,17 @@ impl ChessBoard {
             return Err(IllegalMove);
         }
 
+        Self::make_move_on_board(&mut self.board, &move_to_make);
+
+        self.update_meta_data(&move_to_make);
+
         Ok(move_to_make)
     }
 }
 
 impl SquarePosition {
     pub fn pos_to_arr_index(&self) -> usize {
-        if (self.rank == 0 || self.file == 0) {
+        if self.rank == 0 || self.file == 0 {
             panic!(
                 "ERROR: square position {}, {}. Should be above 0",
                 self.rank, self.file
@@ -100,7 +104,7 @@ impl MoveDirection {
             move_is_valid = false;
         }
 
-        if (!move_is_valid) {
+        if !move_is_valid {
             panic!(
                 "Error walking from position: Check that a move is within bounds before \
             calling this function!"

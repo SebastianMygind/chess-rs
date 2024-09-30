@@ -1,5 +1,7 @@
 /* Sub-module for FEN helper functions */
 
+use core::fmt;
+
 use crate::chess::fen::{
     is_fen_valid, parse_fen_castling_ability, parse_fen_epawn, parse_fen_full_move_counter,
     parse_fen_half_move_clock, parse_fen_piece_placement, parse_fen_side_to_move, split_at_space,
@@ -36,6 +38,8 @@ pub enum Pieces {
 #[derive(PartialEq)]
 pub enum MetaData {
     Move,
+    PawnMove,
+    PawnDoubleMove,
     Capture,
     EnPassant,
     Castling,
@@ -74,6 +78,16 @@ pub(crate) struct Move {
     pub start_pos: usize,
     pub end_pos: usize,
     pub meta_data: MetaData,
+}
+
+impl fmt::Display for Move {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "start_pos: {}, end_pos: {}\n",
+            self.start_pos, self.end_pos
+        )
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]

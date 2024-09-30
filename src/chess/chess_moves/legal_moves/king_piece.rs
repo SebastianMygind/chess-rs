@@ -19,18 +19,29 @@ pub fn get_king_moves(chess_board: &ChessBoard, piece_position: &usize) -> Vec<M
         piece_position,
         KING_AND_QUEEN_DIRECTION.as_slice(),
     );
+    let king_color: Color;
 
     let (kingside_castle_index, queenside_castle_index): (usize, usize) =
         if chess_board.white_is_side_to_move {
+            king_color = Color::White;
             (0, 1)
         } else {
+            king_color = Color::Black;
             (2, 3)
         };
 
     if chess_board.castling_ability[kingside_castle_index] {
         let positions_to_check: [usize; 2] = [piece_position + 1, piece_position + 2];
 
-        if check_board_for_empty_pieces(positions_to_check.as_slice(), &chess_board.board) {
+        let is_valid_castling_move = check_king_through_rook_positions_not_in_check(
+            positions_to_check.as_slice(),
+            &chess_board.board,
+            &king_color,
+        );
+
+        if is_valid_castling_move
+            || check_board_for_empty_pieces(positions_to_check.as_slice(), &chess_board.board)
+        {
             let castling_move: Move = Move {
                 start_pos: *piece_position,
                 end_pos: *piece_position + 2,
@@ -45,7 +56,15 @@ pub fn get_king_moves(chess_board: &ChessBoard, piece_position: &usize) -> Vec<M
         let positions_to_check: [usize; 3] =
             [piece_position - 1, piece_position - 2, piece_position - 3];
 
-        if check_board_for_empty_pieces(positions_to_check.as_slice(), &chess_board.board) {
+        let is_valid_castling_move = check_king_through_rook_positions_not_in_check(
+            positions_to_check.as_slice(),
+            &chess_board.board,
+            &king_color,
+        );
+
+        if is_valid_castling_move
+            || check_board_for_empty_pieces(positions_to_check.as_slice(), &chess_board.board)
+        {
             let castling_move: Move = Move {
                 start_pos: *piece_position,
                 end_pos: *piece_position - 2,
@@ -141,6 +160,20 @@ pub fn king_is_checked(
     }
 
     false
+}
+
+fn check_king_through_rook_positions_not_in_check(
+    positions: &[usize],
+    board: &[BoardPiece; ARR_SIZE],
+    king_color: &Color,
+) -> bool {
+    for position in positions {
+        if king_is_checked(board, position, king_color) {
+            return false;
+        }
+    }
+
+    true
 }
 
 /** Returns true if all given positions are empty */

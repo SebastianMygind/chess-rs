@@ -15,19 +15,13 @@ use crate::chess::chess_moves::legal_moves::knight_piece::get_knight_moves;
 use crate::chess::chess_moves::legal_moves::pawn_piece::get_pawn_moves;
 use crate::chess::chess_moves::legal_moves::queen_piece::get_queen_moves;
 use crate::chess::chess_moves::legal_moves::rook_piece::get_rook_moves;
-use crate::chess::{BoardSquare, ChessBoard, MetaData, Move, Pieces, ARR_SIZE, EMPTY_PIECE};
+use crate::chess::{Board, BoardSquare, ChessBoard, MetaData, Move, Pieces, ARR_SIZE, EMPTY_PIECE};
 
 impl ChessBoard {
     pub fn legal_moves(&self) -> Vec<Move> {
         let mut legal_moves: Vec<Move> = Vec::new();
 
         let pseudo_legal_moves: Vec<Move> = self.pseudo_legal_moves();
-
-        let (current_color, king_piece): (Color, Pieces) = if self.white_is_side_to_move {
-            (Color::White, Pieces::WKing)
-        } else {
-            (Color::Black, Pieces::BKing)
-        };
 
         let king_position = find_first_matching_chess_piece(&self.board, king_piece)
             .expect("Both kings most exist on all boards!");
@@ -96,7 +90,7 @@ impl ChessBoard {
         pseudo_legal_moves
     }
 
-    pub fn make_move_on_board(board: &mut [BoardSquare; ARR_SIZE], move_to_make: &Move) {
+    pub fn make_move_on_board(board: &mut Board, move_to_make: &Move) {
         match move_to_make.meta_data {
             MetaData::Move | MetaData::PawnMove | MetaData::Capture | MetaData::PawnDoubleMove => {
                 board[move_to_make.end_pos] = board[move_to_make.start_pos];

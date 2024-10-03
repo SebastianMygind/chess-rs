@@ -19,13 +19,18 @@ use fen::FEN_START_POSITION;
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Square {
     Empty,
-    White(Pieces),
-    Black(Pieces),
+    Piece(Piece),
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum Piece {
+    White(PieceType),
+    Black(PieceType),
 }
 
 /* Defines different piece types and color */
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub enum Pieces {
+pub enum PieceType {
     Pawn,
     Rook,
     Bishop,
@@ -43,12 +48,13 @@ pub enum MetaData {
     Capture,
     EnPassant,
     Castling,
-    Promotion(Pieces),
+    Promotion(Piece),
 }
 
 pub const ROW_SIZE: usize = 8;
 pub const COL_SIZE: usize = 8;
 type Board = [[BoardSquare; COL_SIZE]; ROW_SIZE];
+type Coordinates = (usize, usize);
 
 const EMPTY_PIECE: BoardSquare = BoardSquare {
     piece_type: Square::Empty,
@@ -60,7 +66,7 @@ pub struct ChessBoard {
     board: Board,
     white_is_side_to_move: bool,
     castling_ability: [bool; 4], // WKingside, WQueenside, BKingside, BQueenside
-    en_passant_target_square: Option<(usize, usize)>,
+    en_passant_target_square: Option<Coordinates>,
     halfmove_clock: u64,
     fullmove_counter: u64,
     is_checked: bool,
@@ -75,19 +81,9 @@ pub struct BoardSquare {
 
 #[derive(PartialEq)]
 pub(crate) struct Move {
-    pub start_pos: (usize, usize),
-    pub end_pos: (usize, usize),
+    pub start_pos: Coordinates,
+    pub end_pos: Coordinates,
     pub meta_data: MetaData,
-}
-
-impl fmt::Display for Move {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "start_pos: ({}, {}), end_pos: ({}, {})\n",
-            self.start_pos.0, self.start_pos.1, self.end_pos.0, self.end_pos.1
-        )
-    }
 }
 
 // Implements chess functionality

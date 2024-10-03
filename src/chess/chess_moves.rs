@@ -6,7 +6,7 @@ pub mod meta_data;
 mod piece_logic;
 
 use crate::chess::chess_errors::IllegalMove;
-use crate::chess::{BoardSquare, ChessBoard, Move, Pieces, SquarePosition, ARR_SIZE};
+use crate::chess::{Board, ChessBoard, Coordinates, Move, Piece, Square};
 
 impl ChessBoard {
     pub fn make_move(&mut self, move_to_make: Move) -> Result<Move, IllegalMove> {
@@ -32,26 +32,6 @@ impl ChessBoard {
     }
 }
 
-impl SquarePosition {
-    pub fn pos_to_arr_index(&self) -> usize {
-        if self.rank == 0 || self.file == 0 {
-            panic!(
-                "ERROR: square position {}, {}. Should be above 0",
-                self.rank, self.file
-            );
-        }
-
-        (self.rank - 1) * 8 + self.file - 1
-    }
-
-    pub fn new(arr_pos: usize) -> SquarePosition {
-        let rank = (arr_pos / 8) + 1;
-        let file = (arr_pos % 8) + 1;
-
-        SquarePosition { rank, file }
-    }
-}
-
 #[derive(Clone, Copy)]
 pub struct MoveDirection {
     dx: i8,
@@ -61,58 +41,46 @@ pub struct MoveDirection {
 impl MoveDirection {
     pub fn piece_can_travel(
         &self,
-        board: &[BoardSquare; ARR_SIZE],
-        friendly_pieces: &[Pieces; 6],
-        board_position: &usize,
+        board: &Board,
+        friendly_pieces: &Piece,
+        board_position: &Coordinates,
     ) -> bool {
-        let mut piece_square = SquarePosition::new(*board_position);
-
-        let x_pos: i8 = (piece_square.file as i8) + self.dx;
-        let y_pos: i8 = (piece_square.rank as i8) + self.dy;
-
-        if x_pos < 1 || y_pos < 1 || x_pos > 8 || y_pos > 8 {
+        if self.dx < 0 && self.dx.abs() as usize > board_position.0
+            || self.dy < 0 && self.dy.abs() as usize > board_position.1
+        {
             return false;
-        } else {
-            piece_square.file = x_pos as usize;
-            piece_square.rank = y_pos as usize;
+        } else if self.dx as usize + board_position.0 > 7 || self.dy as usize + board_position.1 > 7
+        {
+            return false;
         }
 
-        let target_piece = board[piece_square.pos_to_arr_index()].piece_type;
+        let target_piece = board[board_position.1][board_position.0].piece_type;
 
-        for friend in friendly_pieces {
-            if *friend == target_piece {
-                return false;
-            }
+        match target_piece {
+            Square::Empty => true,
+
+            Square::Piece(piece) => match piece {
+                Piece::White(_) => match friendly_pieces {
+                    Piece::White(_) => false,
+                    Piece::Black(_) => true,
+                },
+
+                Piece::Black(_) => match friendly_pieces {
+                    Piece::White(_) => true,
+                    Piece::Black(_) => false,
+                },
+            },
         }
-        true
     }
 
     /**
       given a position this function returns a new position after traveling the direction given by
       self.
     */
-    pub fn walk_from_position(&self, position: usize) -> usize {
-        let new_position: usize;
-        let mut move_is_valid = true;
-
-        let delta_position: i8 = self.dx + (self.dy * 8);
-
-        let square_position = SquarePosition::new(position);
-
-        if (square_position.file as i8 + self.dx) < 1 || (square_position.rank as i8 + self.dy) < 1
-        {
-            move_is_valid = false;
-        }
-
-        if !move_is_valid {
-            panic!(
-                "Error walking from position: Check that a move is within bounds before \
-            calling this function!"
-            )
-        } else {
-            new_position = (position as i8 + delta_position) as usize;
-        }
-
-        new_position
+    pub fn walk_from_position(&self, position: Coordinates) -> Coordinates {
+        (
+            (position.0 as i8 + self.dx) as usize,
+            (position.1 as i8 + self.dy) as usize,
+        )
     }
 }

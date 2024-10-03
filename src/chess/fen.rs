@@ -1,4 +1,6 @@
-use crate::chess::{BoardSquare, Pieces};
+use crate::chess::PieceType::{Bishop, King, Knight, Pawn, Queen, Rook};
+use crate::chess::{Board, BoardSquare, Coordinates, Piece, PieceType, Square, COL_SIZE};
+use iced::futures::future::err;
 
 use super::ChessBoard;
 
@@ -269,10 +271,10 @@ mod tests {
 
 /* FEN parsing functions */
 
-pub fn parse_fen_piece_placement(fen_string: &str) ->  {
+pub fn parse_fen_piece_placement(fen_string: &str) -> Board {
     let fen_ranks: Vec<&str> = fen_string.split('/').collect();
 
-    let mut parsed_ranks: Vec<Vec<Pieces>> = Vec::new();
+    let mut parsed_ranks: Vec<Vec<Square>> = Vec::new();
 
     for fen_rank in fen_ranks {
         parsed_ranks.push(parse_fen_piece_rank(fen_rank));
@@ -280,73 +282,86 @@ pub fn parse_fen_piece_placement(fen_string: &str) ->  {
     /* Make rank 1 the 0th element instead of the 7th */
     parsed_ranks.reverse();
 
-    let mut board = [BoardSquare {
-        piece_type: Pieces::Empty,
-    }; ARR_SIZE];
+    let mut board: Board = [[BoardSquare {
+        piece_type: Square::Empty,
+    }; ROW_SIZE]; COL_SIZE];
 
-    let mut index = 0;
+    assert_eq!(
+        parsed_ranks.len(),
+        8,
+        "ERROR parsing FEN, should have 8 ranks parsed: {}",
+        parsed_ranks.len()
+    );
 
-    for rank in parsed_ranks {
-        for element in rank {
-            board[index].piece_type = element;
-            index += 1;
+    let mut ranks_are_valid: bool = true;
+
+    for parsed_rank in &parsed_ranks {
+        if parsed_rank.len() != 8 {
+            ranks_are_valid = false;
+            break;
         }
     }
 
-    if index != 64 {
-        panic!("ERROR: not 64 elements in parse_fen_piece_placement!")
+    assert!(ranks_are_valid, "length of all ranks should be 8!");
+
+    for (i, rank) in parsed_ranks.iter().enumerate() {
+        for (j, element) in rank.iter().enumerate() {
+            board[i][j].piece_type = *element;
+        }
     }
 
     board
 }
 
-fn parse_fen_piece_rank(rank_string: &str) -> Vec<Pieces> {
-    let mut parsed_rank: Vec<Pieces> = Vec::new();
+fn parse_fen_piece_rank(rank_string: &str) -> Vec<Square> {
+    let mut parsed_rank: Vec<Square> = Vec::new();
 
     for c in rank_string.chars() {
         let char_to_num = c.to_digit(10);
         match char_to_num {
             Some(mut num) => {
                 while num > 0 {
-                    parsed_rank.push(Pieces::Empty);
+                    parsed_rank.push(Square::Empty);
                     num -= 1;
                 }
             }
 
-            None => parsed_rank.push(parse_fen_piece(c)),
+            None => {
+                parsed_rank.push(Square::Piece(parse_fen_piece(c)));
+            }
         }
     }
     if parsed_rank.len() > 8 {
         panic!("ERROR: parse_fen_piece_rank returns more than 8 pieces")
     }
 
-    return parsed_rank;
+    parsed_rank
 }
 
-fn parse_fen_piece(c: char) -> Pieces {
-    match c {
-        'K' => Pieces::WKing,
-        'k' => Pieces::BKing,
+fn parse_fen_piece(c: char) -> Piece {
+    return match c {
+        'K' => Piece::White(King),
+        'k' => Piece::Black(King),
 
-        'Q' => Pieces::WQueen,
-        'q' => Pieces::BQueen,
+        'Q' => Piece::White(Queen),
+        'q' => Piece::Black(Queen),
 
-        'R' => Pieces::WRook,
-        'r' => Pieces::BRook,
+        'R' => Piece::White(Rook),
+        'r' => Piece::Black(Rook),
 
-        'B' => Pieces::WBishop,
-        'b' => Pieces::BBishop,
+        'B' => Piece::White(Bishop),
+        'b' => Piece::Black(Bishop),
 
-        'N' => Pieces::WKnight,
-        'n' => Pieces::BKnight,
+        'N' => Piece::White(Knight),
+        'n' => Piece::Black(Knight),
 
-        'P' => Pieces::WPawn,
-        'p' => Pieces::BPawn,
+        'P' => Piece::White(Pawn),
+        'p' => Piece::Black(Pawn),
 
         _ => {
             panic!("Not valid FEN: err in parse_fen_piece")
         }
-    }
+    };
 }
 
 pub fn parse_fen_side_to_move(fen: &str) -> bool {
@@ -396,21 +411,21 @@ pub fn parse_fen_castling_ability(fen: &str) -> [bool; 4] {
                 }
             }
             _ => {
-                panic!("ERROR: unknown castle")
+                panic!("ERROR: unknown castling character: {}", c)
             }
         }
     }
     return c_ability;
 }
 
-pub fn parse_fen_epawn(fen: &str) -> Option<usize> {
+pub fn parse_fen_epawn(fen: &str) -> Option<Coordinates> {
     let mut fen_iter = fen.chars();
 
     if fen == "-" {
         return None;
     }
 
-    let parsed_epawn: usize;
+    let parsed_epawn: Coordinates;
 
     let epawn_file: usize;
     let epawn_rank: usize;
@@ -446,15 +461,21 @@ pub fn parse_fen_epawn(fen: &str) -> Option<usize> {
         panic!("rank not valid, must have value between 1 and 8");
     }
 
-    parsed_epawn = (epawn_rank - 1) * 8 + epawn_file - 1;
+    parsed_epawn = (epawn_file, epawn_rank);
 
     Some(parsed_epawn)
 }
 
 pub fn parse_fen_half_move_clock(fen: &str) -> u64 {
-    fen.parse::<u64>().unwrap()
+    let error_msg = format!(
+        "Could not parse FEN halfmove clock: Not a valid number!, string failed to parse: {fen}"
+    );
+    fen.parse::<u64>().expect(error_msg.as_str())
 }
 
 pub fn parse_fen_full_move_counter(fen: &str) -> u64 {
-    fen.parse::<u64>().unwrap()
+    let error_msg = format!(
+        "Could not parse FEN fullmove counter: Not a valid number!, string failed to parse: {fen}"
+    );
+    fen.parse::<u64>().expect(error_msg.as_str())
 }

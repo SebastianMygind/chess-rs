@@ -1,20 +1,11 @@
 use crate::chess::chess_moves::piece_logic::{BLACK_PIECES, WHITE_PIECES};
 use crate::chess::chess_moves::MoveDirection;
-use crate::chess::Pieces::{
-    BBishop, BKing, BKnight, BPawn, BQueen, BRook, WBishop, WKing, WKnight, WPawn, WQueen, WRook,
-};
-use crate::chess::{BoardSquare, ChessBoard, MetaData, Move, Pieces, ARR_SIZE};
-
-#[derive(PartialEq)]
-pub enum Color {
-    White,
-    Black,
-    Empty,
-}
+use crate::chess::Pieces::{Bishop, King, Knight, Pawn, Queen, Rook};
+use crate::chess::{Board, BoardSquare, ChessBoard, MetaData, Move};
 
 pub fn get_single_step_moves(
     chess_board: &ChessBoard,
-    piece_position: &usize,
+    piece_position: &(usize, usize),
     directions: &[MoveDirection],
 ) -> Vec<Move> {
     let mut moves: Vec<Move> = Vec::new();
@@ -135,24 +126,13 @@ pub fn check_multi_step_for_piece_exists(
     false
 }
 
-pub fn find_first_matching_chess_piece(
-    board: &[BoardSquare; ARR_SIZE],
-    piece_to_find: Pieces,
-) -> Option<usize> {
+pub fn find_first_matching_chess_piece(board: &Board, piece_to_find: Pieces) -> Option<usize> {
     for (pos, square) in board.iter().enumerate() {
         if square.piece_type == piece_to_find {
             return Some(pos);
         }
     }
     None
-}
-
-pub fn get_friendly_and_enemy_pieces(white_is_side_to_move: bool) -> ([Pieces; 6], [Pieces; 6]) {
-    if white_is_side_to_move {
-        (WHITE_PIECES, BLACK_PIECES)
-    } else {
-        (BLACK_PIECES, WHITE_PIECES)
-    }
 }
 
 fn get_color_from_piece(piece: Pieces) -> Color {

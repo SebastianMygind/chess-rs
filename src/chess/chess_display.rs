@@ -1,6 +1,7 @@
 use std::fmt;
 
-use crate::chess::{BoardSquare, ChessBoard, Pieces, ARR_SIZE};
+use crate::chess::PieceType::{Bishop, King, Knight, Pawn, Queen, Rook};
+use crate::chess::{Board, ChessBoard, Move, Piece, Square};
 
 const T_LINE: &str = "┌—————┬—————┬—————┬—————┬—————┬—————┬—————┬—————┐\n";
 const H_LINE: &str = "|—————|—————|—————|—————|—————|—————|—————|—————|\n";
@@ -40,15 +41,24 @@ impl fmt::Display for ChessBoard {
     }
 }
 
-fn parse_chessboard_to_string(board: &[BoardSquare; ARR_SIZE]) -> Vec<String> {
+impl fmt::Display for Move {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "start_pos: ({}, {}), end_pos: ({}, {})\n",
+            self.start_pos.0, self.start_pos.1, self.end_pos.0, self.end_pos.1
+        )
+    }
+}
+
+fn parse_chessboard_to_string(board: &Board) -> Vec<String> {
     let mut printable_board = Vec::new();
 
-    for rank in 1..=8 {
-        let start = (rank - 1) * 8;
+    for rank in 0..=7 {
         let mut pieces: Vec<char> = Vec::new();
 
-        for i in 0..=7 {
-            pieces.push(piece_type_to_char(board[start + i].piece_type));
+        for file in 0..=7 {
+            pieces.push(piece_type_to_char(board[rank][file].piece_type));
         }
 
         let rank_string: String = format!(
@@ -62,26 +72,26 @@ fn parse_chessboard_to_string(board: &[BoardSquare; ARR_SIZE]) -> Vec<String> {
     printable_board
 }
 
-fn piece_type_to_char(square_type: Pieces) -> char {
+fn piece_type_to_char(square_type: Square) -> char {
     match square_type {
-        Pieces::Empty => ' ',
+        Square::Empty => ' ',
 
-        Pieces::WPawn => 'P',
-        Pieces::BPawn => 'p',
+        Square::Piece(Piece::White(Pawn)) => 'P',
+        Square::Piece(Piece::Black(Pawn)) => 'p',
 
-        Pieces::WBishop => 'B',
-        Pieces::BBishop => 'b',
+        Square::Piece(Piece::White(Bishop)) => 'B',
+        Square::Piece(Piece::Black(Bishop)) => 'b',
 
-        Pieces::WKnight => 'N',
-        Pieces::BKnight => 'n',
+        Square::Piece(Piece::White(Knight)) => 'N',
+        Square::Piece(Piece::Black(Knight)) => 'n',
 
-        Pieces::WRook => 'R',
-        Pieces::BRook => 'r',
+        Square::Piece(Piece::White(Rook)) => 'R',
+        Square::Piece(Piece::Black(Rook)) => 'r',
 
-        Pieces::WQueen => 'Q',
-        Pieces::BQueen => 'q',
+        Square::Piece(Piece::White(Queen)) => 'Q',
+        Square::Piece(Piece::Black(Queen)) => 'q',
 
-        Pieces::WKing => 'K',
-        Pieces::BKing => 'k',
+        Square::Piece(Piece::White(King)) => 'K',
+        Square::Piece(Piece::Black(King)) => 'k',
     }
 }

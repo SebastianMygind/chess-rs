@@ -1,3 +1,7 @@
+extern crate core;
+extern crate core;
+extern crate core;
+
 mod chess;
 mod ui;
 

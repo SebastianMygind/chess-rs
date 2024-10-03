@@ -15,7 +15,7 @@ use crate::chess::chess_moves::legal_moves::knight_piece::get_knight_moves;
 use crate::chess::chess_moves::legal_moves::pawn_piece::get_pawn_moves;
 use crate::chess::chess_moves::legal_moves::queen_piece::get_queen_moves;
 use crate::chess::chess_moves::legal_moves::rook_piece::get_rook_moves;
-use crate::chess::{BoardPiece, ChessBoard, MetaData, Move, Pieces, ARR_SIZE, EMPTY_PIECE};
+use crate::chess::{BoardSquare, ChessBoard, MetaData, Move, Pieces, ARR_SIZE, EMPTY_PIECE};
 
 impl ChessBoard {
     pub fn legal_moves(&self) -> Vec<Move> {
@@ -96,7 +96,7 @@ impl ChessBoard {
         pseudo_legal_moves
     }
 
-    pub fn make_move_on_board(board: &mut [BoardPiece; ARR_SIZE], move_to_make: &Move) {
+    pub fn make_move_on_board(board: &mut [BoardSquare; ARR_SIZE], move_to_make: &Move) {
         match move_to_make.meta_data {
             MetaData::Move | MetaData::PawnMove | MetaData::Capture | MetaData::PawnDoubleMove => {
                 board[move_to_make.end_pos] = board[move_to_make.start_pos];
@@ -104,7 +104,7 @@ impl ChessBoard {
             }
 
             MetaData::Promotion(piece_type) => {
-                board[move_to_make.end_pos] = BoardPiece { piece_type };
+                board[move_to_make.end_pos] = BoardSquare { piece_type };
                 board[move_to_make.start_pos] = EMPTY_PIECE;
             }
 

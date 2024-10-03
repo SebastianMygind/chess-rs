@@ -1,6 +1,6 @@
 use std::fmt;
 
-use crate::chess::{BoardPiece, ChessBoard, Pieces, ARR_SIZE};
+use crate::chess::{BoardSquare, ChessBoard, Pieces, ARR_SIZE};
 
 const T_LINE: &str = "┌—————┬—————┬—————┬—————┬—————┬—————┬—————┬—————┐\n";
 const H_LINE: &str = "|—————|—————|—————|—————|—————|—————|—————|—————|\n";
@@ -40,7 +40,7 @@ impl fmt::Display for ChessBoard {
     }
 }
 
-fn parse_chessboard_to_string(board: &[BoardPiece; ARR_SIZE]) -> Vec<String> {
+fn parse_chessboard_to_string(board: &[BoardSquare; ARR_SIZE]) -> Vec<String> {
     let mut printable_board = Vec::new();
 
     for rank in 1..=8 {

@@ -6,7 +6,7 @@ pub mod meta_data;
 mod piece_logic;
 
 use crate::chess::chess_errors::IllegalMove;
-use crate::chess::{BoardPiece, ChessBoard, Move, Pieces, SquarePosition, ARR_SIZE};
+use crate::chess::{BoardSquare, ChessBoard, Move, Pieces, SquarePosition, ARR_SIZE};
 
 impl ChessBoard {
     pub fn make_move(&mut self, move_to_make: Move) -> Result<Move, IllegalMove> {
@@ -61,7 +61,7 @@ pub struct MoveDirection {
 impl MoveDirection {
     pub fn piece_can_travel(
         &self,
-        board: &[BoardPiece; ARR_SIZE],
+        board: &[BoardSquare; ARR_SIZE],
         friendly_pieces: &[Pieces; 6],
         board_position: &usize,
     ) -> bool {

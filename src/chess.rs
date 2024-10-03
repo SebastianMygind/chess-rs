@@ -14,24 +14,24 @@ pub mod chess_errors;
 pub mod chess_moves;
 
 use chess_errors::InvalidFen;
-use fen::FEN_START_POS;
+use fen::FEN_START_POSITION;
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum Square {
+    Empty,
+    White(Pieces),
+    Black(Pieces),
+}
 
 /* Defines different piece types and color */
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Pieces {
-    Empty,
-    WPawn,
-    WRook,
-    WBishop,
-    WKnight,
-    WQueen,
-    WKing,
-    BPawn,
-    BRook,
-    BBishop,
-    BKnight,
-    BQueen,
-    BKing,
+    Pawn,
+    Rook,
+    Bishop,
+    Knight,
+    Queen,
+    King,
 }
 
 /* Defines enums to use with the move struct */
@@ -46,21 +46,21 @@ pub enum MetaData {
     Promotion(Pieces),
 }
 
-pub const ARR_SIZE: usize = ROW_SIZE * COL_SIZE;
-const ROW_SIZE: usize = 8;
-const COL_SIZE: usize = 8;
+pub const ROW_SIZE: usize = 8;
+pub const COL_SIZE: usize = 8;
+type Board = [[BoardSquare; COL_SIZE]; ROW_SIZE];
 
-const EMPTY_PIECE: BoardPiece = BoardPiece {
-    piece_type: Pieces::Empty,
+const EMPTY_PIECE: BoardSquare = BoardSquare {
+    piece_type: Square::Empty,
 };
 
 /* Chessboard specific implementations */
 #[derive(Debug, Clone, Copy)]
 pub struct ChessBoard {
-    board: [BoardPiece; ARR_SIZE],
+    board: Board,
     white_is_side_to_move: bool,
     castling_ability: [bool; 4], // WKingside, WQueenside, BKingside, BQueenside
-    en_passant_target_square: Option<usize>,
+    en_passant_target_square: Option<(usize, usize)>,
     halfmove_clock: u64,
     fullmove_counter: u64,
     is_checked: bool,
@@ -69,14 +69,14 @@ pub struct ChessBoard {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub struct BoardPiece {
-    piece_type: Pieces,
+pub struct BoardSquare {
+    piece_type: Square,
 }
 
 #[derive(PartialEq)]
 pub(crate) struct Move {
-    pub start_pos: usize,
-    pub end_pos: usize,
+    pub start_pos: (usize, usize),
+    pub end_pos: (usize, usize),
     pub meta_data: MetaData,
 }
 
@@ -84,38 +84,17 @@ impl fmt::Display for Move {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "start_pos: {}, end_pos: {}\n",
-            self.start_pos, self.end_pos
+            "start_pos: ({}, {}), end_pos: ({}, {})\n",
+            self.start_pos.0, self.start_pos.1, self.end_pos.0, self.end_pos.1
         )
     }
 }
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub(crate) struct SquarePosition {
-    pub file: usize, // x-position
-    pub rank: usize, // y-position
-}
-
-/*
-trait Piece {
-    fn make_move(&self, piece_move: Move,
-                 board: [BoardPiece; ARR_SIZE],
-                 board_position: usize) -> Result<Move, IllegalMove>;
-    fn get_moves(&self, board: [BoardPiece; ARR_SIZE], board_position: usize) -> Vec<Move>;
-}
-struct SquareV2 {
-    piece: Option<PieceV2>
-}
-struct PieceV2 {
-    piece_specific: Box<dyn Piece>
-}
-*/
 
 // Implements chess functionality
 impl ChessBoard {
     pub fn new() -> ChessBoard {
         let mut new_board: ChessBoard = ChessBoard {
-            board: [EMPTY_PIECE; ARR_SIZE],
+            board: [[EMPTY_PIECE; COL_SIZE]; ROW_SIZE],
             white_is_side_to_move: true,
             castling_ability: [true; 4],
             en_passant_target_square: None,
@@ -126,7 +105,7 @@ impl ChessBoard {
             is_stalemate: false,
         };
 
-        new_board.set_fen_position_arr(FEN_START_POS).unwrap();
+        new_board.set_fen_position_arr(FEN_START_POSITION).unwrap();
 
         new_board
     }

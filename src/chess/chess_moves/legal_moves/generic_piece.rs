@@ -3,7 +3,7 @@ use crate::chess::chess_moves::MoveDirection;
 use crate::chess::Pieces::{
     BBishop, BKing, BKnight, BPawn, BQueen, BRook, WBishop, WKing, WKnight, WPawn, WQueen, WRook,
 };
-use crate::chess::{BoardPiece, ChessBoard, MetaData, Move, Pieces, ARR_SIZE};
+use crate::chess::{BoardSquare, ChessBoard, MetaData, Move, Pieces, ARR_SIZE};
 
 #[derive(PartialEq)]
 pub enum Color {
@@ -81,7 +81,7 @@ pub fn get_multi_step_moves(
 
 pub fn check_single_step_for_piece_exists(
     piece_to_check_for: &Pieces,
-    board: &[BoardPiece; ARR_SIZE],
+    board: &[BoardSquare; ARR_SIZE],
     directions: &[MoveDirection],
     starting_position: &usize,
 ) -> bool {
@@ -106,7 +106,7 @@ pub fn check_single_step_for_piece_exists(
 
 pub fn check_multi_step_for_piece_exists(
     piece_to_check_for: &Pieces,
-    board: &[BoardPiece; ARR_SIZE],
+    board: &[BoardSquare; ARR_SIZE],
     directions: &[MoveDirection],
     starting_position: &usize,
 ) -> bool {
@@ -136,7 +136,7 @@ pub fn check_multi_step_for_piece_exists(
 }
 
 pub fn find_first_matching_chess_piece(
-    board: &[BoardPiece; ARR_SIZE],
+    board: &[BoardSquare; ARR_SIZE],
     piece_to_find: Pieces,
 ) -> Option<usize> {
     for (pos, square) in board.iter().enumerate() {

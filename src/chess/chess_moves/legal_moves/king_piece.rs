@@ -11,7 +11,7 @@ use crate::chess::chess_moves::MoveDirection;
 use crate::chess::Pieces::{
     BBishop, BKing, BKnight, BPawn, BQueen, BRook, WBishop, WKing, WKnight, WPawn, WQueen, WRook,
 };
-use crate::chess::{BoardPiece, ChessBoard, MetaData, Move, ARR_SIZE, EMPTY_PIECE};
+use crate::chess::{BoardSquare, ChessBoard, MetaData, Move, ARR_SIZE, EMPTY_PIECE};
 
 pub fn get_king_moves(chess_board: &ChessBoard, piece_position: &usize) -> Vec<Move> {
     let mut king_moves: Vec<Move> = get_single_step_moves(
@@ -79,7 +79,7 @@ pub fn get_king_moves(chess_board: &ChessBoard, piece_position: &usize) -> Vec<M
 
 /** This function assumes that a king is unique, i.e. there only exists one king of each color. */
 pub fn king_is_checked(
-    board: &[BoardPiece; ARR_SIZE],
+    board: &[BoardSquare; ARR_SIZE],
     king_position: &usize,
     king_color: &Color,
 ) -> bool {
@@ -164,7 +164,7 @@ pub fn king_is_checked(
 
 fn check_king_through_rook_positions_not_in_check(
     positions: &[usize],
-    board: &[BoardPiece; ARR_SIZE],
+    board: &[BoardSquare; ARR_SIZE],
     king_color: &Color,
 ) -> bool {
     for position in positions {
@@ -177,7 +177,7 @@ fn check_king_through_rook_positions_not_in_check(
 }
 
 /** Returns true if all given positions are empty */
-fn check_board_for_empty_pieces(positions: &[usize], board: &[BoardPiece; ARR_SIZE]) -> bool {
+fn check_board_for_empty_pieces(positions: &[usize], board: &[BoardSquare; ARR_SIZE]) -> bool {
     for position in positions {
         if board[*position] != EMPTY_PIECE {
             return false;

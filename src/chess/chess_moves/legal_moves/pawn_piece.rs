@@ -6,7 +6,7 @@ use crate::chess::chess_moves::piece_logic::{
     WHITE_PAWN_DIRECTION,
 };
 use crate::chess::chess_moves::MoveDirection;
-use crate::chess::{BoardPiece, ChessBoard, MetaData, Move, Pieces, SquarePosition, ARR_SIZE};
+use crate::chess::{BoardSquare, ChessBoard, MetaData, Move, Pieces, SquarePosition, ARR_SIZE};
 
 pub fn get_pawn_moves(chess_board: &ChessBoard, piece_position: &usize) -> Vec<Move> {
     let (friendly_pieces, enemy_pieces) =
@@ -125,7 +125,7 @@ fn check_en_passant_move(
 fn get_pawn_double_move(
     white_is_side_to_move: bool,
     piece_position: &usize,
-    board: &[BoardPiece; ARR_SIZE],
+    board: &[BoardSquare; ARR_SIZE],
     friendly_pieces: &[Pieces; 6],
     square_position: &SquarePosition,
     direction: &MoveDirection,
@@ -154,7 +154,7 @@ fn get_pawn_double_move(
 fn get_promotion_moves(
     white_is_side_to_move: bool,
     piece_position: &usize,
-    board: &[BoardPiece; ARR_SIZE],
+    board: &[BoardSquare; ARR_SIZE],
     friendly_pieces: &[Pieces; 6],
     square_position: &SquarePosition,
 ) -> Vec<Move> {

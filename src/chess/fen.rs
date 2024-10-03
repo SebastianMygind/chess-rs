@@ -1,4 +1,6 @@
-use crate::chess::{BoardPiece, Pieces};
+use crate::chess::{BoardSquare, Pieces};
+
+use super::ChessBoard;
 
 const ARR_SIZE: usize = 64;
 const ROW_SIZE: usize = 8;
@@ -7,7 +9,7 @@ const VALID_FEN_BOARD: [char; 21] = [
     '8', '/',
 ];
 
-pub const FEN_START_POS: &str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+pub const FEN_START_POSITION: &str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 /* FEN validation functions */
 pub fn is_fen_valid(fen: &str) -> bool {
@@ -245,7 +247,7 @@ mod tests {
 
     #[test]
     fn test_valid_fen1() {
-        assert_eq!(is_fen_valid(FEN_START_POS), true);
+        assert_eq!(is_fen_valid(FEN_START_POSITION), true);
     }
 
     #[test]
@@ -267,7 +269,7 @@ mod tests {
 
 /* FEN parsing functions */
 
-pub fn parse_fen_piece_placement(fen_string: &str) -> [BoardPiece; ARR_SIZE] {
+pub fn parse_fen_piece_placement(fen_string: &str) ->  {
     let fen_ranks: Vec<&str> = fen_string.split('/').collect();
 
     let mut parsed_ranks: Vec<Vec<Pieces>> = Vec::new();
@@ -278,7 +280,7 @@ pub fn parse_fen_piece_placement(fen_string: &str) -> [BoardPiece; ARR_SIZE] {
     /* Make rank 1 the 0th element instead of the 7th */
     parsed_ranks.reverse();
 
-    let mut board = [BoardPiece {
+    let mut board = [BoardSquare {
         piece_type: Pieces::Empty,
     }; ARR_SIZE];
 

@@ -1,5 +1,5 @@
 use crate::chess::PieceType::{Bishop, King, Knight, Pawn, Queen, Rook};
-use crate::chess::{Board, BoardSquare, Coordinates, Piece, PieceType, Square, COL_SIZE};
+use crate::chess::{Board, BoardSquare, Coordinate, Piece, PieceType, Square, COL_SIZE};
 use iced::futures::future::err;
 
 use super::ChessBoard;
@@ -418,14 +418,14 @@ pub fn parse_fen_castling_ability(fen: &str) -> [bool; 4] {
     return c_ability;
 }
 
-pub fn parse_fen_epawn(fen: &str) -> Option<Coordinates> {
+pub fn parse_fen_epawn(fen: &str) -> Option<Coordinate> {
     let mut fen_iter = fen.chars();
 
     if fen == "-" {
         return None;
     }
 
-    let parsed_epawn: Coordinates;
+    let parsed_epawn: Coordinate;
 
     let epawn_file: usize;
     let epawn_rank: usize;

@@ -54,7 +54,7 @@ pub enum MetaData {
 pub const ROW_SIZE: usize = 8;
 pub const COL_SIZE: usize = 8;
 type Board = [[BoardSquare; COL_SIZE]; ROW_SIZE];
-type Coordinates = (usize, usize);
+type Coordinate = (usize, usize);
 
 const EMPTY_PIECE: BoardSquare = BoardSquare {
     piece_type: Square::Empty,
@@ -66,7 +66,7 @@ pub struct ChessBoard {
     board: Board,
     white_is_side_to_move: bool,
     castling_ability: [bool; 4], // WKingside, WQueenside, BKingside, BQueenside
-    en_passant_target_square: Option<Coordinates>,
+    en_passant_target_square: Option<Coordinate>,
     halfmove_clock: u64,
     fullmove_counter: u64,
     is_checked: bool,
@@ -81,8 +81,8 @@ pub struct BoardSquare {
 
 #[derive(PartialEq)]
 pub(crate) struct Move {
-    pub start_pos: Coordinates,
-    pub end_pos: Coordinates,
+    pub start_pos: Coordinate,
+    pub end_pos: Coordinate,
     pub meta_data: MetaData,
 }
 

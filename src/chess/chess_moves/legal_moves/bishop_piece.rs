@@ -1,11 +1,11 @@
 use crate::chess::chess_moves::legal_moves::generic_piece::get_multi_step_moves;
 use crate::chess::chess_moves::piece_logic::BISHOP_DIRECTION;
-use crate::chess::{ChessBoard, Color, Coordinate, Move};
+use crate::chess::{ChessBoard, Color, Move, Position};
 
 pub fn get_bishop_moves(
     chess_board: &ChessBoard,
     friendly_color: &Color,
-    piece_position: &Coordinate,
+    piece_position: &Position,
 ) -> Vec<Move> {
     get_multi_step_moves(
         chess_board,

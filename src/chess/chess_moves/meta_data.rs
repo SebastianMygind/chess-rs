@@ -23,10 +23,12 @@ impl ChessBoard {
             }
 
             MetaData::PawnDoubleMove => {
-                if move_to_make.start_pos < move_to_make.end_pos {
-                    self.en_passant_target_square = Some(move_to_make.start_pos + 8);
-                } else if move_to_make.start_pos > move_to_make.end_pos {
-                    self.en_passant_target_square = Some(move_to_make.start_pos - 8);
+                if move_to_make.start_pos.1 < move_to_make.end_pos.1 {
+                    self.en_passant_target_square =
+                        Some((move_to_make.start_pos.0, move_to_make.start_pos.1 + 1));
+                } else if move_to_make.start_pos.1 > move_to_make.end_pos.1 {
+                    self.en_passant_target_square =
+                        Some((move_to_make.start_pos.0, move_to_make.start_pos.1 - 1));
                 } else {
                     panic!(
                         "PawnDoubleMoves not generated correctly, start position = end position!"

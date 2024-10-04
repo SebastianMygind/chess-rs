@@ -6,7 +6,7 @@ pub mod meta_data;
 mod piece_logic;
 
 use crate::chess::chess_errors::IllegalMove;
-use crate::chess::{Board, ChessBoard, Color, Coordinate, Move, Piece, Square};
+use crate::chess::{Board, ChessBoard, Color, Move, Position};
 
 impl ChessBoard {
     pub fn make_move(&mut self, move_to_make: Move) -> Result<Move, IllegalMove> {
@@ -43,13 +43,14 @@ impl MoveDirection {
         &self,
         board: &Board,
         friendly_piece_color: &Color,
-        board_position: &Coordinate,
+        board_position: &Position,
     ) -> bool {
-        if self.dx < 0 && self.dx.unsigned_abs() as usize > board_position.0
-            || self.dy < 0 && self.dy.unsigned_abs() as usize > board_position.1
-        {
-            return false;
-        } else if self.dx as usize + board_position.0 > 7 || self.dy as usize + board_position.1 > 7
+        let casted_x: i8 = board_position.0 as i8;
+        let casted_y: i8 = board_position.1 as i8;
+        if self.dx + casted_x > 7
+            || self.dx + casted_x < 0
+            || self.dy + casted_y > 7
+            || self.dy + casted_y < 0
         {
             return false;
         }
@@ -73,7 +74,7 @@ impl MoveDirection {
       given a position this function returns a new position after traveling the direction given by
       self.
     */
-    pub fn walk_from_position(&self, position: Coordinate) -> Coordinate {
+    pub fn walk_from_position(&self, position: Position) -> Position {
         (
             (position.0 as i8 + self.dx) as usize,
             (position.1 as i8 + self.dy) as usize,

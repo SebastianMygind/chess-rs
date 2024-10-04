@@ -1,7 +1,3 @@
-extern crate core;
-extern crate core;
-extern crate core;
-
 mod chess;
 mod ui;
 
@@ -14,9 +10,9 @@ fn main() -> iced::Result {
     let mut board = ChessBoard::new();
 
     let chess_move: Move = Move {
-        start_pos: 12,
-        end_pos: 20,
-        meta_data: MetaData::PawnMove,
+        start_pos: (4, 2),
+        end_pos: (4, 4),
+        meta_data: MetaData::PawnDoubleMove,
     };
 
     match board.make_move(chess_move) {

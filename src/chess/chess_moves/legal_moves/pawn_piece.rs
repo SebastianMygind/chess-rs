@@ -1,102 +1,118 @@
-use crate::chess::chess_moves::legal_moves::generic_piece::{
-    get_friendly_and_enemy_pieces, get_single_step_moves,
-};
+use crate::chess::chess_moves::legal_moves::generic_piece::get_single_step_moves;
 use crate::chess::chess_moves::piece_logic::{
     BLACK_PAWN_ATTACK_DIRECTION, BLACK_PAWN_DIRECTION, WHITE_PAWN_ATTACK_DIRECTION,
     WHITE_PAWN_DIRECTION,
 };
 use crate::chess::chess_moves::MoveDirection;
-use crate::chess::{BoardSquare, ChessBoard, MetaData, Move, Pieces, SquarePosition, ARR_SIZE};
+use crate::chess::Color::{Black, White};
+use crate::chess::PieceType::{Bishop, Knight, Queen, Rook};
+use crate::chess::{Board, ChessBoard, Color, MetaData, Move, Piece, Position};
 
-pub fn get_pawn_moves(chess_board: &ChessBoard, piece_position: &usize) -> Vec<Move> {
-    let (friendly_pieces, enemy_pieces) =
-        get_friendly_and_enemy_pieces(chess_board.white_is_side_to_move);
+pub fn get_pawn_moves(
+    chess_board: &ChessBoard,
+    friendly_color: &Color,
+    piece_position: &Position,
+) -> Vec<Move> {
+    let (direction, attack_direction) = get_pawn_direction_and_attack(friendly_color);
 
-    let (direction, attack_direction) =
-        get_pawn_direction_and_attack(chess_board.white_is_side_to_move);
+    let single_pawn_move_is_legal: bool;
 
-    let square_piece_position: SquarePosition = SquarePosition::new(*piece_position);
+    let mut pawn_moves: Vec<Move> = get_single_step_moves(
+        chess_board,
+        piece_position,
+        friendly_color,
+        [direction].as_slice(),
+    );
 
-    let mut pawn_moves: Vec<Move> =
-        get_single_step_moves(chess_board, piece_position, [direction].as_slice());
-
-    pawn_moves[0].meta_data = MetaData::PawnMove;
+    if pawn_moves.len() > 0 {
+        pawn_moves[0].meta_data = MetaData::PawnMove;
+        single_pawn_move_is_legal = true;
+    } else {
+        single_pawn_move_is_legal = false;
+    }
 
     let travelable_attack_direction: [bool; 2] = [
-        attack_direction[0].piece_can_travel(&chess_board.board, &friendly_pieces, piece_position),
-        attack_direction[1].piece_can_travel(&chess_board.board, &friendly_pieces, piece_position),
+        attack_direction[0].piece_can_travel(&chess_board.board, friendly_color, piece_position),
+        attack_direction[1].piece_can_travel(&chess_board.board, friendly_color, piece_position),
     ];
 
-    let square = chess_board.en_passant_target_square;
-
     if travelable_attack_direction[0] {
-        let possible_attack_position: usize =
-            attack_direction[0].walk_from_position(*piece_position);
-        for enemy in enemy_pieces {
-            if chess_board.board[possible_attack_position].piece_type == enemy {
-                let pawn_attack_move: Move = Move {
-                    start_pos: *piece_position,
-                    end_pos: possible_attack_position,
-                    meta_data: MetaData::Capture,
-                };
-                pawn_moves.push(pawn_attack_move);
-            }
-        }
-        if let Some(en_passant_move) =
-            check_en_passant_move(*piece_position, square, possible_attack_position)
-        {
-            pawn_moves.push(en_passant_move);
+        if let Some(pawn_move) = check_pawn_attack_and_en_passant_move(
+            attack_direction[0],
+            &chess_board.board,
+            piece_position,
+            friendly_color,
+            chess_board.en_passant_target_square,
+        ) {
+            pawn_moves.push(pawn_move);
         }
     }
 
     if travelable_attack_direction[1] {
-        let possible_attack_position: usize =
-            attack_direction[1].walk_from_position(*piece_position);
-        for enemy in enemy_pieces {
-            if chess_board.board[possible_attack_position].piece_type == enemy {
-                let pawn_attack_move: Move = Move {
-                    start_pos: *piece_position,
-                    end_pos: possible_attack_position,
-                    meta_data: MetaData::Capture,
-                };
-                pawn_moves.push(pawn_attack_move);
-            }
-        }
-        if let Some(en_passant_move) =
-            check_en_passant_move(*piece_position, square, possible_attack_position)
-        {
-            pawn_moves.push(en_passant_move);
+        if let Some(pawn_move) = check_pawn_attack_and_en_passant_move(
+            attack_direction[1],
+            &chess_board.board,
+            piece_position,
+            friendly_color,
+            chess_board.en_passant_target_square,
+        ) {
+            pawn_moves.push(pawn_move);
         }
     }
 
-    let mut promotion_moves = get_promotion_moves(
-        chess_board.white_is_side_to_move,
-        piece_position,
-        &chess_board.board,
-        &friendly_pieces,
-        &square_piece_position,
-    );
+    let mut promotion_moves =
+        get_promotion_moves(friendly_color, piece_position, &chess_board.board);
 
-    pawn_moves.append(&mut promotion_moves);
+    if pawn_moves.len() > 0 {
+        pawn_moves.append(&mut promotion_moves);
+    }
 
-    if let Some(move_exists) = get_pawn_double_move(
-        chess_board.white_is_side_to_move,
-        piece_position,
-        &chess_board.board,
-        &friendly_pieces,
-        &square_piece_position,
-        &direction,
-    ) {
-        pawn_moves.push(move_exists);
-    };
+    if single_pawn_move_is_legal {
+        if let Some(move_exists) = get_pawn_double_move(
+            friendly_color,
+            piece_position,
+            &chess_board.board,
+            &direction,
+        ) {
+            pawn_moves.push(move_exists);
+        };
+    }
 
     pawn_moves
 }
 
+fn check_pawn_attack_and_en_passant_move(
+    attack_direction: MoveDirection,
+    board: &Board,
+    current_position: &Position,
+    friendly_color: &Color,
+    en_passant_position: Option<Position>,
+) -> Option<Move> {
+    let possible_attack_position: Position = attack_direction.walk_from_position(*current_position);
+
+    if let Some(piece) = board[possible_attack_position.1][possible_attack_position.0] {
+        if piece.color != *friendly_color {
+            Some(Move {
+                start_pos: *current_position,
+                end_pos: possible_attack_position,
+                meta_data: MetaData::Capture,
+            })
+        } else {
+            None
+        }
+    } else {
+        check_en_passant_move(
+            *current_position,
+            en_passant_position,
+            possible_attack_position,
+        )
+    }
+}
+
 fn get_pawn_direction_and_attack(
-    white_is_side_to_move: bool,
+    current_side_color: &Color,
 ) -> (MoveDirection, [MoveDirection; 2]) {
-    if white_is_side_to_move {
+    if White == *current_side_color {
         (WHITE_PAWN_DIRECTION, WHITE_PAWN_ATTACK_DIRECTION)
     } else {
         (BLACK_PAWN_DIRECTION, BLACK_PAWN_ATTACK_DIRECTION)
@@ -104,33 +120,29 @@ fn get_pawn_direction_and_attack(
 }
 
 fn check_en_passant_move(
-    start_position: usize,
-    en_passant_position: Option<usize>,
-    attack_position: usize,
+    start_position: Position,
+    en_passant_position: Option<Position>,
+    attack_position: Position,
 ) -> Option<Move> {
     if let Some(en_passant) = en_passant_position {
-        return if en_passant == attack_position {
-            Some(Move {
+        if en_passant == attack_position {
+            return Some(Move {
                 start_pos: start_position,
                 end_pos: attack_position,
                 meta_data: MetaData::EnPassant,
-            })
-        } else {
-            None
-        };
+            });
+        }
     }
     None
 }
 
 fn get_pawn_double_move(
-    white_is_side_to_move: bool,
-    piece_position: &usize,
-    board: &[BoardSquare; ARR_SIZE],
-    friendly_pieces: &[Pieces; 6],
-    square_position: &SquarePosition,
+    current_piece_color: &Color,
+    piece_position: &Position,
+    board: &Board,
     direction: &MoveDirection,
 ) -> Option<Move> {
-    let (pawn_starting_rank, direction_change): (usize, i8) = if white_is_side_to_move {
+    let (pawn_starting_rank, direction_change): (usize, i8) = if *current_piece_color == White {
         (2, 1)
     } else {
         (7, -1)
@@ -139,8 +151,8 @@ fn get_pawn_double_move(
     let mut double_move_direction = *direction;
     double_move_direction.dy += direction_change;
 
-    if pawn_starting_rank == square_position.rank
-        && double_move_direction.piece_can_travel(board, friendly_pieces, piece_position)
+    if pawn_starting_rank == piece_position.0
+        && double_move_direction.piece_can_travel(board, current_piece_color, piece_position)
     {
         let double_move: Move = Move {
             start_pos: *piece_position,
@@ -151,51 +163,37 @@ fn get_pawn_double_move(
     }
     None
 }
-fn get_promotion_moves(
-    white_is_side_to_move: bool,
-    piece_position: &usize,
-    board: &[BoardSquare; ARR_SIZE],
-    friendly_pieces: &[Pieces; 6],
-    square_position: &SquarePosition,
-) -> Vec<Move> {
+fn get_promotion_moves(piece_color: &Color, piece_position: &Position, board: &Board) -> Vec<Move> {
     let mut promotion_moves: Vec<Move> = Vec::new();
 
     let (direction, _): (MoveDirection, [MoveDirection; 2]) =
-        get_pawn_direction_and_attack(white_is_side_to_move);
+        get_pawn_direction_and_attack(piece_color);
 
-    let (promotion_rank, target_rank): (usize, usize) = if white_is_side_to_move {
-        (7, 8)
-    } else {
-        (2, 1)
-    };
+    let promotion_rank: usize = if *piece_color == White { 7 } else { 2 };
 
-    let promotion_pieces = if white_is_side_to_move {
+    let promotion_pieces = if *piece_color == White {
         [
-            Pieces::WQueen,
-            Pieces::WKnight,
-            Pieces::WRook,
-            Pieces::WBishop,
+            Piece::new(White, Queen),
+            Piece::new(White, Rook),
+            Piece::new(White, Bishop),
+            Piece::new(White, Knight),
         ]
     } else {
         [
-            Pieces::BQueen,
-            Pieces::BKnight,
-            Pieces::BRook,
-            Pieces::BBishop,
+            Piece::new(Black, Queen),
+            Piece::new(Black, Rook),
+            Piece::new(Black, Bishop),
+            Piece::new(Black, Knight),
         ]
     };
 
-    if square_position.rank == promotion_rank
-        && direction.piece_can_travel(board, friendly_pieces, piece_position)
+    if piece_position.1 == promotion_rank
+        && direction.piece_can_travel(board, piece_color, piece_position)
     {
         for piece in promotion_pieces {
-            let mut moved_square_position = square_position.clone();
-
-            moved_square_position.rank = target_rank;
-
             let promotion_move: Move = Move {
                 start_pos: *piece_position,
-                end_pos: moved_square_position.pos_to_arr_index(),
+                end_pos: direction.walk_from_position(*piece_position),
                 meta_data: MetaData::Promotion(piece),
             };
 

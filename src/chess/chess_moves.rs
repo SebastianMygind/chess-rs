@@ -6,7 +6,7 @@ pub mod meta_data;
 mod piece_logic;
 
 use crate::chess::chess_errors::IllegalMove;
-use crate::chess::{Board, ChessBoard, Coordinate, Move, Piece, Square};
+use crate::chess::{Board, ChessBoard, Color, Coordinate, Move, Piece, Square};
 
 impl ChessBoard {
     pub fn make_move(&mut self, move_to_make: Move) -> Result<Move, IllegalMove> {
@@ -42,11 +42,11 @@ impl MoveDirection {
     pub fn piece_can_travel(
         &self,
         board: &Board,
-        friendly_pieces: &Piece,
+        friendly_piece_color: &Color,
         board_position: &Coordinate,
     ) -> bool {
-        if self.dx < 0 && self.dx.abs() as usize > board_position.0
-            || self.dy < 0 && self.dy.abs() as usize > board_position.1
+        if self.dx < 0 && self.dx.unsigned_abs() as usize > board_position.0
+            || self.dy < 0 && self.dy.unsigned_abs() as usize > board_position.1
         {
             return false;
         } else if self.dx as usize + board_position.0 > 7 || self.dy as usize + board_position.1 > 7
@@ -54,22 +54,18 @@ impl MoveDirection {
             return false;
         }
 
-        let target_piece = board[board_position.1][board_position.0].piece_type;
+        let target_piece = board[board_position.1][board_position.0];
 
         match target_piece {
-            Square::Empty => true,
+            None => true,
 
-            Square::Piece(piece) => match piece {
-                Piece::White(_) => match friendly_pieces {
-                    Piece::White(_) => false,
-                    Piece::Black(_) => true,
-                },
-
-                Piece::Black(_) => match friendly_pieces {
-                    Piece::White(_) => true,
-                    Piece::Black(_) => false,
-                },
-            },
+            Some(piece) => {
+                if piece.color == *friendly_piece_color {
+                    false
+                } else {
+                    true
+                }
+            }
         }
     }
 

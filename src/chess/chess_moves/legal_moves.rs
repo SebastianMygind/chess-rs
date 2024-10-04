@@ -15,7 +15,9 @@ use crate::chess::chess_moves::legal_moves::knight_piece::get_knight_moves;
 use crate::chess::chess_moves::legal_moves::pawn_piece::get_pawn_moves;
 use crate::chess::chess_moves::legal_moves::queen_piece::get_queen_moves;
 use crate::chess::chess_moves::legal_moves::rook_piece::get_rook_moves;
-use crate::chess::{Board, BoardSquare, ChessBoard, MetaData, Move, Pieces, ARR_SIZE, EMPTY_PIECE};
+use crate::chess::{
+    Board, BoardSquare, ChessBoard, MetaData, Move, Pieces, ARR_SIZE, EMPTY_SQUARE,
+};
 
 impl ChessBoard {
     pub fn legal_moves(&self) -> Vec<Move> {
@@ -94,12 +96,12 @@ impl ChessBoard {
         match move_to_make.meta_data {
             MetaData::Move | MetaData::PawnMove | MetaData::Capture | MetaData::PawnDoubleMove => {
                 board[move_to_make.end_pos] = board[move_to_make.start_pos];
-                board[move_to_make.start_pos] = EMPTY_PIECE;
+                board[move_to_make.start_pos] = EMPTY_SQUARE;
             }
 
             MetaData::Promotion(piece_type) => {
                 board[move_to_make.end_pos] = BoardSquare { piece_type };
-                board[move_to_make.start_pos] = EMPTY_PIECE;
+                board[move_to_make.start_pos] = EMPTY_SQUARE;
             }
 
             MetaData::EnPassant => {
@@ -111,8 +113,8 @@ impl ChessBoard {
 
                 board[move_to_make.end_pos] = board[move_to_make.start_pos];
 
-                board[move_to_make.start_pos] = EMPTY_PIECE;
-                board[(move_to_make.end_pos as i8 + delta_position) as usize] = EMPTY_PIECE;
+                board[move_to_make.start_pos] = EMPTY_SQUARE;
+                board[(move_to_make.end_pos as i8 + delta_position) as usize] = EMPTY_SQUARE;
             }
 
             MetaData::Castling => {
@@ -126,8 +128,8 @@ impl ChessBoard {
                 board[move_to_make.end_pos] = board[move_to_make.start_pos];
                 board[rook_end_position] = board[rook_start_position];
 
-                board[move_to_make.start_pos] = EMPTY_PIECE;
-                board[rook_start_position] = EMPTY_PIECE;
+                board[move_to_make.start_pos] = EMPTY_SQUARE;
+                board[rook_start_position] = EMPTY_SQUARE;
             }
         }
     }

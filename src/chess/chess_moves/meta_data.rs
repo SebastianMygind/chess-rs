@@ -50,7 +50,7 @@ impl ChessBoard {
 
     fn update_fullmove_counter(&mut self) {
         if !self.white_is_side_to_move {
-            self.fullmove_counter += 1;
+            self.full_move_counter += 1;
         }
     }
 
@@ -65,9 +65,9 @@ impl ChessBoard {
     }
 
     fn increment_half_move_clock(&mut self) {
-        self.halfmove_clock += 1;
+        self.half_move_clock += 1;
     }
     fn reset_half_move_clock(&mut self) {
-        self.halfmove_clock = 0;
+        self.half_move_clock = 0;
     }
 }

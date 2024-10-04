@@ -1,8 +1,6 @@
+use crate::chess::Color::{Black, White};
 use crate::chess::PieceType::{Bishop, King, Knight, Pawn, Queen, Rook};
-use crate::chess::{Board, BoardSquare, Coordinate, Piece, PieceType, Square, COL_SIZE};
-use iced::futures::future::err;
-
-use super::ChessBoard;
+use crate::chess::{Board, Coordinate, Piece, Square, COL_SIZE};
 
 const ARR_SIZE: usize = 64;
 const ROW_SIZE: usize = 8;
@@ -282,9 +280,7 @@ pub fn parse_fen_piece_placement(fen_string: &str) -> Board {
     /* Make rank 1 the 0th element instead of the 7th */
     parsed_ranks.reverse();
 
-    let mut board: Board = [[BoardSquare {
-        piece_type: Square::Empty,
-    }; ROW_SIZE]; COL_SIZE];
+    let mut board: Board = [[None; ROW_SIZE]; COL_SIZE];
 
     assert_eq!(
         parsed_ranks.len(),
@@ -306,7 +302,7 @@ pub fn parse_fen_piece_placement(fen_string: &str) -> Board {
 
     for (i, rank) in parsed_ranks.iter().enumerate() {
         for (j, element) in rank.iter().enumerate() {
-            board[i][j].piece_type = *element;
+            board[i][j] = *element;
         }
     }
 
@@ -321,13 +317,13 @@ fn parse_fen_piece_rank(rank_string: &str) -> Vec<Square> {
         match char_to_num {
             Some(mut num) => {
                 while num > 0 {
-                    parsed_rank.push(Square::Empty);
+                    parsed_rank.push(None);
                     num -= 1;
                 }
             }
 
             None => {
-                parsed_rank.push(Square::Piece(parse_fen_piece(c)));
+                parsed_rank.push(Some(parse_fen_piece(c)));
             }
         }
     }
@@ -339,29 +335,29 @@ fn parse_fen_piece_rank(rank_string: &str) -> Vec<Square> {
 }
 
 fn parse_fen_piece(c: char) -> Piece {
-    return match c {
-        'K' => Piece::White(King),
-        'k' => Piece::Black(King),
+    match c {
+        'K' => Piece::new(White, King),
+        'k' => Piece::new(Black, King),
 
-        'Q' => Piece::White(Queen),
-        'q' => Piece::Black(Queen),
+        'Q' => Piece::new(White, Queen),
+        'q' => Piece::new(Black, Queen),
 
-        'R' => Piece::White(Rook),
-        'r' => Piece::Black(Rook),
+        'R' => Piece::new(White, Rook),
+        'r' => Piece::new(Black, Rook),
 
-        'B' => Piece::White(Bishop),
-        'b' => Piece::Black(Bishop),
+        'B' => Piece::new(White, Bishop),
+        'b' => Piece::new(Black, Bishop),
 
-        'N' => Piece::White(Knight),
-        'n' => Piece::Black(Knight),
+        'N' => Piece::new(White, Knight),
+        'n' => Piece::new(Black, Knight),
 
-        'P' => Piece::White(Pawn),
-        'p' => Piece::Black(Pawn),
+        'P' => Piece::new(White, Pawn),
+        'p' => Piece::new(Black, Pawn),
 
         _ => {
             panic!("Not valid FEN: err in parse_fen_piece")
         }
-    };
+    }
 }
 
 pub fn parse_fen_side_to_move(fen: &str) -> bool {
@@ -442,7 +438,7 @@ pub fn parse_fen_epawn(fen: &str) -> Option<Coordinate> {
         'g' => epawn_file = 7,
         'h' => epawn_file = 8,
         _ => {
-            panic!("unkown file character: parse_fen_epawn")
+            panic!("unknown file character: parse_fen_e_pawn")
         }
     }
 
@@ -451,7 +447,7 @@ pub fn parse_fen_epawn(fen: &str) -> Option<Coordinate> {
     let rank: usize = match rank_char.to_digit(10) {
         Some(num) => num as usize,
         None => {
-            panic!("could not parse rank number: parse_fen_epawn")
+            panic!("could not parse rank number: parse_fen_e_pawn")
         }
     };
 
@@ -468,14 +464,14 @@ pub fn parse_fen_epawn(fen: &str) -> Option<Coordinate> {
 
 pub fn parse_fen_half_move_clock(fen: &str) -> u64 {
     let error_msg = format!(
-        "Could not parse FEN halfmove clock: Not a valid number!, string failed to parse: {fen}"
+        "Could not parse FEN half move clock: Not a valid number!, string failed to parse: {fen}"
     );
     fen.parse::<u64>().expect(error_msg.as_str())
 }
 
 pub fn parse_fen_full_move_counter(fen: &str) -> u64 {
     let error_msg = format!(
-        "Could not parse FEN fullmove counter: Not a valid number!, string failed to parse: {fen}"
+        "Could not parse FEN full move counter: Not a valid number!, string failed to parse: {fen}"
     );
     fen.parse::<u64>().expect(error_msg.as_str())
 }

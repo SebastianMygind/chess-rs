@@ -1,6 +1,5 @@
 use crate::chess::chess_moves::legal_moves::generic_piece::{
     check_multi_step_for_piece_exists, check_single_step_for_piece_exists, get_single_step_moves,
-    Color,
 };
 
 use crate::chess::chess_moves::piece_logic::{
@@ -8,15 +7,18 @@ use crate::chess::chess_moves::piece_logic::{
     ROOK_DIRECTION, WHITE_PAWN_ATTACK_DIRECTION,
 };
 use crate::chess::chess_moves::MoveDirection;
-use crate::chess::Pieces::{
-    BBishop, BKing, BKnight, BPawn, BQueen, BRook, WBishop, WKing, WKnight, WPawn, WQueen, WRook,
-};
-use crate::chess::{BoardSquare, ChessBoard, MetaData, Move, ARR_SIZE, EMPTY_PIECE};
+use crate::chess::PieceType::{Bishop, King, Knight, Pawn, Queen};
+use crate::chess::{ChessBoard, Color, Coordinate, MetaData, Move};
 
-pub fn get_king_moves(chess_board: &ChessBoard, piece_position: &usize) -> Vec<Move> {
+pub fn get_king_moves(
+    chess_board: &ChessBoard,
+    friendly_color: &Color,
+    piece_position: &Coordinate,
+) -> Vec<Move> {
     let mut king_moves: Vec<Move> = get_single_step_moves(
         chess_board,
         piece_position,
+        friendly_color,
         KING_AND_QUEEN_DIRECTION.as_slice(),
     );
     let king_color: Color;
@@ -179,7 +181,7 @@ fn check_king_through_rook_positions_not_in_check(
 /** Returns true if all given positions are empty */
 fn check_board_for_empty_pieces(positions: &[usize], board: &[BoardSquare; ARR_SIZE]) -> bool {
     for position in positions {
-        if board[*position] != EMPTY_PIECE {
+        if board[*position] != EMPTY_SQUARE {
             return false;
         }
     }

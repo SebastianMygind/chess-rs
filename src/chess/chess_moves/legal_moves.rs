@@ -15,7 +15,6 @@ use crate::chess::chess_moves::legal_moves::queen_piece::get_queen_moves;
 use crate::chess::chess_moves::legal_moves::rook_piece::get_rook_moves;
 use crate::chess::PieceType::{Bishop, King, Knight, Pawn, Queen, Rook};
 use crate::chess::{Board, ChessBoard, Color, MetaData, Move, Piece, PieceType, Position};
-use iced::widget::shader::wgpu::naga::back::msl::sampler::Coord;
 
 impl ChessBoard {
     pub fn legal_moves(&self) -> Vec<Move> {
@@ -61,37 +60,47 @@ impl ChessBoard {
             for (column, square) in squares.iter().enumerate() {
                 match square {
                     None => continue,
-                    Some(piece) => match piece.piece_type {
-                        King => {
-                            let mut moves = get_king_moves(self, &friendly_color, &(column, row));
-                            pseudo_legal_moves.append(&mut moves);
-                        }
+                    Some(piece) => {
+                        if piece.color == friendly_color {
+                            match piece.piece_type {
+                                King => {
+                                    let mut moves =
+                                        get_king_moves(self, &friendly_color, &(column, row));
+                                    pseudo_legal_moves.append(&mut moves);
+                                }
 
-                        Queen => {
-                            let mut moves = get_queen_moves(self, &friendly_color, &(column, row));
-                            pseudo_legal_moves.append(&mut moves);
-                        }
+                                Queen => {
+                                    let mut moves =
+                                        get_queen_moves(self, &friendly_color, &(column, row));
+                                    pseudo_legal_moves.append(&mut moves);
+                                }
 
-                        Rook => {
-                            let mut moves = get_rook_moves(self, &friendly_color, &(column, row));
-                            pseudo_legal_moves.append(&mut moves);
-                        }
+                                Rook => {
+                                    let mut moves =
+                                        get_rook_moves(self, &friendly_color, &(column, row));
+                                    pseudo_legal_moves.append(&mut moves);
+                                }
 
-                        Bishop => {
-                            let mut moves = get_bishop_moves(self, &friendly_color, &(column, row));
-                            pseudo_legal_moves.append(&mut moves);
-                        }
+                                Bishop => {
+                                    let mut moves =
+                                        get_bishop_moves(self, &friendly_color, &(column, row));
+                                    pseudo_legal_moves.append(&mut moves);
+                                }
 
-                        Knight => {
-                            let mut moves = get_knight_moves(self, &friendly_color, &(column, row));
-                            pseudo_legal_moves.append(&mut moves);
-                        }
+                                Knight => {
+                                    let mut moves =
+                                        get_knight_moves(self, &friendly_color, &(column, row));
+                                    pseudo_legal_moves.append(&mut moves);
+                                }
 
-                        Pawn => {
-                            let mut moves = get_pawn_moves(self, &friendly_color, &(column, row));
-                            pseudo_legal_moves.append(&mut moves);
+                                Pawn => {
+                                    let mut moves =
+                                        get_pawn_moves(self, &friendly_color, &(column, row));
+                                    pseudo_legal_moves.append(&mut moves);
+                                }
+                            }
                         }
-                    },
+                    }
                 }
             }
         }

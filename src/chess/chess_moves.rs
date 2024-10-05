@@ -47,15 +47,17 @@ impl MoveDirection {
     ) -> bool {
         let casted_x: i8 = board_position.0 as i8;
         let casted_y: i8 = board_position.1 as i8;
-        if self.dx + casted_x > 7
-            || self.dx + casted_x < 0
-            || self.dy + casted_y > 7
-            || self.dy + casted_y < 0
-        {
+
+        let new_i8_x: i8 = self.dx + casted_x;
+        let new_i8_y: i8 = self.dy + casted_y;
+
+        if new_i8_x > 7 || new_i8_x < 0 || new_i8_y > 7 || new_i8_y < 0 {
             return false;
         }
 
-        let target_piece = board[board_position.1][board_position.0];
+        let new_x: usize = new_i8_x as usize;
+        let new_y: usize = new_i8_y as usize;
+        let target_piece = board[new_y][new_x];
 
         match target_piece {
             None => true,

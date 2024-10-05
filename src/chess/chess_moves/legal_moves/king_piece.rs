@@ -22,68 +22,114 @@ pub fn get_king_moves(
         friendly_color,
         KING_AND_QUEEN_DIRECTION.as_slice(),
     );
-    let king_color: Color;
 
     let (kingside_castle_index, queenside_castle_index): (usize, usize) =
         if chess_board.white_is_side_to_move {
-            king_color = Color::White;
             (0, 1)
         } else {
-            king_color = Color::Black;
             (2, 3)
         };
 
     if chess_board.castling_ability[kingside_castle_index] {
-        let positions_to_check: [Position; 2] = [
-            (piece_position.0 + 1, piece_position.1),
-            (piece_position.0 + 2, piece_position.1),
-        ];
-
-        let is_valid_castling_move = check_king_through_rook_positions_not_in_check(
-            positions_to_check.as_slice(),
-            &chess_board.board,
-            &king_color,
-        );
-
-        if is_valid_castling_move
-            || check_board_for_empty_pieces(positions_to_check.as_slice(), &chess_board.board)
+        if let Some(castling_move) =
+            check_for_castling_move(&chess_board.board, piece_position, friendly_color, true)
         {
-            let castling_move: Move = Move {
-                start_pos: *piece_position,
-                end_pos: (piece_position.0 + 2, piece_position.1),
-                meta_data: MetaData::Castling,
-            };
-
             king_moves.push(castling_move);
         }
     }
 
     if chess_board.castling_ability[queenside_castle_index] {
-        let positions_to_check: [Position; 3] = [
-            (piece_position.0 - 1, piece_position.1),
-            (piece_position.0 - 2, piece_position.1),
-            (piece_position.0 - 2, piece_position.1),
-        ];
-
-        let is_valid_castling_move = check_king_through_rook_positions_not_in_check(
-            positions_to_check.as_slice(),
-            &chess_board.board,
-            &king_color,
-        );
-
-        if is_valid_castling_move
-            || check_board_for_empty_pieces(positions_to_check.as_slice(), &chess_board.board)
+        if let Some(castling_move) =
+            check_for_castling_move(&chess_board.board, piece_position, friendly_color, false)
         {
-            let castling_move: Move = Move {
-                start_pos: *piece_position,
-                end_pos: (piece_position.0 - 2, piece_position.1),
-                meta_data: MetaData::Castling,
-            };
             king_moves.push(castling_move);
         }
     }
 
     king_moves
+}
+
+fn check_for_castling_move(
+    board: &Board,
+    current_position: &Position,
+    king_color: &Color,
+    is_king_side_castle: bool,
+) -> Option<Move> {
+    let king_end_position: Position;
+    let rook_start_position: Position;
+
+    if is_king_side_castle {
+        rook_start_position = (current_position.0 + 3, current_position.1);
+
+        king_end_position = (current_position.0 + 2, current_position.1);
+
+        if !all_given_positions_are_empty(
+            [
+                (current_position.0 + 1, current_position.1),
+                (current_position.0 + 2, current_position.1),
+            ]
+            .as_slice(),
+            board,
+        ) {
+            return None;
+        }
+
+        if !all_given_positions_not_in_check(
+            [
+                *current_position,
+                (current_position.0 + 1, current_position.1),
+                (current_position.0 + 2, current_position.1),
+                rook_start_position,
+            ]
+            .as_slice(),
+            board,
+            king_color,
+        ) {
+            return None;
+        }
+
+        Some(Move {
+            start_pos: *current_position,
+            end_pos: king_end_position,
+            meta_data: MetaData::Castling,
+        })
+    } else {
+        rook_start_position = (current_position.0 - 4, current_position.1);
+        king_end_position = (current_position.0 - 2, current_position.1);
+
+        if !all_given_positions_are_empty(
+            [
+                (current_position.0 - 1, current_position.1),
+                (current_position.0 - 2, current_position.1),
+                (current_position.0 - 3, current_position.1),
+            ]
+            .as_slice(),
+            board,
+        ) {
+            return None;
+        }
+
+        if !all_given_positions_not_in_check(
+            [
+                *current_position,
+                (current_position.0 - 1, current_position.1),
+                (current_position.0 - 2, current_position.1),
+                (current_position.0 - 3, current_position.1),
+                rook_start_position,
+            ]
+            .as_slice(),
+            board,
+            king_color,
+        ) {
+            return None;
+        }
+
+        Some(Move {
+            start_pos: *current_position,
+            end_pos: king_end_position,
+            meta_data: MetaData::Castling,
+        })
+    }
 }
 
 /** This function assumes that a king is unique, i.e. there only exists one king of each color. */
@@ -175,7 +221,7 @@ pub fn king_is_checked(board: &Board, king_position: &Position, king_color: &Col
     false
 }
 
-fn check_king_through_rook_positions_not_in_check(
+fn all_given_positions_not_in_check(
     positions: &[Position],
     board: &Board,
     king_color: &Color,
@@ -190,7 +236,7 @@ fn check_king_through_rook_positions_not_in_check(
 }
 
 /** Returns true if all given positions are empty */
-fn check_board_for_empty_pieces(positions: &[Position], board: &Board) -> bool {
+fn all_given_positions_are_empty(positions: &[Position], board: &Board) -> bool {
     for position in positions {
         if board[position.1][position.0] != None {
             return false;

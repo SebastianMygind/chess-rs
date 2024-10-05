@@ -63,7 +63,7 @@ pub fn get_pawn_moves(
     let mut promotion_moves =
         get_promotion_moves(friendly_color, piece_position, &chess_board.board);
 
-    if pawn_moves.len() > 0 {
+    if promotion_moves.len() > 0 {
         pawn_moves.append(&mut promotion_moves);
     }
 
@@ -143,21 +143,21 @@ fn get_pawn_double_move(
     direction: &MoveDirection,
 ) -> Option<Move> {
     let (pawn_starting_rank, direction_change): (usize, i8) = if *current_piece_color == White {
-        (2, 1)
+        (1, 1)
     } else {
-        (7, -1)
+        (6, -1)
     };
 
     let mut double_move_direction = *direction;
     double_move_direction.dy += direction_change;
 
-    if pawn_starting_rank == piece_position.0
+    if pawn_starting_rank == piece_position.1
         && double_move_direction.piece_can_travel(board, current_piece_color, piece_position)
     {
         let double_move: Move = Move {
             start_pos: *piece_position,
             end_pos: double_move_direction.walk_from_position(*piece_position),
-            meta_data: MetaData::PawnMove,
+            meta_data: MetaData::PawnDoubleMove,
         };
         return Some(double_move);
     }
@@ -169,7 +169,7 @@ fn get_promotion_moves(piece_color: &Color, piece_position: &Position, board: &B
     let (direction, _): (MoveDirection, [MoveDirection; 2]) =
         get_pawn_direction_and_attack(piece_color);
 
-    let promotion_rank: usize = if *piece_color == White { 7 } else { 2 };
+    let promotion_rank: usize = if *piece_color == White { 6 } else { 1 };
 
     let promotion_pieces = if *piece_color == White {
         [

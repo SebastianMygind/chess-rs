@@ -2,7 +2,7 @@ mod chess;
 mod ui;
 
 use crate::chess::{ChessBoard, MetaData, Move};
-use crate::ui::game_state::GameState;
+use crate::ui::game_state::ChessApplication;
 
 fn main() -> iced::Result {
     let mut board = ChessBoard::new();
@@ -23,5 +23,9 @@ fn main() -> iced::Result {
     }
     print!("{}", board);
 
-    iced::run(GameState::title, GameState::update, GameState::view)
+    iced::run(
+        ChessApplication::title,
+        ChessApplication::update,
+        ChessApplication::view,
+    )
 }

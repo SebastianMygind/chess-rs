@@ -2,7 +2,6 @@ use crate::chess::Color::{Black, White};
 use crate::chess::PieceType::{Bishop, King, Knight, Pawn, Queen, Rook};
 use crate::chess::{Board, Piece, Position, Square, COL_SIZE};
 
-const ARR_SIZE: usize = 64;
 const ROW_SIZE: usize = 8;
 const VALID_FEN_BOARD: [char; 21] = [
     'p', 'r', 'b', 'n', 'q', 'k', 'P', 'R', 'B', 'N', 'Q', 'K', '1', '2', '3', '4', '5', '6', '7',

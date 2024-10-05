@@ -1,8 +1,6 @@
 mod chess;
 mod ui;
 
-use iced::{Application, Settings};
-
 use crate::chess::{ChessBoard, MetaData, Move};
 use crate::ui::game_state::GameState;
 
@@ -25,5 +23,5 @@ fn main() -> iced::Result {
     }
     print!("{}", board);
 
-    GameState::run(Settings::default())
+    iced::run(GameState::title, GameState::update, GameState::view)
 }

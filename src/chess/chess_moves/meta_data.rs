@@ -23,10 +23,12 @@ impl ChessBoard {
             }
 
             MetaData::PawnDoubleMove => {
-                if move_to_make.start_pos < move_to_make.end_pos {
-                    self.en_passant_target_square = Some(move_to_make.start_pos + 8);
-                } else if move_to_make.start_pos > move_to_make.end_pos {
-                    self.en_passant_target_square = Some(move_to_make.start_pos - 8);
+                if move_to_make.start_pos.1 < move_to_make.end_pos.1 {
+                    self.en_passant_target_square =
+                        Some((move_to_make.start_pos.0, move_to_make.start_pos.1 + 1));
+                } else if move_to_make.start_pos.1 > move_to_make.end_pos.1 {
+                    self.en_passant_target_square =
+                        Some((move_to_make.start_pos.0, move_to_make.start_pos.1 - 1));
                 } else {
                     panic!(
                         "PawnDoubleMoves not generated correctly, start position = end position!"
@@ -50,7 +52,7 @@ impl ChessBoard {
 
     fn update_fullmove_counter(&mut self) {
         if !self.white_is_side_to_move {
-            self.fullmove_counter += 1;
+            self.full_move_counter += 1;
         }
     }
 
@@ -65,9 +67,9 @@ impl ChessBoard {
     }
 
     fn increment_half_move_clock(&mut self) {
-        self.halfmove_clock += 1;
+        self.half_move_clock += 1;
     }
     fn reset_half_move_clock(&mut self) {
-        self.halfmove_clock = 0;
+        self.half_move_clock = 0;
     }
 }

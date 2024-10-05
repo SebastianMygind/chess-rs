@@ -1,11 +1,10 @@
 /* Sub-module for FEN helper functions */
 
-use core::fmt;
-
 use crate::chess::fen::{
     is_fen_valid, parse_fen_castling_ability, parse_fen_epawn, parse_fen_full_move_counter,
     parse_fen_half_move_clock, parse_fen_piece_placement, parse_fen_side_to_move, split_at_space,
 };
+
 pub mod fen;
 
 /* Module that allows printing a chessboard to the CLI */
@@ -14,28 +13,48 @@ pub mod chess_errors;
 pub mod chess_moves;
 
 use chess_errors::InvalidFen;
-use fen::FEN_START_POS;
+use fen::FEN_START_POSITION;
 
-/* Defines different piece types and color */
+pub const ROW_SIZE: usize = 8;
+pub const COL_SIZE: usize = 8;
+
+type Board = [[Square; COL_SIZE]; ROW_SIZE];
+type Position = (usize, usize);
+type Square = Option<Piece>;
+
+/** Defines different chess piece types. */
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub enum Pieces {
-    Empty,
-    WPawn,
-    WRook,
-    WBishop,
-    WKnight,
-    WQueen,
-    WKing,
-    BPawn,
-    BRook,
-    BBishop,
-    BKnight,
-    BQueen,
-    BKing,
+pub enum PieceType {
+    Pawn,
+    Rook,
+    Bishop,
+    Knight,
+    Queen,
+    King,
+}
+
+/** Defines the colors chess pieces can have. */
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum Color {
+    White,
+    Black,
+}
+
+/** Defines the struct that describes a complete chess piece. */
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Piece {
+    color: Color,
+    piece_type: PieceType,
+}
+
+impl Piece {
+    pub fn new(color: Color, piece_type: PieceType) -> Piece {
+        Piece { color, piece_type }
+    }
 }
 
 /* Defines enums to use with the move struct */
-#[derive(PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum MetaData {
     Move,
     PawnMove,
@@ -43,90 +62,48 @@ pub enum MetaData {
     Capture,
     EnPassant,
     Castling,
-    Promotion(Pieces),
+    Promotion(Piece),
 }
-
-pub const ARR_SIZE: usize = ROW_SIZE * COL_SIZE;
-const ROW_SIZE: usize = 8;
-const COL_SIZE: usize = 8;
-
-const EMPTY_PIECE: BoardPiece = BoardPiece {
-    piece_type: Pieces::Empty,
-};
 
 /* Chessboard specific implementations */
 #[derive(Debug, Clone, Copy)]
 pub struct ChessBoard {
-    board: [BoardPiece; ARR_SIZE],
+    board: Board,
     white_is_side_to_move: bool,
     castling_ability: [bool; 4], // WKingside, WQueenside, BKingside, BQueenside
-    en_passant_target_square: Option<usize>,
-    halfmove_clock: u64,
-    fullmove_counter: u64,
+    en_passant_target_square: Option<Position>,
+    half_move_clock: u64,
+    full_move_counter: u64,
     is_checked: bool,
     is_checkmate: bool,
     is_stalemate: bool,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct BoardPiece {
-    piece_type: Pieces,
-}
-
-#[derive(PartialEq)]
+#[derive(PartialEq, Copy, Clone)]
 pub(crate) struct Move {
-    pub start_pos: usize,
-    pub end_pos: usize,
+    pub start_pos: Position,
+    pub end_pos: Position,
     pub meta_data: MetaData,
 }
-
-impl fmt::Display for Move {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "start_pos: {}, end_pos: {}\n",
-            self.start_pos, self.end_pos
-        )
-    }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub(crate) struct SquarePosition {
-    pub file: usize, // x-position
-    pub rank: usize, // y-position
-}
-
-/*
-trait Piece {
-    fn make_move(&self, piece_move: Move,
-                 board: [BoardPiece; ARR_SIZE],
-                 board_position: usize) -> Result<Move, IllegalMove>;
-    fn get_moves(&self, board: [BoardPiece; ARR_SIZE], board_position: usize) -> Vec<Move>;
-}
-struct SquareV2 {
-    piece: Option<PieceV2>
-}
-struct PieceV2 {
-    piece_specific: Box<dyn Piece>
-}
-*/
 
 // Implements chess functionality
 impl ChessBoard {
     pub fn new() -> ChessBoard {
         let mut new_board: ChessBoard = ChessBoard {
-            board: [EMPTY_PIECE; ARR_SIZE],
+            board: [[None; COL_SIZE]; ROW_SIZE],
             white_is_side_to_move: true,
             castling_ability: [true; 4],
             en_passant_target_square: None,
-            halfmove_clock: 0,
-            fullmove_counter: 0,
+            half_move_clock: 0,
+            full_move_counter: 0,
             is_checked: false,
             is_checkmate: false,
             is_stalemate: false,
         };
 
-        new_board.set_fen_position_arr(FEN_START_POS).unwrap();
+        new_board
+            .set_fen_position_arr(FEN_START_POSITION)
+            .expect("ERROR: FEN starting position does not parse correctly!");
 
         new_board
     }
@@ -161,12 +138,12 @@ impl ChessBoard {
         /* Half move clock */
         let half_moves = parse_fen_half_move_clock(&split_fen[4].as_str());
 
-        self.halfmove_clock = half_moves;
+        self.half_move_clock = half_moves;
 
         /* Full move counter */
         let full_moves = parse_fen_full_move_counter(&split_fen[5].as_str());
 
-        self.fullmove_counter = full_moves;
+        self.full_move_counter = full_moves;
 
         Ok(())
     }

@@ -7,44 +7,36 @@ mod queen_piece;
 mod rook_piece;
 
 use crate::chess::chess_moves::legal_moves::bishop_piece::get_bishop_moves;
-use crate::chess::chess_moves::legal_moves::generic_piece::{
-    find_first_matching_chess_piece, Color,
-};
+use crate::chess::chess_moves::legal_moves::generic_piece::find_first_matching_chess_piece;
 use crate::chess::chess_moves::legal_moves::king_piece::{get_king_moves, king_is_checked};
 use crate::chess::chess_moves::legal_moves::knight_piece::get_knight_moves;
 use crate::chess::chess_moves::legal_moves::pawn_piece::get_pawn_moves;
 use crate::chess::chess_moves::legal_moves::queen_piece::get_queen_moves;
 use crate::chess::chess_moves::legal_moves::rook_piece::get_rook_moves;
-use crate::chess::{BoardPiece, ChessBoard, MetaData, Move, Pieces, ARR_SIZE, EMPTY_PIECE};
+use crate::chess::PieceType::{Bishop, King, Knight, Pawn, Queen, Rook};
+use crate::chess::{Board, ChessBoard, Color, MetaData, Move, Piece, PieceType, Position};
 
 impl ChessBoard {
     pub fn legal_moves(&self) -> Vec<Move> {
-        let mut legal_moves: Vec<Move> = Vec::new();
+        let mut legal_moves: Vec<Move> = Vec::with_capacity(50);
+
+        let current_color: Color = if self.white_is_side_to_move {
+            Color::White
+        } else {
+            Color::Black
+        };
 
         let pseudo_legal_moves: Vec<Move> = self.pseudo_legal_moves();
 
-        let (current_color, king_piece): (Color, Pieces) = if self.white_is_side_to_move {
-            (Color::White, Pieces::WKing)
-        } else {
-            (Color::Black, Pieces::BKing)
-        };
-
-        let king_position = find_first_matching_chess_piece(&self.board, king_piece)
-            .expect("Both kings most exist on all boards!");
+        let king_position = find_first_matching_chess_piece(
+            &self.board,
+            &Piece::new(current_color, PieceType::King),
+        )
+        .expect("Both kings most exist on all boards!");
 
         for piece_move in pseudo_legal_moves {
             let mut board_copy = self.board;
             Self::make_move_on_board(&mut board_copy, &piece_move);
-
-            if board_copy[piece_move.end_pos].piece_type == Pieces::WKing
-                || board_copy[piece_move.end_pos].piece_type == Pieces::BKing
-            {
-                if !king_is_checked(&board_copy, &piece_move.end_pos, &current_color) {
-                    legal_moves.push(piece_move);
-                }
-
-                continue;
-            }
 
             if !king_is_checked(&board_copy, &king_position, &current_color) {
                 legal_moves.push(piece_move);
@@ -58,82 +50,114 @@ impl ChessBoard {
     fn pseudo_legal_moves(&self) -> Vec<Move> {
         let mut pseudo_legal_moves: Vec<Move> = Vec::new();
 
-        for (index, piece) in self.board.iter().enumerate() {
-            match piece.piece_type {
-                Pieces::Empty => continue,
+        let friendly_color = if self.white_is_side_to_move {
+            Color::White
+        } else {
+            Color::Black
+        };
 
-                Pieces::WKing | Pieces::BKing => {
-                    let mut king_moves = get_king_moves(self, &index);
-                    pseudo_legal_moves.append(&mut king_moves);
-                }
+        for (row, squares) in self.board.iter().enumerate() {
+            for (column, square) in squares.iter().enumerate() {
+                match square {
+                    None => continue,
+                    Some(piece) => {
+                        if piece.color == friendly_color {
+                            match piece.piece_type {
+                                King => {
+                                    let mut moves =
+                                        get_king_moves(self, &friendly_color, &(column, row));
+                                    pseudo_legal_moves.append(&mut moves);
+                                }
 
-                Pieces::WQueen | Pieces::BQueen => {
-                    let mut queen_moves = get_queen_moves(self, &index);
-                    pseudo_legal_moves.append(&mut queen_moves);
-                }
+                                Queen => {
+                                    let mut moves =
+                                        get_queen_moves(self, &friendly_color, &(column, row));
+                                    pseudo_legal_moves.append(&mut moves);
+                                }
 
-                Pieces::WRook | Pieces::BRook => {
-                    let mut rook_moves = get_rook_moves(self, &index);
-                    pseudo_legal_moves.append(&mut rook_moves);
-                }
+                                Rook => {
+                                    let mut moves =
+                                        get_rook_moves(self, &friendly_color, &(column, row));
+                                    pseudo_legal_moves.append(&mut moves);
+                                }
 
-                Pieces::WBishop | Pieces::BBishop => {
-                    let mut bishop_moves = get_bishop_moves(self, &index);
-                    pseudo_legal_moves.append(&mut bishop_moves);
-                }
+                                Bishop => {
+                                    let mut moves =
+                                        get_bishop_moves(self, &friendly_color, &(column, row));
+                                    pseudo_legal_moves.append(&mut moves);
+                                }
 
-                Pieces::WKnight | Pieces::BKnight => {
-                    let mut knight_moves = get_knight_moves(self, &index);
-                    pseudo_legal_moves.append(&mut knight_moves);
-                }
+                                Knight => {
+                                    let mut moves =
+                                        get_knight_moves(self, &friendly_color, &(column, row));
+                                    pseudo_legal_moves.append(&mut moves);
+                                }
 
-                Pieces::WPawn | Pieces::BPawn => {
-                    let mut pawn_moves = get_pawn_moves(self, &index);
-                    pseudo_legal_moves.append(&mut pawn_moves);
+                                Pawn => {
+                                    let mut moves =
+                                        get_pawn_moves(self, &friendly_color, &(column, row));
+                                    pseudo_legal_moves.append(&mut moves);
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
         pseudo_legal_moves
     }
 
-    pub fn make_move_on_board(board: &mut [BoardPiece; ARR_SIZE], move_to_make: &Move) {
+    pub fn make_move_on_board(board: &mut Board, move_to_make: &Move) {
+        let start_pos_x = move_to_make.start_pos.0;
+        let start_pos_y = move_to_make.start_pos.1;
+
+        let end_pos_x = move_to_make.end_pos.0;
+        let end_pos_y = move_to_make.end_pos.1;
+
         match move_to_make.meta_data {
             MetaData::Move | MetaData::PawnMove | MetaData::Capture | MetaData::PawnDoubleMove => {
-                board[move_to_make.end_pos] = board[move_to_make.start_pos];
-                board[move_to_make.start_pos] = EMPTY_PIECE;
+                board[end_pos_y][end_pos_x] = board[start_pos_y][start_pos_x];
+                board[start_pos_y][start_pos_x] = None;
             }
 
-            MetaData::Promotion(piece_type) => {
-                board[move_to_make.end_pos] = BoardPiece { piece_type };
-                board[move_to_make.start_pos] = EMPTY_PIECE;
+            MetaData::Promotion(piece) => {
+                board[end_pos_y][end_pos_x] = Some(piece);
+                board[start_pos_y][start_pos_x] = None;
             }
 
             MetaData::EnPassant => {
-                let delta_position: i8 = if move_to_make.start_pos < move_to_make.end_pos {
-                    8
+                let target_square: Position = if move_to_make.start_pos.1 < move_to_make.end_pos.1 {
+                    (end_pos_x, end_pos_y + 1)
                 } else {
-                    -8
+                    (end_pos_x, end_pos_y - 1)
                 };
 
-                board[move_to_make.end_pos] = board[move_to_make.start_pos];
+                board[end_pos_y][end_pos_x] = board[start_pos_y][start_pos_x];
 
-                board[move_to_make.start_pos] = EMPTY_PIECE;
-                board[(move_to_make.end_pos as i8 + delta_position) as usize] = EMPTY_PIECE;
+                board[start_pos_y][start_pos_x] = None;
+                board[target_square.1][target_square.0] = None;
             }
 
             MetaData::Castling => {
-                let (rook_start_position, rook_end_position): (usize, usize) =
-                    if move_to_make.start_pos < move_to_make.end_pos {
-                        (move_to_make.start_pos + 3, move_to_make.start_pos + 1)
+                let (rook_start_position, rook_end_position): (Position, Position) =
+                    if move_to_make.start_pos.0 < move_to_make.end_pos.0 {
+                        (
+                            (move_to_make.start_pos.0 + 3, move_to_make.start_pos.1),
+                            (move_to_make.start_pos.0 + 1, move_to_make.start_pos.1),
+                        )
                     } else {
-                        (move_to_make.start_pos - 4, move_to_make.start_pos - 1)
+                        (
+                            (move_to_make.start_pos.0 - 4, move_to_make.start_pos.1),
+                            (move_to_make.start_pos.0 - 1, move_to_make.start_pos.1),
+                        )
                     };
 
-                board[move_to_make.end_pos] = board[move_to_make.start_pos];
-                board[rook_end_position] = board[rook_start_position];
+                board[end_pos_y][end_pos_x] = board[start_pos_y][start_pos_x];
+                board[rook_end_position.1][rook_end_position.0] =
+                    board[rook_start_position.1][rook_start_position.0];
 
-                board[move_to_make.start_pos] = EMPTY_PIECE;
-                board[rook_start_position] = EMPTY_PIECE;
+                board[start_pos_y][start_pos_x] = None;
+                board[rook_start_position.1][rook_start_position.0] = None;
             }
         }
     }

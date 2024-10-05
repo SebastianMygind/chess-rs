@@ -1,32 +1,19 @@
-use crate::chess::chess_moves::piece_logic::{BLACK_PIECES, WHITE_PIECES};
 use crate::chess::chess_moves::MoveDirection;
-use crate::chess::Pieces::{
-    BBishop, BKing, BKnight, BPawn, BQueen, BRook, WBishop, WKing, WKnight, WPawn, WQueen, WRook,
-};
-use crate::chess::{BoardPiece, ChessBoard, MetaData, Move, Pieces, ARR_SIZE};
-
-#[derive(PartialEq)]
-pub enum Color {
-    White,
-    Black,
-    Empty,
-}
+use crate::chess::{Board, ChessBoard, Color, MetaData, Move, Piece, Position};
 
 pub fn get_single_step_moves(
     chess_board: &ChessBoard,
-    piece_position: &usize,
+    piece_position: &Position,
+    piece_color: &Color,
     directions: &[MoveDirection],
 ) -> Vec<Move> {
     let mut moves: Vec<Move> = Vec::new();
 
-    let (friendly_pieces, _) = get_friendly_and_enemy_pieces(chess_board.white_is_side_to_move);
-
     for direction in directions {
-        if direction.piece_can_travel(&chess_board.board, &friendly_pieces, piece_position) {
-            let new_position: usize = direction.walk_from_position(*piece_position);
+        if direction.piece_can_travel(&chess_board.board, piece_color, piece_position) {
+            let new_position: Position = direction.walk_from_position(*piece_position);
 
-            let meta_data: MetaData = if chess_board.board[new_position].piece_type == Pieces::Empty
-            {
+            let meta_data: MetaData = if chess_board.board[new_position.1][new_position.0] == None {
                 MetaData::Move
             } else {
                 MetaData::Capture
@@ -47,21 +34,20 @@ pub fn get_single_step_moves(
 
 pub fn get_multi_step_moves(
     chess_board: &ChessBoard,
-    piece_position: &usize,
+    piece_position: &Position,
+    piece_color: &Color,
     directions: &[MoveDirection],
 ) -> Vec<Move> {
     let mut moves: Vec<Move> = Vec::new();
 
-    let (friendly_pieces, _) = get_friendly_and_enemy_pieces(chess_board.white_is_side_to_move);
-
     for direction in directions {
-        let mut current_position: usize = *piece_position;
+        let mut current_position: Position = *piece_position;
 
-        while direction.piece_can_travel(&chess_board.board, &friendly_pieces, &current_position) {
+        while direction.piece_can_travel(&chess_board.board, piece_color, &current_position) {
             current_position = direction.walk_from_position(current_position);
 
             let meta_data: MetaData =
-                if chess_board.board[current_position].piece_type == Pieces::Empty {
+                if chess_board.board[current_position.1][current_position.0] == None {
                     MetaData::Move
                 } else {
                     MetaData::Capture
@@ -80,24 +66,22 @@ pub fn get_multi_step_moves(
 }
 
 pub fn check_single_step_for_piece_exists(
-    piece_to_check_for: &Pieces,
-    board: &[BoardPiece; ARR_SIZE],
+    piece_to_check_for: Piece,
+    board: &Board,
     directions: &[MoveDirection],
-    starting_position: &usize,
+    friendly_color: &Color,
+    starting_position: &Position,
 ) -> bool {
-    let enemy_pieces: [Pieces; 6];
-
-    match get_enemy_pieces_from_color(get_color_from_piece(*piece_to_check_for)) {
-        Some(enemies) => enemy_pieces = enemies,
-        None => return false,
-    }
-
     for direction in directions {
-        if direction.piece_can_travel(board, &enemy_pieces, starting_position) {
+        if direction.piece_can_travel(board, friendly_color, starting_position) {
             let new_position = direction.walk_from_position(*starting_position);
 
-            if board[new_position].piece_type == *piece_to_check_for {
-                return true;
+            if let Some(piece) = board[new_position.1][new_position.0] {
+                return if piece == piece_to_check_for {
+                    true
+                } else {
+                    false
+                };
             }
         }
     }
@@ -105,72 +89,41 @@ pub fn check_single_step_for_piece_exists(
 }
 
 pub fn check_multi_step_for_piece_exists(
-    piece_to_check_for: &Pieces,
-    board: &[BoardPiece; ARR_SIZE],
+    piece_to_check_for: Piece,
+    board: &Board,
     directions: &[MoveDirection],
-    starting_position: &usize,
+    friendly_color: &Color,
+    starting_position: &Position,
 ) -> bool {
-    let enemy_pieces: [Pieces; 6];
-
-    match get_enemy_pieces_from_color(get_color_from_piece(*piece_to_check_for)) {
-        Some(enemies) => enemy_pieces = enemies,
-        None => return false,
-    }
-
     for direction in directions {
         let mut current_position = *starting_position;
-        while direction.piece_can_travel(board, &enemy_pieces, &current_position) {
+        while direction.piece_can_travel(board, friendly_color, &current_position) {
             current_position = direction.walk_from_position(current_position);
 
-            if board[current_position].piece_type == *piece_to_check_for {
-                return true;
-            }
-            if board[current_position].piece_type == Pieces::Empty {
-                continue;
-            } else {
-                break;
+            match board[current_position.1][current_position.0] {
+                Some(piece) => {
+                    if piece == piece_to_check_for {
+                        return true;
+                    } else {
+                        break;
+                    }
+                }
+                None => continue,
             }
         }
     }
     false
 }
 
-pub fn find_first_matching_chess_piece(
-    board: &[BoardPiece; ARR_SIZE],
-    piece_to_find: Pieces,
-) -> Option<usize> {
-    for (pos, square) in board.iter().enumerate() {
-        if square.piece_type == piece_to_find {
-            return Some(pos);
+pub fn find_first_matching_chess_piece(board: &Board, piece_to_find: &Piece) -> Option<Position> {
+    for (i, file) in board.iter().enumerate() {
+        for (j, square) in file.iter().enumerate() {
+            if let Some(piece) = square {
+                if *piece == *piece_to_find {
+                    return Some((j, i));
+                }
+            }
         }
     }
     None
-}
-
-pub fn get_friendly_and_enemy_pieces(white_is_side_to_move: bool) -> ([Pieces; 6], [Pieces; 6]) {
-    if white_is_side_to_move {
-        (WHITE_PIECES, BLACK_PIECES)
-    } else {
-        (BLACK_PIECES, WHITE_PIECES)
-    }
-}
-
-fn get_color_from_piece(piece: Pieces) -> Color {
-    match piece {
-        WKing | WKnight | WRook | WQueen | WBishop | WPawn => Color::White,
-
-        BKing | BKnight | BRook | BQueen | BBishop | BPawn => Color::Black,
-
-        Pieces::Empty => Color::Empty,
-    }
-}
-
-pub fn get_enemy_pieces_from_color(color: Color) -> Option<[Pieces; 6]> {
-    match color {
-        Color::Black => Some([WKing, WQueen, WRook, WBishop, WKnight, WPawn]),
-
-        Color::White => Some([BKing, BQueen, BRook, BBishop, BKnight, BPawn]),
-
-        Color::Empty => None,
-    }
 }

@@ -1,8 +1,4 @@
 use crate::chess::chess_moves::MoveDirection;
-use crate::chess::Pieces;
-use crate::chess::Pieces::{
-    BBishop, BKing, BKnight, BPawn, BQueen, BRook, WBishop, WKing, WKnight, WPawn, WQueen, WRook,
-};
 
 pub const WHITE_PAWN_DIRECTION: MoveDirection = MoveDirection { dx: 0, dy: 1 };
 
@@ -53,6 +49,3 @@ pub const KNIGHT_DIRECTION: [MoveDirection; 8] = [
     MoveDirection { dx: -1, dy: 2 },
     MoveDirection { dx: -1, dy: -2 },
 ];
-
-pub(crate) const WHITE_PIECES: [Pieces; 6] = [WPawn, WRook, WBishop, WKnight, WQueen, WKing];
-pub(crate) const BLACK_PIECES: [Pieces; 6] = [BPawn, BRook, BBishop, BKnight, BQueen, BKing];

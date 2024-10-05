@@ -1,6 +1,7 @@
 use std::fmt;
 
-use crate::chess::{BoardPiece, ChessBoard, Pieces, ARR_SIZE};
+use crate::chess::PieceType::{Bishop, King, Knight, Pawn, Queen, Rook};
+use crate::chess::{Board, ChessBoard, Color, Move, Square};
 
 const T_LINE: &str = "┌—————┬—————┬—————┬—————┬—————┬—————┬—————┬—————┐\n";
 const H_LINE: &str = "|—————|—————|—————|—————|—————|—————|—————|—————|\n";
@@ -40,15 +41,24 @@ impl fmt::Display for ChessBoard {
     }
 }
 
-fn parse_chessboard_to_string(board: &[BoardPiece; ARR_SIZE]) -> Vec<String> {
+impl fmt::Display for Move {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "start_pos: ({}, {}), end_pos: ({}, {})\n",
+            self.start_pos.0, self.start_pos.1, self.end_pos.0, self.end_pos.1
+        )
+    }
+}
+
+fn parse_chessboard_to_string(board: &Board) -> Vec<String> {
     let mut printable_board = Vec::new();
 
-    for rank in 1..=8 {
-        let start = (rank - 1) * 8;
+    for rank in 0..=7 {
         let mut pieces: Vec<char> = Vec::new();
 
-        for i in 0..=7 {
-            pieces.push(piece_type_to_char(board[start + i].piece_type));
+        for file in 0..=7 {
+            pieces.push(piece_type_to_char(board[rank][file]));
         }
 
         let rank_string: String = format!(
@@ -62,26 +72,27 @@ fn parse_chessboard_to_string(board: &[BoardPiece; ARR_SIZE]) -> Vec<String> {
     printable_board
 }
 
-fn piece_type_to_char(square_type: Pieces) -> char {
-    match square_type {
-        Pieces::Empty => ' ',
+fn piece_type_to_char(square: Square) -> char {
+    match square {
+        None => ' ',
 
-        Pieces::WPawn => 'P',
-        Pieces::BPawn => 'p',
-
-        Pieces::WBishop => 'B',
-        Pieces::BBishop => 'b',
-
-        Pieces::WKnight => 'N',
-        Pieces::BKnight => 'n',
-
-        Pieces::WRook => 'R',
-        Pieces::BRook => 'r',
-
-        Pieces::WQueen => 'Q',
-        Pieces::BQueen => 'q',
-
-        Pieces::WKing => 'K',
-        Pieces::BKing => 'k',
+        Some(piece) => match piece.color {
+            Color::White => match piece.piece_type {
+                King => 'K',
+                Queen => 'Q',
+                Rook => 'R',
+                Bishop => 'B',
+                Knight => 'N',
+                Pawn => 'P',
+            },
+            Color::Black => match piece.piece_type {
+                King => 'k',
+                Queen => 'q',
+                Rook => 'r',
+                Bishop => 'b',
+                Knight => 'n',
+                Pawn => 'p',
+            },
+        },
     }
 }

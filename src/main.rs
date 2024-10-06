@@ -6,22 +6,11 @@ use crate::ui::game_state::ChessApplication;
 
 fn main() -> iced::Result {
     let mut board = ChessBoard::new();
+    let perft_depth = 1;
 
-    let chess_move: Move = Move {
-        start_pos: (4, 1),
-        end_pos: (4, 3),
-        meta_data: MetaData::PawnDoubleMove,
-    };
+    let perft_count = board.perft(perft_depth);
 
-    match board.make_move(chess_move) {
-        Ok(move_to_make) => {
-            println!("{move_to_make}")
-        }
-        Err(e) => {
-            println!("ERROR: {}", e)
-        }
-    }
-    print!("{}", board);
+    println!("perft({perft_depth}) = {perft_count}");
 
     iced::run(
         ChessApplication::title,

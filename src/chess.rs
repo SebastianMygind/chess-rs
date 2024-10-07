@@ -11,6 +11,7 @@ pub mod fen;
 mod chess_display;
 pub mod chess_errors;
 pub mod chess_moves;
+mod perft;
 
 use chess_errors::InvalidFen;
 use fen::FEN_START_POSITION;
@@ -106,6 +107,25 @@ impl ChessBoard {
             .expect("ERROR: FEN starting position does not parse correctly!");
 
         new_board
+    }
+
+    pub fn new_from_fen(fen: &str) -> Result<ChessBoard, InvalidFen> {
+        let mut new_board: ChessBoard = ChessBoard {
+            board: [[None; COL_SIZE]; ROW_SIZE],
+            white_is_side_to_move: true,
+            castling_ability: [true; 4],
+            en_passant_target_square: None,
+            half_move_clock: 0,
+            full_move_counter: 0,
+            is_checked: false,
+            is_checkmate: false,
+            is_stalemate: false,
+        };
+
+        match new_board.set_fen_position_arr(fen) {
+            Ok(_) => Ok(new_board),
+            Err(e) => Err(e),
+        }
     }
 
     // Implements FEN functionality

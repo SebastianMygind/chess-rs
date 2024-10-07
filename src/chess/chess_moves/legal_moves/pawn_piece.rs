@@ -154,12 +154,16 @@ fn get_pawn_double_move(
     if pawn_starting_rank == piece_position.1
         && double_move_direction.piece_can_travel(board, current_piece_color, piece_position)
     {
-        let double_move: Move = Move {
-            start_pos: *piece_position,
-            end_pos: double_move_direction.walk_from_position(*piece_position),
-            meta_data: MetaData::PawnDoubleMove,
-        };
-        return Some(double_move);
+        let new_position = double_move_direction.walk_from_position(*piece_position);
+
+        if board[new_position.1][new_position.0] == None {
+            let double_move: Move = Move {
+                start_pos: *piece_position,
+                end_pos: new_position,
+                meta_data: MetaData::PawnDoubleMove,
+            };
+            return Some(double_move);
+        }
     }
     None
 }

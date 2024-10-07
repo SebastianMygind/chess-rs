@@ -3,7 +3,6 @@
  */
 mod legal_moves;
 pub mod meta_data;
-mod perft;
 mod piece_logic;
 
 use crate::chess::chess_errors::IllegalMove;

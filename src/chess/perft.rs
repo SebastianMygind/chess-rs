@@ -1,3 +1,4 @@
+use crate::chess::fen::KIWIPETE_FEN_POSITION;
 use crate::chess::ChessBoard;
 
 impl ChessBoard {
@@ -28,5 +29,20 @@ impl ChessBoard {
             return -1;
         }
         count
+    }
+    pub fn test_chessboard_perft_print_legal_moves(chess_board: Self, perft_depth: i64) {
+        let perft_count = chess_board.perft(perft_depth);
+
+        let legal_moves = chess_board.legal_moves();
+
+        if legal_moves.len() <= 100 {
+            for chess_move in legal_moves {
+                println!("{chess_move}");
+            }
+        } else {
+            println!("More than 100 moves, will not print!");
+        }
+
+        println!("perft({perft_depth}) = {perft_count}");
     }
 }

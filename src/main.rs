@@ -1,16 +1,20 @@
 mod chess;
 mod ui;
 
+use crate::chess::fen::KIWIPETE_FEN_POSITION;
 use crate::chess::{ChessBoard, MetaData, Move};
 use crate::ui::game_state::ChessApplication;
 
 fn main() -> iced::Result {
-    let mut board = ChessBoard::new();
-    let perft_depth = 1;
+    let mut board = match ChessBoard::new_from_fen(KIWIPETE_FEN_POSITION) {
+        Ok(chess_board) => chess_board,
+        Err(e) => {
+            println!("{e}");
+            ChessBoard::new()
+        }
+    };
 
-    let perft_count = board.perft(perft_depth);
-
-    println!("perft({perft_depth}) = {perft_count}");
+    ChessBoard::test_chessboard_perft_print_legal_moves(board, 1);
 
     iced::run(
         ChessApplication::title,

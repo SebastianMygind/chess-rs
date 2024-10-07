@@ -1,4 +1,3 @@
-use crate::chess::chess_moves::legal_moves::generic_piece::get_single_step_moves;
 use crate::chess::chess_moves::piece_logic::{
     BLACK_PAWN_ATTACK_DIRECTION, BLACK_PAWN_DIRECTION, WHITE_PAWN_ATTACK_DIRECTION,
     WHITE_PAWN_DIRECTION,
@@ -17,15 +16,15 @@ pub fn get_pawn_moves(
 
     let single_pawn_move_is_legal: bool;
 
-    let mut pawn_moves: Vec<Move> = get_single_step_moves(
-        chess_board,
-        piece_position,
-        friendly_color,
-        [direction].as_slice(),
-    );
+    let mut pawn_moves: Vec<Move> = Vec::with_capacity(3);
 
-    if pawn_moves.len() > 0 {
-        pawn_moves[0].meta_data = MetaData::PawnMove;
+    if let Some(pawn_move) = get_pawn_single_move(
+        friendly_color,
+        piece_position,
+        &chess_board.board,
+        direction,
+    ) {
+        pawn_moves.push(pawn_move);
         single_pawn_move_is_legal = true;
     } else {
         single_pawn_move_is_legal = false;
@@ -134,6 +133,28 @@ fn check_en_passant_move(
         }
     }
     None
+}
+
+fn get_pawn_single_move(
+    current_piece_color: &Color,
+    piece_position: &Position,
+    board: &Board,
+    direction: MoveDirection,
+) -> Option<Move> {
+    if !direction.piece_can_travel(board, current_piece_color, piece_position) {
+        return None;
+    }
+    let new_position = direction.walk_from_position(*piece_position);
+
+    if board[new_position.1][new_position.0] != None {
+        return None;
+    }
+
+    Some(Move {
+        start_pos: *piece_position,
+        end_pos: new_position,
+        meta_data: MetaData::PawnMove,
+    })
 }
 
 fn get_pawn_double_move(

@@ -11,7 +11,7 @@ pub mod fen;
 mod chess_display;
 pub mod chess_errors;
 pub mod chess_moves;
-mod perft;
+pub(crate) mod perft;
 
 use chess_errors::InvalidFen;
 use fen::FEN_START_POSITION;

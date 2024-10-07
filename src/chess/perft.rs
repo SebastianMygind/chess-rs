@@ -1,5 +1,8 @@
-use crate::chess::fen::KIWIPETE_FEN_POSITION;
 use crate::chess::ChessBoard;
+
+pub const ROOK_END_GAME_FEN: &str = "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1";
+pub const KIWIPETE_FEN_POSITION: &str =
+    "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1";
 
 impl ChessBoard {
     pub fn perft(&self, depth: i64) -> i64 {
@@ -37,7 +40,7 @@ impl ChessBoard {
 
         if legal_moves.len() <= 100 {
             for chess_move in legal_moves {
-                println!("{chess_move}");
+                println!("move: {}", chess_move.move_to_string());
             }
         } else {
             println!("More than 100 moves, will not print!");

@@ -7,7 +7,7 @@ use crate::chess::chess_moves::piece_logic::{
     ROOK_DIRECTION, WHITE_PAWN_ATTACK_DIRECTION,
 };
 use crate::chess::chess_moves::MoveDirection;
-use crate::chess::Color::White;
+use crate::chess::Color::{Black, White};
 use crate::chess::PieceType::{Bishop, King, Knight, Pawn, Queen, Rook};
 use crate::chess::{Board, ChessBoard, Color, MetaData, Move, Piece, Position};
 
@@ -22,6 +22,10 @@ pub fn get_king_moves(
         friendly_color,
         KING_AND_QUEEN_DIRECTION.as_slice(),
     );
+
+    for king_move in &mut king_moves {
+        king_move.meta_data = MetaData::KingMove;
+    }
 
     let (kingside_castle_index, queenside_castle_index): (usize, usize) =
         if chess_board.white_is_side_to_move {
@@ -134,11 +138,13 @@ fn check_for_castling_move(
 
 /** This function assumes that a king is unique, i.e. there only exists one king of each color. */
 pub fn king_is_checked(board: &Board, king_position: &Position, king_color: &Color) -> bool {
+    let enemy_color: Color = if *king_color == White { Black } else { White };
+
     // Check for king attacks.
     //   - This can be removed if you check when generating the pseudolegal moves.
 
     if check_single_step_for_piece_exists(
-        Piece::new(*king_color, King),
+        Piece::new(enemy_color, King),
         board,
         KING_AND_QUEEN_DIRECTION.as_slice(),
         king_position,
@@ -149,7 +155,7 @@ pub fn king_is_checked(board: &Board, king_position: &Position, king_color: &Col
     // Check for queen attacks
 
     if check_multi_step_for_piece_exists(
-        Piece::new(*king_color, Queen),
+        Piece::new(enemy_color, Queen),
         board,
         KING_AND_QUEEN_DIRECTION.as_slice(),
         king_position,
@@ -160,7 +166,7 @@ pub fn king_is_checked(board: &Board, king_position: &Position, king_color: &Col
     // Check for rook attacks
 
     if check_multi_step_for_piece_exists(
-        Piece::new(*king_color, Rook),
+        Piece::new(enemy_color, Rook),
         board,
         ROOK_DIRECTION.as_slice(),
         king_position,
@@ -171,7 +177,7 @@ pub fn king_is_checked(board: &Board, king_position: &Position, king_color: &Col
     // Check for Bishop attacks
 
     if check_multi_step_for_piece_exists(
-        Piece::new(*king_color, Bishop),
+        Piece::new(enemy_color, Bishop),
         board,
         BISHOP_DIRECTION.as_slice(),
         king_position,
@@ -182,7 +188,7 @@ pub fn king_is_checked(board: &Board, king_position: &Position, king_color: &Col
     // Check for Knight attacks
 
     if check_multi_step_for_piece_exists(
-        Piece::new(*king_color, Knight),
+        Piece::new(enemy_color, Knight),
         board,
         KNIGHT_DIRECTION.as_slice(),
         king_position,
@@ -199,7 +205,7 @@ pub fn king_is_checked(board: &Board, king_position: &Position, king_color: &Col
     };
 
     if check_single_step_for_piece_exists(
-        Piece::new(*king_color, Pawn),
+        Piece::new(enemy_color, Pawn),
         board,
         pawn_attack_direction.as_slice(),
         king_position,

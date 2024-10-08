@@ -4,7 +4,7 @@ use crate::chess::{ChessBoard, MetaData, Move};
 impl ChessBoard {
     pub fn update_meta_data(&mut self, move_to_make: &Move) {
         match move_to_make.meta_data {
-            MetaData::Move => {
+            MetaData::Move | MetaData::KingMove => {
                 self.increment_half_move_clock();
             }
 

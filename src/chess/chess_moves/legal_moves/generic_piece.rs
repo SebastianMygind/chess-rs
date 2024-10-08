@@ -45,11 +45,13 @@ pub fn get_multi_step_moves(
 
         while direction.piece_can_travel(&chess_board.board, piece_color, &current_position) {
             current_position = direction.walk_from_position(current_position);
-
+            let move_obstructed: bool;
             let meta_data: MetaData =
                 if chess_board.board[current_position.1][current_position.0] == None {
+                    move_obstructed = false;
                     MetaData::Move
                 } else {
+                    move_obstructed = true;
                     MetaData::Capture
                 };
 
@@ -59,6 +61,10 @@ pub fn get_multi_step_moves(
                 meta_data,
             };
             moves.push(current_move);
+
+            if move_obstructed {
+                break;
+            }
         }
     }
 
@@ -72,7 +78,7 @@ pub fn check_single_step_for_piece_exists(
     starting_position: &Position,
 ) -> bool {
     for direction in directions {
-        if direction.move_within_bounds(*starting_position) {
+        if direction.move_is_within_bounds(*starting_position) {
             let new_position = direction.walk_from_position(*starting_position);
 
             if let Some(piece) = board[new_position.1][new_position.0] {
@@ -93,7 +99,7 @@ pub fn check_multi_step_for_piece_exists(
 ) -> bool {
     for direction in directions {
         let mut current_position = *starting_position;
-        while direction.move_within_bounds(current_position) {
+        while direction.move_is_within_bounds(current_position) {
             let new_position = direction.walk_from_position(current_position);
 
             if let Some(piece) = board[new_position.1][new_position.0] {

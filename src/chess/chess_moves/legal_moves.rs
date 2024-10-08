@@ -35,10 +35,16 @@ impl ChessBoard {
         .expect("Both kings most exist on all boards!");
 
         for piece_move in pseudo_legal_moves {
+            let position_to_check: Position = if piece_move.meta_data == MetaData::KingMove {
+                piece_move.end_pos
+            } else {
+                king_position
+            };
+
             let mut board_copy = self.board;
             Self::make_move_on_board(&mut board_copy, &piece_move);
 
-            if !king_is_checked(&board_copy, &king_position, &current_color) {
+            if !king_is_checked(&board_copy, &position_to_check, &current_color) {
                 legal_moves.push(piece_move);
             }
         }
@@ -115,7 +121,11 @@ impl ChessBoard {
         let end_pos_y = move_to_make.end_pos.1;
 
         match move_to_make.meta_data {
-            MetaData::Move | MetaData::PawnMove | MetaData::Capture | MetaData::PawnDoubleMove => {
+            MetaData::Move
+            | MetaData::PawnMove
+            | MetaData::Capture
+            | MetaData::PawnDoubleMove
+            | MetaData::KingMove => {
                 board[end_pos_y][end_pos_x] = board[start_pos_y][start_pos_x];
                 board[start_pos_y][start_pos_x] = None;
             }

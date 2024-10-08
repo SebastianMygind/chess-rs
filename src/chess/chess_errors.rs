@@ -1,12 +1,15 @@
+use crate::chess::Move;
 use std::{error, fmt};
 
 #[derive(Debug, Clone)]
-pub struct IllegalMove;
+pub struct IllegalMove {
+    pub(crate) attempted_move: Move,
+}
 
 impl error::Error for IllegalMove {}
 impl fmt::Display for IllegalMove {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "illegal move")
+        write!(f, "Illegal move: {}", self.attempted_move.move_to_string())
     }
 }
 

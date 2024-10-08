@@ -64,6 +64,7 @@ pub enum MetaData {
     EnPassant,
     Castling,
     Promotion(Piece),
+    KingMove,
 }
 
 /* Chessboard specific implementations */
@@ -80,7 +81,7 @@ pub struct ChessBoard {
     is_stalemate: bool,
 }
 
-#[derive(PartialEq, Copy, Clone)]
+#[derive(PartialEq, Copy, Clone, Debug)]
 pub(crate) struct Move {
     pub start_pos: Position,
     pub end_pos: Position,

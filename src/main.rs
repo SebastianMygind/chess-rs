@@ -1,24 +1,29 @@
 mod chess;
 mod ui;
 
-use crate::chess::perft::{KIWIPETE_FEN_POSITION, ROOK_END_GAME_FEN};
-use crate::chess::{ChessBoard, MetaData, Move};
 use crate::ui::game_state::ChessApplication;
+use std::env;
+use ui::uci::UniversalChessInterface;
 
-fn main() -> iced::Result {
-    let mut board = match ChessBoard::new_from_fen(ROOK_END_GAME_FEN) {
-        Ok(chess_board) => chess_board,
-        Err(e) => {
-            println!("{e}");
-            ChessBoard::new()
+/** Given no arguments the application will run*/
+fn main() {
+    let args: Vec<String> = env::args().collect();
+
+    if args.len() > 1 {
+        match args[1].as_str() {
+            "uci-mode" => {
+                UniversalChessInterface::run(args);
+            }
+            _ => {
+                println!("Unknown option {}", args[1]);
+            }
         }
-    };
-
-    ChessBoard::test_chessboard_perft_print_legal_moves(board, 1);
-
-    iced::run(
-        ChessApplication::title,
-        ChessApplication::update,
-        ChessApplication::view,
-    )
+    } else {
+        iced::run(
+            ChessApplication::title,
+            ChessApplication::update,
+            ChessApplication::view,
+        )
+        .expect("Error from iced.");
+    }
 }

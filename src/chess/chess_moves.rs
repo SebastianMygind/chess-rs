@@ -12,6 +12,7 @@ impl ChessBoard {
     pub fn make_move(&mut self, move_to_make: Move) -> Result<Move, IllegalMove> {
         let legal_moves = self.legal_moves();
         let mut move_is_legal: bool = false;
+
         for legal_move in legal_moves {
             if move_to_make == legal_move {
                 move_is_legal = true;
@@ -21,7 +22,9 @@ impl ChessBoard {
         }
 
         if !move_is_legal {
-            return Err(IllegalMove);
+            return Err(IllegalMove {
+                attempted_move: move_to_make,
+            });
         }
 
         Self::make_move_on_board(&mut self.board, &move_to_make);
@@ -112,7 +115,7 @@ impl MoveDirection {
         )
     }
 
-    pub fn move_within_bounds(&self, position: Position) -> bool {
+    pub fn move_is_within_bounds(&self, position: Position) -> bool {
         let casted_x: i8 = position.0 as i8;
         let casted_y: i8 = position.1 as i8;
 

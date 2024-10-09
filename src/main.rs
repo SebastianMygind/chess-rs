@@ -1,8 +1,8 @@
 mod chess;
 mod ui;
 
-use crate::ui::game_state::ChessApplication;
 use std::env;
+use ui::gui::ChessApplication;
 use ui::uci::UniversalChessInterface;
 
 /** Given no arguments the application will run*/
@@ -15,7 +15,7 @@ fn main() {
                 UniversalChessInterface::run(args);
             }
             _ => {
-                println!("Unknown option {}", args[1]);
+                println!("Unknown argument {}", args[1]);
             }
         }
     } else {

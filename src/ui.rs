@@ -1,2 +1,2 @@
-pub mod game_state;
+pub mod gui;
 pub mod uci;

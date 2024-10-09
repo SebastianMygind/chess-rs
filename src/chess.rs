@@ -20,7 +20,7 @@ pub const ROW_SIZE: usize = 8;
 pub const COL_SIZE: usize = 8;
 
 type Board = [[Square; COL_SIZE]; ROW_SIZE];
-type Position = (usize, usize);
+pub type Position = (usize, usize);
 type Square = Option<Piece>;
 
 /** Defines different chess piece types. */
@@ -54,17 +54,29 @@ impl Piece {
     }
 }
 
-/* Defines enums to use with the move struct */
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub enum MetaData {
-    Move,
-    PawnMove,
-    PawnDoubleMove,
-    Capture,
-    EnPassant,
-    Castling,
-    Promotion(Piece),
-    KingMove,
+#[derive(PartialEq, Copy, Clone, Debug)]
+pub enum CastlingType {
+    Kingside,
+    Queenside,
+}
+
+#[derive(PartialEq, Copy, Clone, Debug)]
+pub enum MoveResult {
+    Normal,
+    Check,
+    Checkmate,
+    Stalemate,
+}
+
+#[derive(PartialEq, Copy, Clone, Debug)]
+pub struct MoveMetaData {
+    piece_to_move: PieceType,
+    piece_to_capture: Option<PieceType>,
+    pub promotion_piece: Option<PieceType>,
+    is_castling_move: bool,
+    generates_en_passant: bool,
+    is_en_passant_move: bool,
+    //move_result: MoveResult,
 }
 
 /* Chessboard specific implementations */
@@ -85,7 +97,7 @@ pub struct ChessBoard {
 pub(crate) struct Move {
     pub start_pos: Position,
     pub end_pos: Position,
-    pub meta_data: MetaData,
+    pub meta_data: MoveMetaData,
 }
 
 // Implements chess functionality

@@ -14,7 +14,7 @@ use crate::chess::chess_moves::legal_moves::pawn_piece::get_pawn_moves;
 use crate::chess::chess_moves::legal_moves::queen_piece::get_queen_moves;
 use crate::chess::chess_moves::legal_moves::rook_piece::get_rook_moves;
 use crate::chess::PieceType::{Bishop, King, Knight, Pawn, Queen, Rook};
-use crate::chess::{Board, ChessBoard, Color, MetaData, Move, Piece, PieceType, Position};
+use crate::chess::{Board, ChessBoard, Color, Move, Piece, PieceType, Position};
 
 impl ChessBoard {
     pub fn legal_moves(&self) -> Vec<Move> {
@@ -35,16 +35,17 @@ impl ChessBoard {
         .expect("Both kings most exist on all boards!");
 
         for piece_move in pseudo_legal_moves {
-            let position_to_check: Position = if piece_move.meta_data == MetaData::KingMove {
-                piece_move.end_pos
-            } else {
-                king_position
-            };
+            let position_to_check: Position =
+                if piece_move.meta_data.piece_to_move == PieceType::King {
+                    piece_move.end_pos
+                } else {
+                    king_position
+                };
 
-            let mut board_copy = self.board;
-            Self::make_move_on_board(&mut board_copy, &piece_move);
+            let mut board_copy = *self;
+            board_copy.make_move_on_board(&piece_move);
 
-            if !king_is_checked(&board_copy, &position_to_check, &current_color) {
+            if !king_is_checked(&board_copy.board, &position_to_check, &current_color) {
                 legal_moves.push(piece_move);
             }
         }
@@ -113,62 +114,53 @@ impl ChessBoard {
         pseudo_legal_moves
     }
 
-    pub fn make_move_on_board(board: &mut Board, move_to_make: &Move) {
-        let start_pos_x = move_to_make.start_pos.0;
-        let start_pos_y = move_to_make.start_pos.1;
-
-        let end_pos_x = move_to_make.end_pos.0;
-        let end_pos_y = move_to_make.end_pos.1;
-
-        match move_to_make.meta_data {
-            MetaData::Move
-            | MetaData::PawnMove
-            | MetaData::Capture
-            | MetaData::PawnDoubleMove
-            | MetaData::KingMove => {
-                board[end_pos_y][end_pos_x] = board[start_pos_y][start_pos_x];
-                board[start_pos_y][start_pos_x] = None;
-            }
-
-            MetaData::Promotion(piece) => {
-                board[end_pos_y][end_pos_x] = Some(piece);
-                board[start_pos_y][start_pos_x] = None;
-            }
-
-            MetaData::EnPassant => {
-                let target_square: Position = if move_to_make.start_pos.1 < move_to_make.end_pos.1 {
-                    (end_pos_x, end_pos_y + 1)
+    pub fn make_move_on_board(&mut self, move_to_make: &Move) {
+        if move_to_make.meta_data.is_castling_move {
+            let (rook_start_position, rook_end_position): (Position, Position) =
+                if move_to_make.start_pos.0 < move_to_make.end_pos.0 {
+                    (
+                        (move_to_make.start_pos.0 + 3, move_to_make.start_pos.1),
+                        (move_to_make.start_pos.0 + 1, move_to_make.start_pos.1),
+                    )
                 } else {
-                    (end_pos_x, end_pos_y - 1)
+                    (
+                        (move_to_make.start_pos.0 - 4, move_to_make.start_pos.1),
+                        (move_to_make.start_pos.0 - 1, move_to_make.start_pos.1),
+                    )
                 };
 
-                board[end_pos_y][end_pos_x] = board[start_pos_y][start_pos_x];
+            self.board[move_to_make.end_pos.1][move_to_make.end_pos.0] =
+                self.board[move_to_make.start_pos.1][move_to_make.start_pos.0];
 
-                board[start_pos_y][start_pos_x] = None;
-                board[target_square.1][target_square.0] = None;
-            }
+            self.board[rook_end_position.1][rook_end_position.0] =
+                self.board[rook_start_position.1][rook_start_position.0];
 
-            MetaData::Castling => {
-                let (rook_start_position, rook_end_position): (Position, Position) =
-                    if move_to_make.start_pos.0 < move_to_make.end_pos.0 {
-                        (
-                            (move_to_make.start_pos.0 + 3, move_to_make.start_pos.1),
-                            (move_to_make.start_pos.0 + 1, move_to_make.start_pos.1),
-                        )
-                    } else {
-                        (
-                            (move_to_make.start_pos.0 - 4, move_to_make.start_pos.1),
-                            (move_to_make.start_pos.0 - 1, move_to_make.start_pos.1),
-                        )
-                    };
+            self.board[move_to_make.start_pos.1][move_to_make.start_pos.0] = None;
+            self.board[rook_start_position.1][rook_start_position.0] = None;
+        } else if move_to_make.meta_data.is_en_passant_move {
+            let target_square: Position = if move_to_make.start_pos.1 < move_to_make.end_pos.1 {
+                (move_to_make.end_pos.0, move_to_make.end_pos.1 - 1)
+            } else {
+                (move_to_make.end_pos.0, move_to_make.end_pos.1 + 1)
+            };
 
-                board[end_pos_y][end_pos_x] = board[start_pos_y][start_pos_x];
-                board[rook_end_position.1][rook_end_position.0] =
-                    board[rook_start_position.1][rook_start_position.0];
+            self.board[move_to_make.end_pos.1][move_to_make.end_pos.0] =
+                self.board[move_to_make.start_pos.1][move_to_make.start_pos.0];
 
-                board[start_pos_y][start_pos_x] = None;
-                board[rook_start_position.1][rook_start_position.0] = None;
-            }
+            self.board[move_to_make.start_pos.1][move_to_make.start_pos.0] = None;
+            self.board[target_square.1][target_square.0] == None;
+        } else if let Some(promotion_piece_type) = move_to_make.meta_data.promotion_piece {
+            let promotion_piece = if self.white_is_side_to_move {
+                Piece::new(Color::White, promotion_piece_type)
+            } else {
+                Piece::new(Color::Black, promotion_piece_type)
+            };
+            self.board[move_to_make.start_pos.1][move_to_make.start_pos.0] = None;
+            self.board[move_to_make.end_pos.1][move_to_make.end_pos.0] = Some(promotion_piece);
+        } else {
+            self.board[move_to_make.end_pos.1][move_to_make.end_pos.0] =
+                self.board[move_to_make.start_pos.1][move_to_make.start_pos.0];
+            self.board[move_to_make.start_pos.1][move_to_make.start_pos.0] = None;
         }
     }
 }

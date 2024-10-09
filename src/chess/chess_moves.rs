@@ -27,7 +27,7 @@ impl ChessBoard {
             });
         }
 
-        Self::make_move_on_board(&mut self.board, &move_to_make);
+        self.make_move_on_board(&move_to_make);
 
         self.update_meta_data(&move_to_make);
 

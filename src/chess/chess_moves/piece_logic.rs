@@ -1,4 +1,12 @@
 use crate::chess::chess_moves::MoveDirection;
+use crate::chess::PieceType;
+
+pub const PROMOTION_PIECES: [PieceType; 4] = [
+    PieceType::Bishop,
+    PieceType::Rook,
+    PieceType::Queen,
+    PieceType::Knight,
+];
 
 pub const WHITE_PAWN_DIRECTION: MoveDirection = MoveDirection { dx: 0, dy: 1 };
 

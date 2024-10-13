@@ -1,10 +1,12 @@
-use crate::chess::{ChessBoard, Color, MetaData, Move, Piece, PieceType};
+use crate::chess::{ChessBoard, Move, MoveMetaData, PieceType, Position};
 use std::io;
 use std::str::SplitWhitespace;
 
+use super::UserMove;
+
 enum Action {
     Quit,
-    MakeMove(Move),
+    MakeMove(UserMove),
     RunPerft(i64),
     Continue,
     PrintBoard,
@@ -35,12 +37,39 @@ impl UniversalChessInterface {
             match action {
                 Action::Quit => break,
 
-                Action::MakeMove(move_to_make) => match chess_board.make_move(move_to_make) {
-                    Ok(_) => {}
-                    Err(e) => {
-                        println!("{e}")
+                Action::MakeMove(parsed_move) => {
+                    let mut legal_move: Option<Move> = None;
+                    for chess_move in chess_board.legal_moves() {
+                        if parsed_move.promotion_piece.is_some() {
+                            if chess_move.start_pos == parsed_move.start_position
+                                && chess_move.end_pos == parsed_move.end_position
+                            {
+                                if parsed_move.promotion_piece
+                                    == chess_move.meta_data.promotion_piece
+                                {
+                                    legal_move = Some(chess_move);
+                                    break;
+                                }
+                            }
+                        } else {
+                            if chess_move.start_pos == parsed_move.start_position
+                                && chess_move.end_pos == parsed_move.end_position
+                            {
+                                legal_move == Some(chess_move);
+                                break;
+                            }
+                        }
                     }
-                },
+                    if let Some(move_to_make) = legal_move {
+                        match chess_board.make_move(move_to_make) {
+                            Ok(_) => {}
+                            Err(e) => {
+                                println!("{e}")
+                            }
+                        }
+                    } else {
+                    }
+                }
 
                 Action::Continue => {}
 
@@ -94,7 +123,7 @@ fn handle_args(mut args: SplitWhitespace) -> Action {
     }
 }
 
-fn parse_move_string(move_string: &str) -> Option<Move> {
+fn parse_move_string(move_string: &str) -> Option<UserMove> {
     let mut move_chars = move_string.chars();
 
     let start_column: usize = if let Some(char) = move_chars.next() {
@@ -136,20 +165,20 @@ fn parse_move_string(move_string: &str) -> Option<Move> {
     match move_chars.next() {
         Some(promotion_char) => {
             if let Some(piece) = char_move_promotion_to_piece(promotion_char) {
-                Some(Move {
-                    start_pos: (start_column, start_row),
-                    end_pos: (end_column, end_row),
-                    meta_data: MetaData::Promotion(Piece::new(Color::White, piece)),
+                Some(UserMove {
+                    start_position: (start_column, start_row),
+                    end_position: (end_column, end_row),
+                    promotion_piece: Some(piece),
                 })
             } else {
                 None
             }
         }
 
-        None => Some(Move {
-            start_pos: (start_column, start_row),
-            end_pos: (end_column, end_row),
-            meta_data: MetaData::Move,
+        None => Some(UserMove {
+            start_position: (start_column, start_row),
+            end_position: (end_column, end_row),
+            promotion_piece: None,
         }),
     }
 }

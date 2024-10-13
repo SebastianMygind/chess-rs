@@ -46,6 +46,7 @@ pub fn get_single_step_moves(
 pub fn get_multi_step_moves(
     chess_board: &ChessBoard,
     piece_position: &Position,
+    piece_type: PieceType,
     piece_color: &Color,
     directions: &[MoveDirection],
 ) -> Vec<Move> {
@@ -57,13 +58,27 @@ pub fn get_multi_step_moves(
         while direction.piece_can_travel(&chess_board.board, piece_color, &current_position) {
             current_position = direction.walk_from_position(current_position);
             let move_obstructed: bool;
-            let meta_data: MetaData =
-                if chess_board.board[current_position.1][current_position.0] == None {
-                    move_obstructed = false;
-                    MetaData::Move
-                } else {
+            let meta_data: MoveMetaData =
+                if let Some(piece) = chess_board.board[current_position.1][current_position.0] {
                     move_obstructed = true;
-                    MetaData::Capture
+                    MoveMetaData {
+                        piece_to_move: PieceType::Pawn,
+                        piece_to_capture: Some(piece.piece_type),
+                        promotion_piece: None,
+                        is_castling_move: false,
+                        generates_en_passant: false,
+                        is_en_passant_move: false,
+                    }
+                } else {
+                    move_obstructed = false;
+                    MoveMetaData {
+                        piece_to_move: piece_type,
+                        piece_to_capture: None,
+                        promotion_piece: None,
+                        is_castling_move: false,
+                        generates_en_passant: false,
+                        is_en_passant_move: false,
+                    }
                 };
 
             let current_move: Move = Move {

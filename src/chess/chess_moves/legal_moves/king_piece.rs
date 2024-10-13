@@ -9,7 +9,7 @@ use crate::chess::chess_moves::piece_logic::{
 use crate::chess::chess_moves::MoveDirection;
 use crate::chess::Color::{Black, White};
 use crate::chess::PieceType::{Bishop, King, Knight, Pawn, Queen, Rook};
-use crate::chess::{Board, ChessBoard, Color, MetaData, Move, Piece, Position};
+use crate::chess::{Board, ChessBoard, Color, Move, MoveMetaData, Piece, Position};
 
 pub fn get_king_moves(
     chess_board: &ChessBoard,
@@ -19,13 +19,10 @@ pub fn get_king_moves(
     let mut king_moves: Vec<Move> = get_single_step_moves(
         chess_board,
         piece_position,
+        King,
         friendly_color,
         KING_AND_QUEEN_DIRECTION.as_slice(),
     );
-
-    for king_move in &mut king_moves {
-        king_move.meta_data = MetaData::KingMove;
-    }
 
     let (kingside_castle_index, queenside_castle_index): (usize, usize) =
         if chess_board.white_is_side_to_move {
@@ -95,7 +92,14 @@ fn check_for_castling_move(
         Some(Move {
             start_pos: *current_position,
             end_pos: king_end_position,
-            meta_data: MetaData::Castling,
+            meta_data: MoveMetaData {
+                piece_to_move: King,
+                piece_to_capture: None,
+                promotion_piece: None,
+                is_castling_move: true,
+                generates_en_passant: false,
+                is_en_passant_move: false,
+            },
         })
     } else {
         rook_start_position = (current_position.0 - 4, current_position.1);
@@ -131,7 +135,14 @@ fn check_for_castling_move(
         Some(Move {
             start_pos: *current_position,
             end_pos: king_end_position,
-            meta_data: MetaData::Castling,
+            meta_data: MoveMetaData {
+                piece_to_move: King,
+                piece_to_capture: None,
+                promotion_piece: None,
+                is_castling_move: true,
+                generates_en_passant: false,
+                is_en_passant_move: false,
+            },
         })
     }
 }

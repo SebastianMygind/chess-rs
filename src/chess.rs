@@ -103,20 +103,7 @@ pub(crate) struct Move {
 // Implements chess functionality
 impl ChessBoard {
     pub fn new() -> ChessBoard {
-        let mut new_board: ChessBoard = ChessBoard {
-            board: [[None; COL_SIZE]; ROW_SIZE],
-            white_is_side_to_move: true,
-            castling_ability: [true; 4],
-            en_passant_target_square: None,
-            half_move_clock: 0,
-            full_move_counter: 0,
-            is_checked: false,
-            is_checkmate: false,
-            is_stalemate: false,
-        };
-
-        new_board
-            .set_fen_position_arr(FEN_START_POSITION)
+        let new_board: ChessBoard = ChessBoard::new_from_fen(FEN_START_POSITION)
             .expect("ERROR: FEN starting position does not parse correctly!");
 
         new_board

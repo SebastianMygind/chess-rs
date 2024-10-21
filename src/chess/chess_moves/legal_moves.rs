@@ -14,7 +14,7 @@ use crate::chess::chess_moves::legal_moves::pawn_piece::get_pawn_moves;
 use crate::chess::chess_moves::legal_moves::queen_piece::get_queen_moves;
 use crate::chess::chess_moves::legal_moves::rook_piece::get_rook_moves;
 use crate::chess::PieceType::{Bishop, King, Knight, Pawn, Queen, Rook};
-use crate::chess::{Board, ChessBoard, Color, Move, Piece, PieceType, Position};
+use crate::chess::{ChessBoard, Color, Move, Piece, PieceType, Position};
 
 impl ChessBoard {
     pub fn legal_moves(&self) -> Vec<Move> {
@@ -148,7 +148,7 @@ impl ChessBoard {
                 self.board[move_to_make.start_pos.1][move_to_make.start_pos.0];
 
             self.board[move_to_make.start_pos.1][move_to_make.start_pos.0] = None;
-            self.board[target_square.1][target_square.0] == None;
+            self.board[target_square.1][target_square.0] = None;
         } else if let Some(promotion_piece_type) = move_to_make.meta_data.promotion_piece {
             let promotion_piece = if self.white_is_side_to_move {
                 Piece::new(Color::White, promotion_piece_type)

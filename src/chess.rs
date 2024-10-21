@@ -55,12 +55,6 @@ impl Piece {
 }
 
 #[derive(PartialEq, Copy, Clone, Debug)]
-pub enum CastlingType {
-    Kingside,
-    Queenside,
-}
-
-#[derive(PartialEq, Copy, Clone, Debug)]
 pub enum MoveResult {
     Normal,
     Check,
@@ -88,9 +82,9 @@ pub struct ChessBoard {
     en_passant_target_square: Option<Position>,
     half_move_clock: u64,
     full_move_counter: u64,
-    is_checked: bool,
-    is_checkmate: bool,
-    is_stalemate: bool,
+    //is_checked: bool,
+    //is_checkmate: bool,
+    //is_stalemate: bool,
 }
 
 #[derive(PartialEq, Copy, Clone, Debug)]
@@ -117,9 +111,9 @@ impl ChessBoard {
             en_passant_target_square: None,
             half_move_clock: 0,
             full_move_counter: 0,
-            is_checked: false,
-            is_checkmate: false,
-            is_stalemate: false,
+            //is_checked: false,
+            //is_checkmate: false,
+            //is_stalemate: false,
         };
 
         match new_board.set_fen_position_arr(fen) {

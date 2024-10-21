@@ -1,4 +1,4 @@
-use crate::chess::{ChessBoard, Move, MoveMetaData, PieceType, Position};
+use crate::chess::{ChessBoard, Move, PieceType};
 use std::io;
 use std::str::SplitWhitespace;
 
@@ -55,7 +55,7 @@ impl UniversalChessInterface {
                             if chess_move.start_pos == parsed_move.start_position
                                 && chess_move.end_pos == parsed_move.end_position
                             {
-                                legal_move == Some(chess_move);
+                                legal_move = Some(chess_move);
                                 break;
                             }
                         }
@@ -112,7 +112,7 @@ fn handle_args(mut args: SplitWhitespace) -> Action {
                     return Action::MakeMove(move_to_make);
                 }
             }
-            println!("Invalid move string provided  after argument: move");
+            println!("Invalid move string provided after argument: move");
             Action::Continue
         }
 
@@ -185,14 +185,14 @@ fn parse_move_string(move_string: &str) -> Option<UserMove> {
 
 fn char_move_file_to_usize(char: char) -> Option<usize> {
     match char {
-        'a' => Some(1),
-        'b' => Some(2),
-        'c' => Some(3),
-        'd' => Some(4),
-        'e' => Some(5),
-        'f' => Some(6),
-        'g' => Some(7),
-        'h' => Some(8),
+        'a' => Some(0),
+        'b' => Some(1),
+        'c' => Some(2),
+        'd' => Some(3),
+        'e' => Some(4),
+        'f' => Some(5),
+        'g' => Some(6),
+        'h' => Some(7),
         _ => {
             println!("Invalid file, expected a-h, got: {char}");
             None
@@ -202,14 +202,14 @@ fn char_move_file_to_usize(char: char) -> Option<usize> {
 
 fn char_move_rank_to_usize(char: char) -> Option<usize> {
     match char {
-        '1' => Some(1),
-        '2' => Some(2),
-        '3' => Some(3),
-        '4' => Some(4),
-        '5' => Some(5),
-        '6' => Some(6),
-        '7' => Some(7),
-        '8' => Some(8),
+        '1' => Some(0),
+        '2' => Some(1),
+        '3' => Some(2),
+        '4' => Some(3),
+        '5' => Some(4),
+        '6' => Some(5),
+        '7' => Some(6),
+        '8' => Some(7),
         _ => None,
     }
 }

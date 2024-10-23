@@ -1,15 +1,15 @@
-use crate::chess::chess_moves::legal_moves::generic_piece::{
+use crate::array_engine::chess_moves::legal_moves::generic_piece::{
     check_multi_step_for_piece_exists, check_single_step_for_piece_exists, get_single_step_moves,
 };
 
-use crate::chess::chess_moves::piece_logic::{
+use crate::array_engine::chess_moves::piece_logic::{
     BISHOP_DIRECTION, BLACK_PAWN_ATTACK_DIRECTION, KING_AND_QUEEN_DIRECTION, KNIGHT_DIRECTION,
     ROOK_DIRECTION, WHITE_PAWN_ATTACK_DIRECTION,
 };
-use crate::chess::chess_moves::MoveDirection;
-use crate::chess::Color::{Black, White};
-use crate::chess::PieceType::{Bishop, King, Knight, Pawn, Queen, Rook};
-use crate::chess::{Board, ChessBoard, Color, Move, MoveMetaData, Piece, Position};
+use crate::array_engine::chess_moves::MoveDirection;
+use crate::array_engine::Color::{Black, White};
+use crate::array_engine::PieceType::{Bishop, King, Knight, Pawn, Queen, Rook};
+use crate::array_engine::{Board, ChessBoard, Color, Move, MoveMetaData, Piece, Position};
 
 pub fn get_king_moves(
     chess_board: &ChessBoard,

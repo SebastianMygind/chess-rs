@@ -1,6 +1,6 @@
-use crate::chess::chess_moves::legal_moves::generic_piece::get_multi_step_moves;
-use crate::chess::chess_moves::piece_logic::KING_AND_QUEEN_DIRECTION;
-use crate::chess::{ChessBoard, Color, Move, PieceType, Position};
+use crate::array_engine::chess_moves::legal_moves::generic_piece::get_multi_step_moves;
+use crate::array_engine::chess_moves::piece_logic::KING_AND_QUEEN_DIRECTION;
+use crate::array_engine::{ChessBoard, Color, Move, PieceType, Position};
 
 pub fn get_queen_moves(
     chess_board: &ChessBoard,

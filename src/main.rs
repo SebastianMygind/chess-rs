@@ -1,9 +1,6 @@
-mod chess;
-mod ui;
-
 use std::env;
-use ui::gui::ChessApplication;
-use ui::uci::UniversalChessInterface;
+use unified_chess_gui::cli::UniversalChessInterface;
+use unified_chess_gui::ChessApplication;
 
 /** Given no arguments the application will run*/
 fn main() {
@@ -19,11 +16,10 @@ fn main() {
             }
         }
     } else {
-        iced::run(
-            ChessApplication::title,
-            ChessApplication::update,
-            ChessApplication::view,
-        )
-        .expect("Error from iced.");
+        let mut application: ChessApplication = ChessApplication {
+            game_instance: None,
+        };
+
+        application.run().expect("Error from iced.");
     }
 }

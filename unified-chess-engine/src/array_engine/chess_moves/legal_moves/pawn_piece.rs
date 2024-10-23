@@ -1,10 +1,10 @@
-use crate::chess::chess_moves::piece_logic::{
+use crate::array_engine::chess_moves::piece_logic::{
     BLACK_PAWN_ATTACK_DIRECTION, BLACK_PAWN_DIRECTION, PROMOTION_PIECES,
     WHITE_PAWN_ATTACK_DIRECTION, WHITE_PAWN_DIRECTION,
 };
-use crate::chess::chess_moves::MoveDirection;
-use crate::chess::Color::White;
-use crate::chess::{Board, ChessBoard, Color, Move, MoveMetaData, PieceType, Position};
+use crate::array_engine::chess_moves::MoveDirection;
+use crate::array_engine::Color::White;
+use crate::array_engine::{Board, ChessBoard, Color, Move, MoveMetaData, PieceType, Position};
 
 pub fn get_pawn_moves(
     chess_board: &ChessBoard,

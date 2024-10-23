@@ -1,7 +1,18 @@
-use crate::chess::ChessBoard;
+pub mod cli;
+
+use iced;
+use iced::application::Update;
 use iced::widget::{container, row, text};
 use iced::Element;
+use iced::Result;
 use iced::Theme;
+use unified_chess_engine::array_engine::{ChessBoard, Piece, PieceType, Position};
+
+struct UserMove {
+    start_position: Position,
+    end_position: Position,
+    promotion_piece: Option<PieceType>,
+}
 
 enum ColoredPieces {
     WKing,
@@ -20,10 +31,10 @@ enum ColoredPieces {
 
 #[derive(Default)]
 pub struct ChessApplication {
-    game_instance: Option<GameState>,
+    pub game_instance: Option<GameState>,
 }
 
-struct GameState {
+pub struct GameState {
     selected_square: Option<Coordinate>,
     chess_board: ChessBoard,
 }
@@ -49,11 +60,14 @@ pub enum Message {
 }
 
 impl ChessApplication {
-    pub fn title(&self) -> String {
+    pub fn run(&mut self) -> Result {
+        iced::run(Self::title, Self::update, Self::view)
+    }
+    fn title(&self) -> String {
         String::from("Chess-rs")
     }
 
-    pub fn update(&mut self, message: Message) {
+    fn update(&mut self, message: Message) {
         match message {
             Message::StartNewGame => {}
 
@@ -65,7 +79,7 @@ impl ChessApplication {
         }
     }
 
-    pub fn view(&self) -> Element<'_, Message> {
+    fn view(&self) -> Element<'_, Message> {
         container(row![
             text("This should be left"),
             text("This should be right")
@@ -73,7 +87,7 @@ impl ChessApplication {
         .padding(20)
         .into()
     }
-    pub fn theme(&self) -> Theme {
+    fn theme(&self) -> Theme {
         Theme::Dark
     }
 }

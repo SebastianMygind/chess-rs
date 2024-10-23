@@ -1,5 +1,7 @@
-use crate::chess::chess_moves::MoveDirection;
-use crate::chess::{Board, ChessBoard, Color, Move, MoveMetaData, Piece, PieceType, Position};
+use crate::array_engine::chess_moves::MoveDirection;
+use crate::array_engine::{
+    Board, ChessBoard, Color, Move, MoveMetaData, Piece, PieceType, Position,
+};
 
 pub fn get_single_step_moves(
     chess_board: &ChessBoard,

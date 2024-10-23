@@ -1,8 +1,7 @@
-use crate::chess::{ChessBoard, Move, PieceType};
+use crate::UserMove;
 use std::io;
 use std::str::SplitWhitespace;
-
-use super::UserMove;
+use unified_chess_engine::array_engine::{ChessBoard, Move, Piece, PieceType, Position};
 
 enum Action {
     Quit,

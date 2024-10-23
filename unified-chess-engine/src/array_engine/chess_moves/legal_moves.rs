@@ -6,15 +6,15 @@ mod pawn_piece;
 mod queen_piece;
 mod rook_piece;
 
-use crate::chess::chess_moves::legal_moves::bishop_piece::get_bishop_moves;
-use crate::chess::chess_moves::legal_moves::generic_piece::find_first_matching_chess_piece;
-use crate::chess::chess_moves::legal_moves::king_piece::{get_king_moves, king_is_checked};
-use crate::chess::chess_moves::legal_moves::knight_piece::get_knight_moves;
-use crate::chess::chess_moves::legal_moves::pawn_piece::get_pawn_moves;
-use crate::chess::chess_moves::legal_moves::queen_piece::get_queen_moves;
-use crate::chess::chess_moves::legal_moves::rook_piece::get_rook_moves;
-use crate::chess::PieceType::{Bishop, King, Knight, Pawn, Queen, Rook};
-use crate::chess::{ChessBoard, Color, Move, Piece, PieceType, Position};
+use crate::array_engine::chess_moves::legal_moves::bishop_piece::get_bishop_moves;
+use crate::array_engine::chess_moves::legal_moves::generic_piece::find_first_matching_chess_piece;
+use crate::array_engine::chess_moves::legal_moves::king_piece::{get_king_moves, king_is_checked};
+use crate::array_engine::chess_moves::legal_moves::knight_piece::get_knight_moves;
+use crate::array_engine::chess_moves::legal_moves::pawn_piece::get_pawn_moves;
+use crate::array_engine::chess_moves::legal_moves::queen_piece::get_queen_moves;
+use crate::array_engine::chess_moves::legal_moves::rook_piece::get_rook_moves;
+use crate::array_engine::PieceType::{Bishop, King, Knight, Pawn, Queen, Rook};
+use crate::array_engine::{ChessBoard, Color, Move, Piece, PieceType, Position};
 
 impl ChessBoard {
     pub fn legal_moves(&self) -> Vec<Move> {

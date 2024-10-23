@@ -1,5 +1,5 @@
-use crate::chess::chess_moves::MoveDirection;
-use crate::chess::PieceType;
+use crate::array_engine::chess_moves::MoveDirection;
+use crate::array_engine::PieceType;
 
 pub const PROMOTION_PIECES: [PieceType; 4] = [
     PieceType::Bishop,

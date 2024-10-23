@@ -1,4 +1,4 @@
-use crate::chess::Move;
+use crate::array_engine::Move;
 use std::{error, fmt};
 
 #[derive(Debug, Clone)]

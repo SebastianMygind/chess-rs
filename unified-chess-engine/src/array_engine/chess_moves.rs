@@ -5,8 +5,8 @@ mod legal_moves;
 pub mod meta_data;
 mod piece_logic;
 
-use crate::chess::chess_errors::IllegalMove;
-use crate::chess::{Board, ChessBoard, Color, Move, Position};
+use crate::array_engine::chess_errors::IllegalMove;
+use crate::array_engine::{Board, ChessBoard, Color, Move, Position};
 
 impl ChessBoard {
     pub fn make_move(&mut self, move_to_make: Move) -> Result<Move, IllegalMove> {

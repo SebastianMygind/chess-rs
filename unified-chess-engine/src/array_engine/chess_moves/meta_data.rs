@@ -1,5 +1,5 @@
 /* This module has functions for updating metadata for a Chessboard struct */
-use crate::chess::{ChessBoard, Move, PieceType, Position};
+use crate::array_engine::{ChessBoard, Move, PieceType, Position};
 
 impl ChessBoard {
     pub fn update_meta_data(&mut self, move_to_make: &Move) {

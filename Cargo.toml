@@ -1,11 +1,19 @@
 [package]
-name = "chess"
+name = "unified-chess"
 description = "A chess game implemented using iced for the GUI."
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[workspace]
+members = [
+    "unified-chess-engine",
+    "unified-chess-gui",
+    "unified-chess-server"
+]
+
 [dependencies]
-iced = { version = "0.13.1", features = ["svg"] }
-tokio = "1.40.0"
+unified-chess-engine = {path = "./unified-chess-engine"}
+unified-chess-gui = {path = "./unified-chess-gui"}
+unified-chess-server = {path = "./unified-chess-server"}

@@ -1,7 +1,7 @@
 use std::fmt;
 
-use crate::chess::PieceType::{Bishop, King, Knight, Pawn, Queen, Rook};
-use crate::chess::{Board, ChessBoard, Color, Move, Square};
+use crate::array_engine::PieceType::{Bishop, King, Knight, Pawn, Queen, Rook};
+use crate::array_engine::{Board, ChessBoard, Color, Move, Square};
 
 const T_LINE: &str = "┌—————┬—————┬—————┬—————┬—————┬—————┬—————┬—————┐\n";
 const H_LINE: &str = "|—————|—————|—————|—————|—————|—————|—————|—————|\n";

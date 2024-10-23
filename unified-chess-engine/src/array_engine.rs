@@ -1,11 +1,7 @@
-/* Sub-module for FEN helper functions */
-
-use crate::chess::fen::{
+use crate::fen::{
     is_fen_valid, parse_fen_castling_ability, parse_fen_epawn, parse_fen_full_move_counter,
     parse_fen_half_move_clock, parse_fen_piece_placement, parse_fen_side_to_move, split_at_space,
 };
-
-pub mod fen;
 
 /* Module that allows printing a chessboard to the CLI */
 mod chess_display;
@@ -13,15 +9,15 @@ pub mod chess_errors;
 pub mod chess_moves;
 pub(crate) mod perft;
 
+use crate::fen::FEN_START_POSITION;
 use chess_errors::InvalidFen;
-use fen::FEN_START_POSITION;
 
 pub const ROW_SIZE: usize = 8;
 pub const COL_SIZE: usize = 8;
 
-type Board = [[Square; COL_SIZE]; ROW_SIZE];
+pub(crate) type Board = [[Square; COL_SIZE]; ROW_SIZE];
 pub type Position = (usize, usize);
-type Square = Option<Piece>;
+pub(crate) type Square = Option<Piece>;
 
 /** Defines different chess piece types. */
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -88,7 +84,7 @@ pub struct ChessBoard {
 }
 
 #[derive(PartialEq, Copy, Clone, Debug)]
-pub(crate) struct Move {
+pub struct Move {
     pub start_pos: Position,
     pub end_pos: Position,
     pub meta_data: MoveMetaData,

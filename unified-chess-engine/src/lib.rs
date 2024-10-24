@@ -1,18 +1,29 @@
+use crate::array_engine::Square;
+
 pub mod array_engine;
 mod bitboard_engine;
 mod fen;
 
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
+pub struct Position {
+    x: u8, // Position file.
+    y: u8, // Position rank.
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+pub struct Move {
+    
+}
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
+pub struct MoveError {
+    
+}
+
+struct ArrayBoard {
+    board: [[Square; 8]; 8],
+}
+
+
+trait ChessEngine {
+    fn get_legal_moves<T>() -> Vec<Move>;
+    fn perft(depth: i64) -> Vec<(String, i64)>;
+    fn make_move(legal_moves: Move) -> Result<Move,MoveError>;
 }
